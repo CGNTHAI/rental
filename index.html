@@ -130,6 +130,11 @@ button{cursor:pointer}
 .hrow .l2{font-size:13px;color:var(--muted);margin-top:2px}
 .hrow .l3{font-size:13px;margin-top:4px}
 .issue{color:var(--bad)}
+.grp{cursor:pointer;display:flex;gap:10px;align-items:center}
+.grp .gmain{flex:1;min-width:0}
+.grp .chev{color:var(--muted);font-size:18px;flex:none}
+.cnt{display:inline-block;background:var(--sunk);border-radius:999px;padding:0 8px;font-size:12px;font-weight:600;color:var(--ink)}
+.open{color:var(--warn);font-weight:600}
 
 
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -232,7 +237,7 @@ ko:{title:"CGN 장비 대여",sub:"태국 CGN · 카메라·렌즈·조명·마�
  returnAll:"전체 반납",returnOne:"반납",noOut:"지금 대여 중인 장비가 없어요.",
  outSince:d=>`${d} 대여`,
  histSearch:"대여자, 프로그램, 장비 검색",noHist:"아직 대여 기록이 없어요.",inUse:"사용 중",
- outPhoto:"대여 사진",retPhoto:"반납 사진",
+ outPhoto:"대여 사진",retPhoto:"반납 사진",itemsN:n=>`장비 ${n}개`,allBack:d=>`${d} 반납`,partBack:(a,b)=>`${b}개 중 ${a}개 반납`,rentedItems:"대여한 장비",
  model:"모델",serial:"시리얼",code:"관리번호",category:"품목",status:"상태",
  current:"현재 대여",recent:"최근 대여 이력",
  markRepair:"수리 중으로 표시",repairDone:"수리 완료 · 대여 가능으로",markRetired:"불용 처리",restore:"다시 사용",
@@ -262,7 +267,7 @@ th:{title:"ยืม-คืนอุปกรณ์ CGN",sub:"CGN ประเ�
  returnAll:"คืนทั้งหมด",returnOne:"คืน",noOut:"ตอนนี้ไม่มีอุปกรณ์ที่ถูกยืมครับ",
  outSince:d=>`ยืม ${d}`,
  histSearch:"ค้นหาผู้ยืม รายการ หรืออุปกรณ์",noHist:"ยังไม่มีประวัติการยืมครับ",inUse:"ยังไม่คืน",
- outPhoto:"รูปตอนยืม",retPhoto:"รูปตอนคืน",
+ outPhoto:"รูปตอนยืม",retPhoto:"รูปตอนคืน",itemsN:n=>`อุปกรณ์ ${n} รายการ`,allBack:d=>`คืน ${d}`,partBack:(a,b)=>`คืนแล้ว ${a} จาก ${b} รายการ`,rentedItems:"อุปกรณ์ที่ยืม",
  model:"รุ่น",serial:"ซีเรียล",code:"รหัสอุปกรณ์",category:"ประเภท",status:"สถานะ",
  current:"การยืมปัจจุบัน",recent:"ประวัติการยืมล่าสุด",
  markRepair:"ตั้งเป็นซ่อม",repairDone:"ซ่อมเสร็จ · พร้อมให้ยืม",markRetired:"ตั้งเป็นเลิกใช้",restore:"กลับมาใช้งาน",
@@ -565,22 +570,39 @@ function renderHist(v){
     v.dataset.hshell=key;
     v.innerHTML=`<div class="tools" style="margin-top:14px"><input class="search" id="hq" type="search" placeholder="${esc(t("histSearch"))}"></div><div class="list" style="margin-top:12px" id="hList"></div>`;
     const qi=$("#hq");qi.value=ui.hq;qi.addEventListener("input",()=>{ui.hq=qi.value;paintHist()});
-    $("#hList").addEventListener("click",ev=>{const b=ev.target.closest("[data-ph]");if(b)showPhoto(b.dataset.ph)});
+    $("#hList").addEventListener("click",ev=>{const g=ev.target.closest("[data-g]");if(g)openBatch(g.dataset.g)});
+    $("#hList").addEventListener("keydown",ev=>{const g=ev.target.closest&&ev.target.closest("[data-g]");if(g&&(ev.key==="Enter"||ev.key===" ")){ev.preventDefault();openBatch(g.dataset.g)}});
   }
   paintHist();
 }
+let histGroups=new Map();
+function groupLoans(list){const m=new Map();list.forEach(l=>{const k=l.batch||l.id;if(!m.has(k))m.set(k,[]);m.get(k).push(l)});return m}
 function paintHist(){
   const q=ui.hq.trim().toLowerCase();
-  const list=loans.filter(l=>!q||[l.borrower,l.program,l.eqName,l.eqNameTh,l.code,l.model].join(" ").toLowerCase().includes(q));
+  histGroups=groupLoans(loans);
+  const groups=[...histGroups.entries()].filter(([k,items])=>!q||items.some(l=>[l.borrower,l.program,l.eqName,l.eqNameTh,l.code,l.model].join(" ").toLowerCase().includes(q)));
   let h="";
-  if(!list.length)h=`<div class="empty">${esc(loansReady?t("noHist"):t("loading"))}</div>`;
-  h+=list.slice(0,300).map(l=>`<div class="hrow"><div class="l1"><b>${esc(lnm(l))} ${l.code?tags(l.code):""}</b><span class="d">${esc(fD(l.outAt))} → ${l.returnedAt?esc(fD(l.returnedAt)):`<span style="color:var(--warn)">${esc(t("inUse"))}</span>`}</span></div>
-   <div class="l2">${esc(l.borrower)} · ${esc(l.program)}</div>
-   ${l.outNote?`<div class="l3">${esc(l.outNote)}</div>`:""}
-   ${l.condition==="issue"?`<div class="l3 issue">${esc(t("condIssue"))}${l.returnNote?": "+esc(l.returnNote):""}</div>`:(l.returnNote?`<div class="l3">${esc(l.returnNote)}</div>`:"")}
-   ${(l.outPhoto||l.returnPhoto)?`<div>${l.outPhoto?`<button class="linkbtn" type="button" data-ph="${esc(l.outPhoto)}">${esc(t("outPhoto"))}</button> `:""}${l.returnPhoto?`<button class="linkbtn" type="button" data-ph="${esc(l.returnPhoto)}">${esc(t("retPhoto"))}</button>`:""}</div>`:""}
-  </div>`).join("");
+  if(!groups.length)h=`<div class="empty">${esc(loansReady?t("noHist"):t("loading"))}</div>`;
+  h+=groups.slice(0,300).map(([k,items])=>{const L=items[0];const back=items.filter(l=>l.returnedAt);const open=back.length<items.length;
+    const last=back.map(l=>l.returnedAt).sort().pop();const issue=items.some(l=>l.condition==="issue");
+    const end=open?(back.length?`<span class="open">${esc(t("partBack",back.length,items.length))}</span>`:`<span class="open">${esc(t("inUse"))}</span>`):esc(fD(last));
+    return `<div class="hrow grp" data-g="${esc(k)}" role="button" tabindex="0"><div class="gmain"><div class="l1"><b>${esc(L.program)}</b><span class="d">${esc(fD(L.outAt))} → ${end}</span></div>
+   <div class="l2">${esc(L.borrower)} · <span class="cnt">${esc(t("itemsN",items.length))}</span>${issue?` · <span class="issue">${esc(t("condIssue"))}</span>`:""}</div></div><span class="chev" aria-hidden="true">›</span></div>`}).join("");
   $("#hList").innerHTML=h;
+}
+function openBatch(k){const items=histGroups.get(k);if(!items||!items.length)return;const L=items[0];
+  const photos=[];const seen=new Set();const addP=(id,label)=>{if(id&&!seen.has(id)){seen.add(id);photos.push([id,label])}};
+  items.forEach(l=>{addP(l.outPhoto,t("outPhoto"));addP(l.returnPhoto,t("retPhoto"))});
+  const notes=[...new Set(items.map(l=>l.outNote).filter(Boolean))];
+  const h=`<h2>${esc(L.program)}</h2><p class="lead">${esc(L.borrower)} · ${esc(t("outSince",fD(L.outAt)))} · ${esc(t("dueDate"))} ${esc(fD(L.due))}</p>
+  ${notes.length?`<p class="lead">${notes.map(esc).join("<br>")}</p>`:""}
+  <div class="sec">${esc(t("rentedItems"))} · ${items.length}</div>
+  <ul class="chosen">${items.map(l=>`<li><div class="grow"><b>${esc(lnm(l))}</b><div class="sub">${l.code?tags(l.code):""}<span>${esc(l.model||"")}</span></div>
+    ${l.condition==="issue"?`<div class="sub issue">${esc(t("condIssue"))}${l.returnNote?": "+esc(l.returnNote):""}</div>`:(l.returnNote?`<div class="sub">${esc(l.returnNote)}</div>`:"")}</div>
+    <span class="d" style="font-size:12.5px;white-space:nowrap">${l.returnedAt?esc(t("allBack",fD(l.returnedAt))):`<span class="open">${esc(t("inUse"))}</span>`}</span></li>`).join("")}</ul>
+  ${photos.length?`<div class="actions-row" style="margin-bottom:10px">${photos.map(([id,lb])=>`<button class="btn" type="button" data-ph="${esc(id)}">${esc(lb)}</button>`).join("")}</div>`:""}
+  <div class="actions"><button class="btn block" id="bClose" type="button">${esc(t("close"))}</button></div>`;
+  openSheet(h,root=>{root.querySelector("#bClose").addEventListener("click",closeSheet);root.querySelectorAll("[data-ph]").forEach(b=>b.addEventListener("click",()=>showPhoto(b.dataset.ph)))});
 }
 
 
