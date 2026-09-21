@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CGN 장비 대여</title>
+<meta name="theme-color" content="#F1F2EF" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111418" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="CGN 장비">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#F1F2EF; --surface:#FFFFFF; --sunk:#E7E9E5; --ink:#1A1E23; --muted:#5D6570; --line:#D9DCD6;
+  --accent:#2A4FA3; --accent-ink:#FFFFFF; --accent-soft:#E3E9F7;
+  --ok:#1E7B4F; --ok-soft:#DDF0E5; --warn:#A45F00; --warn-soft:#FBEBD2;
+  --bad:#BD3528; --bad-soft:#F9E0DC; --idle:#666E78; --idle-soft:#E6E7E9;
+  --shadow:0 10px 30px rgba(20,24,30,.14);
+  --font:"IBM Plex Sans KR","IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#111418; --surface:#1A1E23; --sunk:#23282E; --ink:#E7E9EC; --muted:#9AA3AD; --line:#2E343B;
+    --accent:#86A3EC; --accent-ink:#0E1420; --accent-soft:#1F2A44;
+    --ok:#4FC48C; --ok-soft:#173226; --warn:#F0A63E; --warn-soft:#3A2A12;
+    --bad:#F2766A; --bad-soft:#3D1D1A; --idle:#A0A7B0; --idle-soft:#2A2F35;
+    --shadow:0 10px 30px rgba(0,0,0,.5); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111418; --surface:#1A1E23; --sunk:#23282E; --ink:#E7E9EC; --muted:#9AA3AD; --line:#2E343B;
+  --accent:#86A3EC; --accent-ink:#0E1420; --accent-soft:#1F2A44;
+  --ok:#4FC48C; --ok-soft:#173226; --warn:#F0A63E; --warn-soft:#3A2A12;
+  --bad:#F2766A; --bad-soft:#3D1D1A; --idle:#A0A7B0; --idle-soft:#2A2F35;
+  --shadow:0 10px 30px rgba(0,0,0,.5); color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:0 110px}
+
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px 10px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--line);margin-inline:-16px;padding-inline:16px}
+.brand{flex:1;min-width:0}
+.brand h1{margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em;text-wrap:balance}
+.brand p{margin:0;font-size:12px;color:var(--muted)}
+.lang{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;white-space:nowrap}
+
+
+.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.sum{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:9px 10px;text-align:left;display:flex;flex-direction:column;gap:2px}
+.sum b{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.1}
+.sum span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sum[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.sum.k-available b{color:var(--ok)} .sum.k-out b{color:var(--warn)} .sum.k-overdue b{color:var(--bad)}
+
+.tools{display:flex;gap:8px;margin-top:12px}
+.search{flex:1;min-width:0;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 12px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:9px 14px;font-weight:600;white-space:nowrap}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.danger{color:var(--bad)}
+.btn.block{width:100%;padding:13px}
+.btn:disabled{opacity:.5;cursor:default}
+.chipbar{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr,58px));z-index:4;background:var(--bg);margin-inline:-16px;padding:10px 16px 8px;border-bottom:1px solid transparent}
+.chipbar.stuck{border-bottom-color:var(--line)}
+.chips{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;scrollbar-width:none;scroll-padding-inline:16px}
+.totop{position:fixed;right:16px;z-index:8;bottom:calc(78px + env(safe-area-inset-bottom,0px));width:46px;height:46px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);box-shadow:var(--shadow);display:grid;place-items:center;padding:0}
+.totop.lift{bottom:calc(142px + env(safe-area-inset-bottom,0px))}
+.totop svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.chips::-webkit-scrollbar{display:none}
+.chip{border:1px solid var(--line);background:transparent;border-radius:999px;padding:6px 12px;font-size:13px;white-space:nowrap;color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip small{opacity:.7;margin-left:4px;font-variant-numeric:tabular-nums}
+
+
+.group{margin-top:18px}
+.group h2{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.06em;margin:0 0 6px;text-transform:uppercase}
+.list{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.row{display:flex;align-items:center;gap:10px;padding:11px 12px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.row .main{flex:1;min-width:0;cursor:pointer}
+.nm{font-weight:600;font-size:15px}
+.sub{font-size:12.5px;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:2px}
+.who{font-size:12.5px;margin-top:3px;color:var(--warn)}
+.s-overdue .who{color:var(--bad);font-weight:600}
+.s-retired .main{opacity:.5}
+.tag{font-family:var(--mono);font-size:11.5px;border:1px solid var(--muted);border-radius:4px;padding:0 5px;color:var(--ink);letter-spacing:.02em;white-space:nowrap}
+.pick{width:26px;height:26px;flex:none;border:2px solid var(--line);border-radius:7px;background:transparent;display:grid;place-items:center;padding:0}
+.pick[aria-pressed="true"]{background:var(--accent);border-color:var(--accent)}
+.pick svg{width:14px;height:14px;stroke:var(--accent-ink);stroke-width:3;fill:none;opacity:0}
+.pick[aria-pressed="true"] svg{opacity:1}
+.pick-ph{width:26px;flex:none}
+.pill{font-size:12px;font-weight:600;border-radius:999px;padding:3px 9px;white-space:nowrap;flex:none}
+.p-available{background:var(--ok-soft);color:var(--ok)}
+.p-out{background:var(--warn-soft);color:var(--warn)}
+.p-overdue{background:var(--bad-soft);color:var(--bad)}
+.p-repair,.p-retired{background:var(--idle-soft);color:var(--idle)}
+.empty{padding:28px 16px;text-align:center;color:var(--muted);font-size:14px}
+.banner{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--bad-soft);color:var(--bad);font-size:14px}
+
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:12px}
+.card.late{border-color:var(--bad)}
+.card h3{margin:0;font-size:16px}
+.meta{font-size:13px;color:var(--muted);margin-top:3px;display:flex;flex-wrap:wrap;gap:4px 12px}
+.meta .late{color:var(--bad);font-weight:600}
+.items{margin:10px 0 12px;padding:0;list-style:none;border-top:1px solid var(--line)}
+.items li{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.items li .grow{flex:1;min-width:0}
+.linkbtn{background:none;border:0;color:var(--accent);font-weight:600;padding:4px 2px;font-size:13px}
+
+
+.hrow{padding:12px;border-top:1px solid var(--line)}
+.hrow:first-child{border-top:0}
+.hrow .l1{display:flex;gap:8px;align-items:baseline;justify-content:space-between}
+.hrow .l1 b{font-weight:600}
+.hrow .d{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hrow .l2{font-size:13px;color:var(--muted);margin-top:2px}
+.hrow .l3{font-size:13px;margin-top:4px}
+.issue{color:var(--bad)}
+
+
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px)}
+.nav-in{display:grid;grid-template-columns:repeat(3,1fr);width:100%;max-width:760px}
+.nav button{background:none;border:0;padding:10px 4px 12px;font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;position:relative}
+.nav button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav button[aria-current="page"]{color:var(--accent);font-weight:600}
+.badge{position:absolute;top:6px;left:calc(50% + 6px);background:var(--bad);color:#fff;font-size:10.5px;font-weight:700;border-radius:999px;padding:0 5px;min-width:17px;line-height:17px}
+
+
+.selbar{position:fixed;left:0;right:0;z-index:7;bottom:calc(64px + env(safe-area-inset-bottom,0px));display:flex;justify-content:center;padding-inline:16px;pointer-events:none}
+.selbar-in{pointer-events:auto;width:100%;max-width:728px;background:var(--ink);color:var(--bg);border-radius:14px;padding:10px 10px 10px 16px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)}
+.selbar-in span{flex:1;font-weight:600}
+.selbar-in .clear{background:none;border:0;color:var(--bg);opacity:.75;font-size:13px}
+.selbar-in .go{background:var(--accent);color:var(--accent-ink);border:0;border-radius:10px;padding:9px 16px;font-weight:700}
+
+
+.sheet{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.scrim{position:absolute;inset:0;background:rgba(10,12,16,.45)}
+.panel{position:relative;background:var(--surface);width:100%;max-width:620px;max-height:92%;overflow-y:auto;border-radius:18px 18px 0 0;padding:8px 18px calc(22px + env(safe-area-inset-bottom,0px));box-shadow:var(--shadow)}
+@media (min-width:700px){.sheet{align-items:center}.panel{border-radius:18px;max-height:86%}}
+.grab{width:40px;height:4px;border-radius:4px;background:var(--line);margin:4px auto 12px}
+.panel h2{margin:0 0 4px;font-size:19px;text-wrap:balance}
+.panel .lead{color:var(--muted);font-size:13.5px;margin:0 0 14px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.field label,.flabel{font-size:13px;font-weight:600;color:var(--muted)}
+.field input,.field select,.field textarea{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px;width:100%}
+.field textarea{min-height:64px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.seg{display:flex;gap:8px}
+.seg label{flex:1;border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center;font-weight:600;cursor:pointer;color:var(--ink)}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg input:checked+span{color:var(--accent)}
+.seg label:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.photo-pick{display:flex;align-items:center;gap:10px}
+.photo-pick img{width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px;margin:4px 0 14px}
+.kv dt{color:var(--muted)} .kv dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.actions{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.actions-row{display:flex;gap:8px}
+.actions-row .btn{flex:1}
+.sec{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.06em;margin:18px 0 6px;text-transform:uppercase}
+.mini{font-size:13px;border-top:1px solid var(--line);padding:8px 0}
+.viewer img{width:100%;border-radius:10px;display:block}
+.chosen{list-style:none;margin:0 0 14px;padding:0;border:1px solid var(--line);border-radius:10px}
+.chosen li{display:flex;gap:8px;align-items:center;padding:8px 10px;border-top:1px solid var(--line);font-size:14px}
+.chosen li:first-child{border-top:0}
+.chosen li .grow{flex:1;min-width:0}
+.x{background:none;border:0;color:var(--muted);font-size:18px;line-height:1;padding:2px 6px}
+
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
+@media (prefers-reduced-motion:no-preference){.panel{animation:up .18s ease-out}@keyframes up{from{transform:translateY(24px);opacity:.6}}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><h1 id="appTitle">CGN 장비 대여</h1><p id="appSub"></p></div>
+    <button class="lang" id="langBtn" type="button"></button>
+  </header>
+  <div id="banner"></div>
+  <main id="view"></main>
+</div>
+
+<div class="selbar" id="selbar" hidden><div class="selbar-in"><span id="selCount"></span><button class="clear" id="selClear" type="button"></button><button class="go" id="selGo" type="button"></button></div></div>
+
+<nav class="nav"><div class="nav-in">
+  <button type="button" data-tab="equip"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="14" height="11" rx="2"/><path d="M17 10l4-2v9l-4-2"/><circle cx="10" cy="12.5" r="2.5"/></svg><span data-t="tabEquip"></span></button>
+  <button type="button" data-tab="out"><svg viewBox="0 0 24 24"><path d="M4 7h16v13H4z"/><path d="M9 7V4h6v3"/><path d="M4 12h16"/></svg><span data-t="tabOut"></span><i class="badge" id="outBadge" hidden></i></button>
+  <button type="button" data-tab="hist"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span data-t="tabHist"></span></button>
+</div></nav>
+
+<div class="sheet" id="sheet" hidden><div class="scrim" id="scrim"></div><div class="panel" role="dialog" aria-modal="true"><div class="grab"></div><div id="sheetBody"></div></div></div>
+<button class="totop" id="toTop" type="button" hidden><svg viewBox="0 0 24 24"><path d="M12 19V5"/><path d="M5.5 11.5L12 5l6.5 6.5"/></svg></button>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+const T={
+ko:{title:"CGN 장비 대여",sub:"태국 CGN · 카메라·렌즈·조명·마이크·배터리",switchTo:"ไทย",
+ tabEquip:"장비",tabOut:"대여 중",tabHist:"이력",
+ all:"전체",available:"대여 가능",out:"대여 중",overdue:"연체",repair:"수리 중",retired:"불용",
+ search:"장비명, 모델, 관리번호 검색",addEq:"장비 추가",
+ type_camera:"카메라",type_lens:"렌즈",type_filter:"필터",type_light:"조명",type_stand:"다리",type_mic:"마이크",type_battery:"배터리",toTop:"맨 위로",type_monitor:"모니터",type_etc:"기타",kind:"분류",
+ cat_cam:"촬영장비",cat_video:"영상장비",cat_audio:"음향장비",cat_light:"조명장비",cat_live:"중계장비",
+ selected:n=>`${n}개 선택됨`,clear:"선택 해제",rent:"대여하기",
+ noItems:"조건에 맞는 장비가 없어요.",loading:"불러오는 중…",
+ noDb:"서버에 연결할 수 없어요. 인터넷 연결을 확인하고 페이지를 새로고침해 주세요.",
+ dueOn:d=>`${d} 반납`,daysLate:n=>`${n}일 연체`,
+ checkoutTitle:"장비 대여",checkoutLead:"아래 장비를 대여 기록으로 남깁니다.",
+ borrower:"대여자",program:"촬영 프로그램명",outDate:"대여일",dueDate:"반납 예정일",note:"메모",photo:"사진",
+ addPhoto:"사진 찍기 / 선택",removePhoto:"사진 빼기",
+ notePh:"구성품, 상태 등",confirmRent:"대여 기록 저장",
+ needFields:"대여자, 프로그램명, 반납 예정일을 입력해 주세요.",
+ rented:n=>`${n}개 장비 대여를 기록했어요.`,skipped:n=>`${n}개는 이미 다른 사람이 대여 중이라 제외했어요.`,
+ returnTitle:"장비 반납",returnLead:n=>`${n}개 장비를 반납 처리합니다.`,condition:"장비 상태",condOk:"정상",condIssue:"이상 있음",
+ issueNote:"어떤 문제가 있나요? (이상 있음이면 수리 중으로 바뀝니다)",confirmReturn:"반납 완료",returned:n=>`${n}개 장비를 반납 처리했어요.`,
+ returnAll:"전체 반납",returnOne:"반납",noOut:"지금 대여 중인 장비가 없어요.",
+ outSince:d=>`${d} 대여`,
+ histSearch:"대여자, 프로그램, 장비 검색",noHist:"아직 대여 기록이 없어요.",inUse:"사용 중",
+ outPhoto:"대여 사진",retPhoto:"반납 사진",
+ model:"모델",serial:"시리얼",code:"관리번호",category:"품목",status:"상태",
+ current:"현재 대여",recent:"최근 대여 이력",
+ markRepair:"수리 중으로 표시",repairDone:"수리 완료 · 대여 가능으로",markRetired:"불용 처리",restore:"다시 사용",
+ edit:"정보 수정",save:"저장",cancel:"취소",close:"닫기",
+ nameKo:"장비명 (한국어)",nameTh:"장비명 (태국어)",
+ saved:"저장했어요.",failed:"저장하지 못했어요. 인터넷 연결을 확인하고 다시 시도해 주세요.",
+ photoFail:"사진을 처리하지 못했어요. 다른 사진으로 시도해 주세요.",
+ saving:"저장 중…",noteLbl:"비고"},
+th:{title:"ยืม-คืนอุปกรณ์ CGN",sub:"CGN ประเทศไทย · กล้อง·เลนส์·ไฟ·ไมค์·แบตเตอรี่",switchTo:"한국어",
+ tabEquip:"อุปกรณ์",tabOut:"กำลังยืม",tabHist:"ประวัติ",
+ all:"ทั้งหมด",available:"ว่าง",out:"กำลังยืม",overdue:"เกินกำหนด",repair:"ซ่อม",retired:"เลิกใช้",
+ search:"ค้นหาชื่อ รุ่น หรือรหัสอุปกรณ์",addEq:"เพิ่มอุปกรณ์",
+ type_camera:"กล้อง",type_lens:"เลนส์",type_filter:"ฟิลเตอร์",type_light:"ไฟ",type_stand:"ขาตั้ง",type_mic:"ไมค์",type_battery:"แบตเตอรี่",toTop:"กลับขึ้นด้านบน",type_monitor:"จอมอนิเตอร์",type_etc:"อื่นๆ",kind:"ชนิด",
+ cat_cam:"อุปกรณ์ถ่ายทำ",cat_video:"อุปกรณ์วิดีโอ",cat_audio:"อุปกรณ์เสียง",cat_light:"อุปกรณ์ไฟ",cat_live:"อุปกรณ์ถ่ายทอดสด",
+ selected:n=>`เลือกแล้ว ${n} รายการ`,clear:"ยกเลิก",rent:"ยืมอุปกรณ์",
+ noItems:"ไม่พบอุปกรณ์ที่ตรงกับเงื่อนไขครับ",loading:"กำลังโหลด…",
+ noDb:"ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ครับ กรุณาตรวจสอบอินเทอร์เน็ตแล้วรีเฟรชหน้าอีกครั้งครับ",
+ dueOn:d=>`คืน ${d}`,daysLate:n=>`เกินกำหนด ${n} วัน`,
+ checkoutTitle:"ยืมอุปกรณ์",checkoutLead:"บันทึกการยืมอุปกรณ์ต่อไปนี้ครับ",
+ borrower:"ผู้ยืม",program:"ชื่อรายการที่ถ่ายทำ",outDate:"วันที่ยืม",dueDate:"กำหนดคืน",note:"หมายเหตุ",photo:"รูปภาพ",
+ addPhoto:"ถ่ายรูป / เลือกรูป",removePhoto:"ลบรูป",
+ notePh:"อุปกรณ์เสริม สภาพ ฯลฯ",confirmRent:"บันทึกการยืม",
+ needFields:"กรุณากรอกผู้ยืม ชื่อรายการ และกำหนดคืนด้วยครับ",
+ rented:n=>`บันทึกการยืมอุปกรณ์ ${n} รายการแล้วครับ`,skipped:n=>`มี ${n} รายการที่ถูกยืมไปแล้ว จึงไม่ได้บันทึกครับ`,
+ returnTitle:"คืนอุปกรณ์",returnLead:n=>`คืนอุปกรณ์ ${n} รายการครับ`,condition:"สภาพอุปกรณ์",condOk:"ปกติ",condIssue:"มีปัญหา",
+ issueNote:"มีปัญหาอะไรครับ (ถ้ามีปัญหา สถานะจะเปลี่ยนเป็นซ่อม)",confirmReturn:"ยืนยันการคืน",returned:n=>`คืนอุปกรณ์ ${n} รายการแล้วครับ`,
+ returnAll:"คืนทั้งหมด",returnOne:"คืน",noOut:"ตอนนี้ไม่มีอุปกรณ์ที่ถูกยืมครับ",
+ outSince:d=>`ยืม ${d}`,
+ histSearch:"ค้นหาผู้ยืม รายการ หรืออุปกรณ์",noHist:"ยังไม่มีประวัติการยืมครับ",inUse:"ยังไม่คืน",
+ outPhoto:"รูปตอนยืม",retPhoto:"รูปตอนคืน",
+ model:"รุ่น",serial:"ซีเรียล",code:"รหัสอุปกรณ์",category:"ประเภท",status:"สถานะ",
+ current:"การยืมปัจจุบัน",recent:"ประวัติการยืมล่าสุด",
+ markRepair:"ตั้งเป็นซ่อม",repairDone:"ซ่อมเสร็จ · พร้อมให้ยืม",markRetired:"ตั้งเป็นเลิกใช้",restore:"กลับมาใช้งาน",
+ edit:"แก้ไขข้อมูล",save:"บันทึก",cancel:"ยกเลิก",close:"ปิด",
+ nameKo:"ชื่ออุปกรณ์ (เกาหลี)",nameTh:"ชื่ออุปกรณ์ (ไทย)",
+ saved:"บันทึกแล้วครับ",failed:"บันทึกไม่สำเร็จครับ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่อีกครั้งครับ",
+ photoFail:"ไม่สามารถใช้รูปนี้ได้ครับ กรุณาลองรูปอื่นครับ",
+ saving:"กำลังบันทึก…",noteLbl:"หมายเหตุ"}
+};
+const CATS=["cam","video","audio","light","live"];
+const TYPES=["camera","lens","filter","light","stand","mic","battery","etc"];
+const TYPE_BY_NAME={"배터리":"battery","케이지":"etc","케이스":"etc","가방":"etc","렌즈 필터":"filter","필터":"filter","트라이포드":"stand","모노포드":"stand","카메라":"camera","핸디캠":"camera","액션캠":"camera","렌즈":"lens","트라이포드":"stand","모노포드":"stand","조명 다리":"stand","마이크":"mic","로닌":"etc","레코더":"mic","LED":"light","전구":"light","Softbox":"light","Projection":"light","Fresnel":"light","Scrim":"light"};
+function typeOf(e){if(TYPES.includes(e.type))return e.type;const n=e.name||"";for(const k in TYPE_BY_NAME)if(n.includes(k))return TYPE_BY_NAME[k];return "etc"}
+const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+let lang=LS.get("lang")||"th";
+const t=(k,...a)=>{const v=T[lang][k];return typeof v==="function"?v(...a):(v??k)};
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+let ready=false, dbFailed=false;
+const API="https://script.google.com/macros/s/AKfycbyPMZRQMbppfG3VcS8V8JPjXesjHhgZs1LWmWZyzAGZcK_C5kzaDpEhROPdyR4aVH6F/exec";
+const api=(fn,...args)=>fetch(API,{method:"POST",credentials:"omit",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({fn,args})}).then(r=>{if(!r.ok)throw new Error("http "+r.status);return r.json()}).then(j=>{if(!j.ok)throw new Error(j.error||"error");return j.data});
+function normEq(r){return {...r,_id:r.id,no:Number(r.no)||0,loan:r.status==="out"&&r.loanId?{id:r.loanId,batch:r.batch,borrower:r.borrower,program:r.program,outAt:r.outAt,due:r.due}:null}}
+function normLoan(r){return {...r,_id:r.id,returnedAt:r.returnedAt||null,condition:r.condition||null,outPhoto:r.outPhoto||null,returnPhoto:r.returnPhoto||null}}
+function applyState(s){if(!s)return;eq.clear();(s.equipment||[]).forEach(r=>eq.set(r.id,normEq(r)));loans=(s.loans||[]).map(normLoan);ready=true;loansReady=true;dbFailed=false;if($("#sheet").hidden)render();else paintChrome()}
+let busy=false;function refresh(){if(busy)return;busy=true;api("getState").then(applyState).catch(()=>{if(!ready){dbFailed=true;ready=true;render()}}).finally(()=>busy=false)}
+const eq=new Map(); let loans=[]; let loansReady=false;
+const ui={tab:LS.get("tab")||"equip",cat:"all",filter:"all",q:"",hq:""};
+const selected=new Set();
+
+
+const pad=n=>String(n).padStart(2,"0");
+const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const today=()=>ymd(new Date());
+const parseYmd=s=>{const [y,m,d]=String(s).slice(0,10).split("-").map(Number);return new Date(y,m-1,d)};
+const loc=()=>lang==="th"?"th-TH":"ko-KR";
+const fD=v=>{if(!v)return"";const d=typeof v==="number"?new Date(v):parseYmd(v);return d.toLocaleDateString(loc(),{month:"short",day:"numeric"})};
+const lateDays=due=>Math.round((parseYmd(today())-parseYmd(due))/864e5);
+
+const nm=e=>lang==="th"?(e.nameTh||e.name):(e.name||e.nameTh);
+const lnm=l=>lang==="th"?(l.eqNameTh||l.eqName):(l.eqName||l.eqNameTh);
+function stOf(e){if(e.status==="out")return e.loan&&e.loan.due&&e.loan.due<today()?"overdue":"out";return e.status||"available"}
+const ICON_CHECK='<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+
+let tt;function toast(msg){const el=$("#toast");el.textContent=msg;el.hidden=false;clearTimeout(tt);tt=setTimeout(()=>el.hidden=true,3200)}
+
+
+function openSheet(html,mount){$("#sheetBody").innerHTML=html;$("#sheet").hidden=false;document.body.style.overflow="hidden";mount&&mount($("#sheetBody"));}
+function closeSheet(){$("#sheet").hidden=true;$("#sheetBody").innerHTML="";document.body.style.overflow=""}
+$("#scrim").addEventListener("click",closeSheet);
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#sheet").hidden)closeSheet()});
+
+
+function paintChrome(){
+  document.documentElement.lang=lang;
+  $("#appTitle").textContent=t("title");$("#appSub").textContent=t("sub");$("#langBtn").textContent=t("switchTo");
+  document.querySelectorAll("[data-t]").forEach(el=>el.textContent=t(el.dataset.t));
+  document.querySelectorAll(".nav button").forEach(b=>b.setAttribute("aria-current",b.dataset.tab===ui.tab?"page":"false"));
+  const late=[...eq.values()].filter(e=>stOf(e)==="overdue").length;
+  const b=$("#outBadge");b.hidden=!late;b.textContent=late;
+  $("#banner").innerHTML=dbFailed?`<div class="banner">${esc(t("noDb"))}</div>`:"";
+  paintSel();
+}
+function paintSel(){
+  const bar=$("#selbar");
+  for(const id of [...selected]){const e=eq.get(id);if(!e||stOf(e)!=="available")selected.delete(id)}
+  bar.hidden=!(ui.tab==="equip"&&selected.size);
+  const tb=$("#toTop");if(tb)tb.classList.toggle("lift",!bar.hidden);
+  $("#selCount").textContent=t("selected",selected.size);$("#selClear").textContent=t("clear");$("#selGo").textContent=t("rent");
+}
+$("#langBtn").addEventListener("click",()=>{lang=lang==="ko"?"th":"ko";LS.set("lang",lang);render()});
+document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>{ui.tab=b.dataset.tab;LS.set("tab",ui.tab);render();window.scrollTo(0,0)}));
+$("#selClear").addEventListener("click",()=>{selected.clear();render()});
+$("#selGo").addEventListener("click",()=>openCheckout([...selected]));
+
+function render(){paintChrome();const v=$("#view");
+  if(!ready&&!dbFailed){v.dataset.shell="";v.dataset.hshell="";v.innerHTML=`<div class="empty">${esc(t("loading"))}</div>`;return}
+  if(ui.tab==="equip"){v.dataset.hshell="";renderEquip(v)}else{v.dataset.shell="";if(ui.tab!=="hist")v.dataset.hshell="";if(ui.tab==="out")renderOut(v);else renderHist(v)}
+}
+
+
+function renderEquip(v){
+  const key="equip-"+lang;
+  if(v.dataset.shell!==key){
+    v.dataset.shell=key;
+    v.innerHTML=`<div class="summary" id="sumBox"></div>
+    <div class="tools"><input class="search" id="q" type="search" placeholder="${esc(t("search"))}"><button class="btn" id="addEq" type="button">+ ${esc(t("addEq"))}</button></div>
+    <div id="chipAnchor"></div><div class="chipbar" id="chipBar"><div class="chips" id="chipBox"></div></div><div id="eqList"></div>`;
+    const qi=$("#q");qi.value=ui.q;
+    qi.addEventListener("input",()=>{ui.q=qi.value;paintEquip()});
+    $("#addEq").addEventListener("click",()=>openEdit(null));
+  }
+  paintEquip();
+}
+function paintEquip(){
+  const all=[...eq.values()].sort((a,b)=>(a.no||9999)-(b.no||9999));
+  const cnt={all:0,available:0,out:0,overdue:0};
+  all.forEach(e=>{const s=stOf(e);if(s!=="retired")cnt.all++;if(s==="available")cnt.available++;if(s==="out"||s==="overdue")cnt.out++;if(s==="overdue")cnt.overdue++});
+  const q=ui.q.trim().toLowerCase();
+  const list=all.filter(e=>{const s=stOf(e);
+    if(s==="retired"&&!q)return false;
+    if(ui.cat!=="all"&&typeOf(e)!==ui.cat)return false;
+    if(ui.filter==="available"&&s!=="available")return false;
+    if(ui.filter==="out"&&!(s==="out"||s==="overdue"))return false;
+    if(ui.filter==="overdue"&&s!=="overdue")return false;
+    if(q){const hay=[e.name,e.nameTh,e.model,e.code,e.serial,e.loan&&e.loan.borrower,e.loan&&e.loan.program].join(" ").toLowerCase();if(!hay.includes(q))return false}
+    return true});
+  const catCount=c=>all.filter(e=>typeOf(e)===c&&e.status!=="retired").length;
+  const sumBtn=(k,n)=>`<button type="button" class="sum k-${k}" data-filter="${k}" aria-pressed="${ui.filter===k}"><b>${n}</b><span>${esc(t(k))}</span></button>`;
+  $("#sumBox").innerHTML=sumBtn("all",cnt.all)+sumBtn("available",cnt.available)+sumBtn("out",cnt.out)+sumBtn("overdue",cnt.overdue);
+  $("#chipBox").innerHTML=`<button type="button" class="chip" data-cat="all" aria-pressed="${ui.cat==="all"}">${esc(t("all"))}</button>`+TYPES.map(c=>`<button type="button" class="chip" data-cat="${c}" aria-pressed="${ui.cat===c}">${esc(t("type_"+c))}<small>${catCount(c)}</small></button>`).join("");
+  let h="";
+  if(!list.length)h=`<div class="list" style="margin-top:18px"><div class="empty">${esc(t("noItems"))}</div></div>`;
+  for(const c of TYPES){let g=list.filter(e=>typeOf(e)===c);if(!g.length)continue;if(c==="light")g=g.slice().sort(lightSort);else if(c==="stand")g=g.slice().sort(standSort);
+    h+=`<section class="group"><h2>${esc(t("type_"+c))} · ${g.length}</h2><div class="list">${g.map(rowHtml).join("")}</div></section>`}
+  $("#eqList").innerHTML=h;
+}
+
+function lightRank(e){const n=(e.name||"")+" "+(e.model||"")+" "+(e.code||"");
+  if(/Softbox|Projection|PJ-|Fresnel|Scrim/i.test(n))return 3;
+  if(/BULB|전구/i.test(n))return 2;
+  if(/Pavo\s*Tube|TUBE/i.test(n))return 1;
+  return 0}
+const natural=(a,b)=>String(a||"").localeCompare(String(b||""),undefined,{numeric:true});
+function lightSort(a,b){const r=lightRank(a)-lightRank(b);if(r)return r;
+  if(lightRank(a)>=1&&lightRank(a)<=2)return natural(a.code,b.code)||((a.no||0)-(b.no||0));
+  return String(a.name).localeCompare(String(b.name))||String(a.model).localeCompare(String(b.model))||natural(a.code,b.code)}
+
+function tags(code){return String(code||"").split(",").map(x=>x.trim()).filter(Boolean).map(c=>`<span class="tag">${esc(c)}</span>`).join(" ")}
+
+const standRank=e=>/조명|Lighting|C-Stand|RA-C/i.test((e.name||"")+" "+(e.model||""))?1:0;
+function standSort(a,b){return (standRank(a)-standRank(b))||((a.no||0)-(b.no||0))}
+function rowHtml(e){const s=stOf(e);
+  const pick=s==="available"?`<button type="button" class="pick" data-id="${e._id}" aria-pressed="${selected.has(e._id)}" aria-label="${esc(nm(e))}">${ICON_CHECK}</button>`:`<span class="pick-ph"></span>`;
+  let who="";if((s==="out"||s==="overdue")&&e.loan){who=`<div class="who">${esc(e.loan.borrower)} · ${esc(e.loan.program)} · ${s==="overdue"?esc(t("daysLate",lateDays(e.loan.due))):esc(t("dueOn",fD(e.loan.due)))}</div>`}
+  return `<div class="row s-${s}">${pick}<div class="main" data-id="${e._id}" role="button" tabindex="0"><div class="nm">${esc(nm(e))}</div><div class="sub">${e.code?tags(e.code):""}<span>${esc(e.model)}</span></div>${who}</div><span class="pill p-${s}">${esc(t(s))}</span></div>`}
+
+
+function openDetail(id){const e=eq.get(id);if(!e)return;const s=stOf(e);
+  const hist=loans.filter(l=>l.eqId===id).slice(0,8);
+  let h=`<h2>${esc(nm(e))}</h2><p class="lead">${esc(lang==="th"?e.name:e.nameTh)}</p>
+  <dl class="kv"><dt>${esc(t("status"))}</dt><dd><span class="pill p-${s}">${esc(t(s))}</span></dd>
+  <dt>${esc(t("kind"))}</dt><dd>${esc(t("type_"+typeOf(e)))}</dd>
+  <dt>${esc(t("category"))}</dt><dd>${esc(t("cat_"+e.cat))}</dd>
+  <dt>${esc(t("model"))}</dt><dd>${esc(e.model)||"—"}</dd>
+  <dt>${esc(t("code"))}</dt><dd>${e.code?tags(e.code):"—"}</dd>
+  <dt>${esc(t("serial"))}</dt><dd>${esc(e.serial)||"—"}</dd>
+  ${e.note?`<dt>${esc(t("noteLbl"))}</dt><dd>${esc(e.note)}</dd>`:""}
+  ${e.issue&&s==="repair"?`<dt>${esc(t("condIssue"))}</dt><dd class="issue">${esc(e.issue)}</dd>`:""}</dl>`;
+  if((s==="out"||s==="overdue")&&e.loan){const L=e.loan;
+    h+=`<div class="sec">${esc(t("current"))}</div><dl class="kv"><dt>${esc(t("borrower"))}</dt><dd>${esc(L.borrower)}</dd><dt>${esc(t("program"))}</dt><dd>${esc(L.program)}</dd><dt>${esc(t("outDate"))}</dt><dd>${esc(fD(L.outAt))}</dd><dt>${esc(t("dueDate"))}</dt><dd${s==="overdue"?' class="issue"':""}>${esc(fD(L.due))}${s==="overdue"?" · "+esc(t("daysLate",lateDays(L.due))):""}</dd></dl>`}
+  h+=`<div class="actions">`;
+  if(s==="available")h+=`<button class="btn primary block" id="dRent" type="button">${esc(t("rent"))}</button><div class="actions-row"><button class="btn" id="dRepair" type="button">${esc(t("markRepair"))}</button><button class="btn" id="dEdit" type="button">${esc(t("edit"))}</button></div>`;
+  if((s==="out"||s==="overdue")&&e.loan)h+=`<button class="btn primary block" id="dReturn" type="button">${esc(t("returnOne"))}</button><button class="btn" id="dEdit" type="button">${esc(t("edit"))}</button>`;
+  if(s==="repair")h+=`<button class="btn primary block" id="dFixed" type="button">${esc(t("repairDone"))}</button><div class="actions-row"><button class="btn" id="dRetire" type="button">${esc(t("markRetired"))}</button><button class="btn" id="dEdit" type="button">${esc(t("edit"))}</button></div>`;
+  if(s==="retired")h+=`<div class="actions-row"><button class="btn" id="dFixed" type="button">${esc(t("restore"))}</button><button class="btn" id="dEdit" type="button">${esc(t("edit"))}</button></div>`;
+  h+=`</div>`;
+  if(hist.length){h+=`<div class="sec">${esc(t("recent"))}</div>`+hist.map(l=>`<div class="mini"><b>${esc(l.borrower)}</b> · ${esc(l.program)}<br><span style="color:var(--muted)">${esc(fD(l.outAt))} → ${l.returnedAt?esc(fD(l.returnedAt)):esc(t("inUse"))}</span>${l.condition==="issue"?` <span class="issue">· ${esc(t("condIssue"))}</span>`:""}</div>`).join("")}
+  openSheet(h,root=>{
+    const on=(sel,fn)=>{const b=root.querySelector(sel);b&&b.addEventListener("click",fn)};
+    on("#dRent",()=>openCheckout([id]));
+    on("#dReturn",()=>openReturn([e.loan.id]));
+    on("#dEdit",()=>openEdit(id));
+    on("#dRepair",()=>setStatus(id,"repair"));
+    on("#dFixed",()=>setStatus(id,"available"));
+    on("#dRetire",()=>setStatus(id,"retired"));
+  });
+}
+async function setStatus(id,status){try{const s=await api("setStatus",id,status);closeSheet();applyState(s);toast(t("saved"))}catch(err){toast(t("failed"))}}
+
+
+function openEdit(id){const e=id?eq.get(id):{cat:"cam",type:ui.cat!=="all"?ui.cat:"camera",name:"",nameTh:"",model:"",serial:"",code:"",note:""};
+  const h=`<h2>${esc(id?t("edit"):t("addEq"))}</h2><p class="lead"></p>
+  <div class="two"><div class="field"><label for="fType">${esc(t("kind"))}</label><select id="fType">${TYPES.map(c=>`<option value="${c}"${typeOf(e)===c?" selected":""}>${esc(t("type_"+c))}</option>`).join("")}</select></div>
+  <div class="field"><label for="fCat">${esc(t("category"))}</label><select id="fCat">${CATS.map(c=>`<option value="${c}"${e.cat===c?" selected":""}>${esc(t("cat_"+c))}</option>`).join("")}</select></div></div>
+  <div class="field"><label for="fName">${esc(t("nameKo"))}</label><input id="fName" value="${esc(e.name)}"></div>
+  <div class="field"><label for="fNameTh">${esc(t("nameTh"))}</label><input id="fNameTh" value="${esc(e.nameTh)}"></div>
+  <div class="two"><div class="field"><label for="fModel">${esc(t("model"))}</label><input id="fModel" value="${esc(e.model)}"></div>
+  <div class="field"><label for="fCode">${esc(t("code"))}</label><input id="fCode" value="${esc(e.code)}"></div></div>
+  <div class="field"><label for="fSerial">${esc(t("serial"))}</label><input id="fSerial" value="${esc(e.serial)}"></div>
+  <div class="field"><label for="fNote">${esc(t("noteLbl"))}</label><input id="fNote" value="${esc(e.note)}"></div>
+  <div class="actions-row"><button class="btn" id="fCancel" type="button">${esc(t("cancel"))}</button><button class="btn primary" id="fSave" type="button">${esc(t("save"))}</button></div>`;
+  openSheet(h,root=>{
+    root.querySelector("#fCancel").addEventListener("click",closeSheet);
+    root.querySelector("#fSave").addEventListener("click",async ev=>{
+      const g=s=>root.querySelector(s).value.trim();
+      const data={type:g("#fType"),cat:g("#fCat"),name:g("#fName"),nameTh:g("#fNameTh"),model:g("#fModel"),code:g("#fCode"),serial:g("#fSerial"),note:g("#fNote"),updated:Date.now()};
+      if(!data.name&&!data.nameTh){root.querySelector("#fName").focus();return}
+      ev.target.disabled=true;ev.target.textContent=t("saving");
+      try{
+        const st=await api("saveEquipment",id||"",data);
+        closeSheet();applyState(st);toast(t("saved"));
+      }catch(err){toast(t("failed"));ev.target.disabled=false;ev.target.textContent=t("save")}
+    });
+  });
+}
+
+
+function loadImg(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file);const i=new Image();i.onload=()=>{res(i)};i.onerror=rej;i.src=u})}
+async function compress(file){
+  let src;try{src=await createImageBitmap(file)}catch(e){src=await loadImg(file)}
+  let max=1280,q=.72,out="";
+  for(let k=0;k<6;k++){const w=src.width,h=src.height,sc=Math.min(1,max/Math.max(w,h));
+    const c=document.createElement("canvas");c.width=Math.round(w*sc);c.height=Math.round(h*sc);
+    c.getContext("2d").drawImage(src,0,0,c.width,c.height);out=c.toDataURL("image/jpeg",q);
+    if(out.length<230000)return out;max*=.8;q=Math.max(.45,q-.07)}
+  if(out.length<250000)return out;throw new Error("too big")
+}
+function photoField(root,holder){
+  const inp=root.querySelector("#pFile"),box=root.querySelector("#pBox");
+  inp.addEventListener("change",async()=>{const f=inp.files&&inp.files[0];if(!f)return;
+    try{holder.data=await compress(f);box.innerHTML=`<img src="${holder.data}" alt=""><button class="linkbtn" type="button" id="pRm">${esc(t("removePhoto"))}</button>`;
+      box.querySelector("#pRm").addEventListener("click",()=>{holder.data=null;inp.value="";box.innerHTML=""})}
+    catch(e){toast(t("photoFail"))}});
+}
+const photoHtml=()=>`<div class="field"><span class="flabel">${esc(t("photo"))}</span><div class="photo-pick"><label class="btn" for="pFile" style="text-align:center">${esc(t("addPhoto"))}</label><input id="pFile" type="file" accept="image/*" hidden><div id="pBox" class="photo-pick"></div></div></div>`;
+async function showPhoto(pid){openSheet(`<div class="viewer"><div class="empty">${esc(t("loading"))}</div></div><div class="actions"><button class="btn block" id="pvClose" type="button">${esc(t("close"))}</button></div>`,async root=>{
+  root.querySelector("#pvClose").addEventListener("click",closeSheet);
+  try{const d=await api("getPhoto",pid);const box=root.querySelector(".viewer");if(box)box.innerHTML=d?`<img src="${esc(d)}" alt="">`:`<div class="empty">—</div>`}catch(e){const box=root.querySelector(".viewer");if(box)box.innerHTML=`<div class="empty">—</div>`}})}
+
+
+function uniq(arr){return [...new Set(arr.filter(Boolean))].slice(0,60)}
+function openCheckout(ids){
+  let items=ids.map(i=>eq.get(i)).filter(e=>e&&stOf(e)==="available");if(!items.length)return;
+  const ph={data:null};
+  const d1=new Date();d1.setDate(d1.getDate()+1);
+  const people=uniq(loans.map(l=>l.borrower)),progs=uniq(loans.map(l=>l.program));
+  const listHtml=()=>items.map(e=>`<li><div class="grow"><b>${esc(nm(e))}</b><div class="sub">${e.code?tags(e.code):""}<span>${esc(e.model)}</span></div></div>${items.length>1?`<button class="x" type="button" data-rm="${e._id}" aria-label="remove">×</button>`:""}</li>`).join("");
+  const h=`<h2>${esc(t("checkoutTitle"))}</h2><p class="lead">${esc(t("checkoutLead"))}</p>
+  <ul class="chosen" id="chosen">${listHtml()}</ul>
+  <div class="field"><label for="cWho">${esc(t("borrower"))}</label><input id="cWho" list="dlWho" autocomplete="off" value="${esc(LS.get("me")||"")}"></div>
+  <div class="field"><label for="cProg">${esc(t("program"))}</label><input id="cProg" list="dlProg" autocomplete="off"></div>
+  <datalist id="dlWho">${people.map(p=>`<option value="${esc(p)}">`).join("")}</datalist>
+  <datalist id="dlProg">${progs.map(p=>`<option value="${esc(p)}">`).join("")}</datalist>
+  <div class="two"><div class="field"><label for="cOut">${esc(t("outDate"))}</label><input id="cOut" type="date" value="${today()}"></div>
+  <div class="field"><label for="cDue">${esc(t("dueDate"))}</label><input id="cDue" type="date" value="${ymd(d1)}"></div></div>
+  <div class="field"><label for="cNote">${esc(t("note"))}</label><textarea id="cNote" placeholder="${esc(t("notePh"))}"></textarea></div>
+  ${photoHtml()}
+  <div class="actions-row"><button class="btn" id="cCancel" type="button">${esc(t("cancel"))}</button><button class="btn primary" id="cSave" type="button">${esc(t("confirmRent"))}</button></div>`;
+  openSheet(h,root=>{
+    photoField(root,ph);
+    const bindRm=()=>root.querySelectorAll("[data-rm]").forEach(b=>b.addEventListener("click",()=>{items=items.filter(e=>e._id!==b.dataset.rm);root.querySelector("#chosen").innerHTML=listHtml();bindRm()}));bindRm();
+    root.querySelector("#cCancel").addEventListener("click",closeSheet);
+    root.querySelector("#cSave").addEventListener("click",async ev=>{
+      const g=s=>root.querySelector(s).value.trim();
+      const who=g("#cWho"),prog=g("#cProg"),outD=g("#cOut")||today(),due=g("#cDue"),note=g("#cNote");
+      if(!who||!prog||!due){toast(t("needFields"));return}
+      const btn=ev.target;btn.disabled=true;btn.textContent=t("saving");LS.set("me",who);
+      try{
+        const r=await api("checkout",{ids:items.map(e=>e._id),borrower:who,program:prog,outDate:outD,due,note,photo:ph.data||""});
+        const ok=r.ok,skip=r.skipped;
+        selected.clear();closeSheet();applyState(r.state);toast(t("rented",ok)+(skip?" "+t("skipped",skip):""));
+      }catch(err){toast(t("failed"));btn.disabled=false;btn.textContent=t("confirmRent")}
+    });
+  });
+}
+
+
+function openReturn(loanIds){
+  const act=[...eq.values()].filter(e=>e.status==="out"&&e.loan&&loanIds.includes(e.loan.id));if(!act.length)return;
+  const ph={data:null};
+  const h=`<h2>${esc(t("returnTitle"))}</h2><p class="lead">${esc(t("returnLead",act.length))}</p>
+  <ul class="chosen">${act.map(e=>`<li><div class="grow"><b>${esc(nm(e))}</b><div class="sub">${e.code?tags(e.code):""}<span>${esc(e.loan.borrower)} · ${esc(e.loan.program)}</span></div></div></li>`).join("")}</ul>
+  <div class="field"><span class="flabel">${esc(t("condition"))}</span><div class="seg"><label><input type="radio" name="cond" id="rOk" value="ok" checked><span>${esc(t("condOk"))}</span></label><label><input type="radio" name="cond" id="rIssue" value="issue"><span>${esc(t("condIssue"))}</span></label></div></div>
+  <div class="field"><label for="rNote">${esc(t("note"))}</label><textarea id="rNote" placeholder="${esc(t("issueNote"))}"></textarea></div>
+  ${photoHtml()}
+  <div class="actions-row"><button class="btn" id="rCancel" type="button">${esc(t("cancel"))}</button><button class="btn primary" id="rSave" type="button">${esc(t("confirmReturn"))}</button></div>`;
+  openSheet(h,root=>{
+    photoField(root,ph);
+    root.querySelector("#rCancel").addEventListener("click",closeSheet);
+    root.querySelector("#rSave").addEventListener("click",async ev=>{
+      const cond=root.querySelector("#rIssue").checked?"issue":"ok",note=root.querySelector("#rNote").value.trim();
+      const btn=ev.target;btn.disabled=true;btn.textContent=t("saving");
+      try{const r=await api("returnItems",{loanIds:act.map(e=>e.loan.id),condition:cond,note,photo:ph.data||""});
+        closeSheet();applyState(r.state);toast(t("returned",r.returned));
+      }catch(err){toast(t("failed"));btn.disabled=false;btn.textContent=t("confirmReturn")}
+    });
+  });
+}
+
+
+function renderOut(v){
+  const act=[...eq.values()].filter(e=>e.status==="out"&&e.loan);
+  const groups=new Map();act.forEach(e=>{const k=e.loan.batch||e.loan.id;if(!groups.has(k))groups.set(k,[]);groups.get(k).push(e)});
+  const arr=[...groups.values()].map(items=>({items,L:items[0].loan,late:items.some(e=>stOf(e)==="overdue")})).sort((a,b)=>(b.late-a.late)||String(a.L.due).localeCompare(String(b.L.due)));
+  if(!arr.length){v.innerHTML=`<div class="card"><div class="empty">${esc(t("noOut"))}</div></div>`;return}
+  v.innerHTML=arr.map((g,i)=>`<article class="card${g.late?" late":""}"><h3>${esc(g.L.program)}</h3>
+    <div class="meta"><span>${esc(g.L.borrower)}</span><span>${esc(t("outSince",fD(g.L.outAt)))}</span>${g.late?`<span class="late">${esc(t("daysLate",lateDays(g.L.due)))}</span>`:`<span>${esc(t("dueOn",fD(g.L.due)))}</span>`}</div>
+    <ul class="items">${g.items.map(e=>`<li><div class="grow">${esc(nm(e))} ${e.code?tags(e.code):""}</div><button class="linkbtn" type="button" data-ret="${e.loan.id}">${esc(t("returnOne"))}</button></li>`).join("")}</ul>
+    <button class="btn primary block" type="button" data-retall="${i}">${esc(g.items.length>1?t("returnAll"):t("returnOne"))}</button></article>`).join("");
+  v.querySelectorAll("[data-ret]").forEach(b=>b.addEventListener("click",()=>openReturn([b.dataset.ret])));
+  v.querySelectorAll("[data-retall]").forEach(b=>b.addEventListener("click",()=>openReturn(arr[+b.dataset.retall].items.map(e=>e.loan.id))));
+}
+
+
+function renderHist(v){
+  const key="hist-"+lang;
+  if(v.dataset.hshell!==key||!$("#hq")){
+    v.dataset.hshell=key;
+    v.innerHTML=`<div class="tools" style="margin-top:14px"><input class="search" id="hq" type="search" placeholder="${esc(t("histSearch"))}"></div><div class="list" style="margin-top:12px" id="hList"></div>`;
+    const qi=$("#hq");qi.value=ui.hq;qi.addEventListener("input",()=>{ui.hq=qi.value;paintHist()});
+    $("#hList").addEventListener("click",ev=>{const b=ev.target.closest("[data-ph]");if(b)showPhoto(b.dataset.ph)});
+  }
+  paintHist();
+}
+function paintHist(){
+  const q=ui.hq.trim().toLowerCase();
+  const list=loans.filter(l=>!q||[l.borrower,l.program,l.eqName,l.eqNameTh,l.code,l.model].join(" ").toLowerCase().includes(q));
+  let h="";
+  if(!list.length)h=`<div class="empty">${esc(loansReady?t("noHist"):t("loading"))}</div>`;
+  h+=list.slice(0,300).map(l=>`<div class="hrow"><div class="l1"><b>${esc(lnm(l))} ${l.code?tags(l.code):""}</b><span class="d">${esc(fD(l.outAt))} → ${l.returnedAt?esc(fD(l.returnedAt)):`<span style="color:var(--warn)">${esc(t("inUse"))}</span>`}</span></div>
+   <div class="l2">${esc(l.borrower)} · ${esc(l.program)}</div>
+   ${l.outNote?`<div class="l3">${esc(l.outNote)}</div>`:""}
+   ${l.condition==="issue"?`<div class="l3 issue">${esc(t("condIssue"))}${l.returnNote?": "+esc(l.returnNote):""}</div>`:(l.returnNote?`<div class="l3">${esc(l.returnNote)}</div>`:"")}
+   ${(l.outPhoto||l.returnPhoto)?`<div>${l.outPhoto?`<button class="linkbtn" type="button" data-ph="${esc(l.outPhoto)}">${esc(t("outPhoto"))}</button> `:""}${l.returnPhoto?`<button class="linkbtn" type="button" data-ph="${esc(l.returnPhoto)}">${esc(t("retPhoto"))}</button>`:""}</div>`:""}
+  </div>`).join("");
+  $("#hList").innerHTML=h;
+}
+
+
+const viewEl=$("#view");
+viewEl.addEventListener("click",ev=>{
+  if(ui.tab!=="equip"||!viewEl.dataset.shell)return;
+  const f=ev.target.closest("[data-filter]");if(f){ui.filter=f.dataset.filter;paintEquip();return}
+  const c=ev.target.closest("[data-cat]");if(c){ui.cat=c.dataset.cat;paintEquip();jumpToList();const on=$("#chipBox [aria-pressed=\"true\"]");try{on&&on.scrollIntoView({inline:"center",block:"nearest"})}catch(e){}return}
+  const p=ev.target.closest(".pick");if(p){const id=p.dataset.id;selected.has(id)?selected.delete(id):selected.add(id);p.setAttribute("aria-pressed",selected.has(id));paintSel();return}
+  const m=ev.target.closest(".row .main");if(m)openDetail(m.dataset.id);
+});
+viewEl.addEventListener("keydown",ev=>{if(ui.tab!=="equip")return;const m=ev.target.closest&&ev.target.closest(".row .main");if(m&&(ev.key==="Enter"||ev.key===" ")){ev.preventDefault();openDetail(m.dataset.id)}});
+
+function setHdr(){const h=document.querySelector(".top");if(h)document.documentElement.style.setProperty("--hdr",h.offsetHeight+"px")}
+setHdr();window.addEventListener("resize",setHdr);
+const smooth=()=>window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth";
+function jumpToList(){const a=$("#chipAnchor");if(!a)return;const y=a.getBoundingClientRect().top+window.scrollY-document.querySelector(".top").offsetHeight;if(window.scrollY>y)window.scrollTo({top:y,behavior:smooth()})}
+function onScroll(){const b=$("#toTop");b.hidden=window.scrollY<500||!$("#sheet").hidden;b.classList.toggle("lift",!$("#selbar").hidden);b.setAttribute("aria-label",t("toTop"));
+  const bar=$("#chipBar"),a=$("#chipAnchor");if(bar&&a)bar.classList.toggle("stuck",a.getBoundingClientRect().top<document.querySelector(".top").offsetHeight)}
+window.addEventListener("scroll",onScroll,{passive:true});
+$("#toTop").addEventListener("click",()=>window.scrollTo({top:0,behavior:smooth()}));
+render();
+refresh();
+setInterval(()=>{if(document.visibilityState==="visible"&&$("#sheet").hidden)refresh()},20000);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")refresh()});
+})();
+</script>
+
+</body>
+</html>
