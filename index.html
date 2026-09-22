@@ -57,6 +57,15 @@ button{cursor:pointer}
 .brand h1{margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em;text-wrap:balance}
 .brand p{margin:0;font-size:12px;color:var(--muted)}
 .lang{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;white-space:nowrap}
+.adm{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 8px;display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:var(--muted);margin-right:6px}
+.adm svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.adm.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);padding:6px 11px}
+.adm:not(.on) span{display:none}
+.xdel{border:1px solid var(--line);background:var(--surface);color:var(--bad);border-radius:8px;padding:4px 9px;font-size:12.5px;font-weight:600;margin-left:8px;flex:none}
+.xdel.arm,.btn.danger.arm{background:var(--bad);border-color:var(--bad);color:#fff}
+.admbox{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
+.admbox .flabel{display:block;margin-bottom:8px}
+.warnp{font-size:12.5px;color:var(--muted);margin:8px 0 0}
 
 
 .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
@@ -200,7 +209,7 @@ button{cursor:pointer}
 <div class="wrap">
   <header class="top">
     <div class="brand"><h1 id="appTitle">CGN 장비 대여</h1><p id="appSub"></p></div>
-    <button class="lang" id="langBtn" type="button"></button>
+    <button class="adm" id="adminBtn" type="button"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span></span></button><button class="lang" id="langBtn" type="button"></button>
   </header>
   <div id="banner"></div>
   <main id="view"></main>
@@ -250,7 +259,7 @@ ko:{title:"CGN 장비 대여",sub:"태국 CGN · 카메라·렌즈·조명·마�
  nameKo:"장비명 (한국어)",nameTh:"장비명 (태국어)",
  saved:"저장했어요.",failed:"저장하지 못했어요. 인터넷 연결을 확인하고 다시 시도해 주세요.",
  photoFail:"사진을 처리하지 못했어요. 다른 사진으로 시도해 주세요.",
- saving:"저장 중…",noteLbl:"비고"},
+ saving:"저장 중…",noteLbl:"비고",admin:"관리자",adminLogin:"관리자 로그인",adminLead:"관리자는 대여 기록을 수정하거나 삭제할 수 있어요.",email:"이메일",password:"비밀번호",login:"로그인",logout:"로그아웃",loginFail:"이메일 또는 비밀번호가 맞지 않아요.",adminOn:u=>`${u} 계정으로 관리자 모드가 켜져 있어요.`,loggedOut:"로그아웃했어요.",editLoan:"대여 정보 수정",delBatch:"이 대여 건 전체 삭제",delOne:"삭제",confirmDel:"한 번 더 누르면 삭제돼요",deleted:n=>`기록 ${n}개를 삭제했어요.`,delFail:"삭제하지 못했어요. 관리자 로그인 상태를 확인해 주세요.",delWarn:"삭제한 기록은 되돌릴 수 없어요. 아직 반납 안 된 장비는 대여 가능 상태로 돌아가요."},
 th:{title:"ยืม-คืนอุปกรณ์ CGN",sub:"CGN ประเทศไทย · กล้อง·เลนส์·ไฟ·ไมค์·แบตเตอรี่",switchTo:"한국어",
  tabEquip:"อุปกรณ์",tabOut:"กำลังยืม",tabHist:"ประวัติ",
  all:"ทั้งหมด",available:"ว่าง",out:"กำลังยืม",overdue:"เกินกำหนด",repair:"ซ่อม",retired:"เลิกใช้",
@@ -288,6 +297,7 @@ const TYPE_BY_NAME={"배터리":"battery","케이지":"etc","케이스":"etc","�
 function typeOf(e){if(TYPES.includes(e.type))return e.type;const n=e.name||"";for(const k in TYPE_BY_NAME)if(n.includes(k))return TYPE_BY_NAME[k];return "etc"}
 const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 let lang=LS.get("lang")||"th";
+const tk=(k,...a)=>{const v=T.ko[k];return typeof v==="function"?v(...a):(v??k)};
 const t=(k,...a)=>{const v=T[lang][k];return typeof v==="function"?v(...a):(v??k)};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -296,6 +306,7 @@ let ready=false, dbFailed=false;
 const FB_CONFIG={apiKey:"AIzaSyDQc14PHuYCxUjoI0-8PLYGuTrQOMVvNeQ",authDomain:"cgn-rental.firebaseapp.com",projectId:"cgn-rental",storageBucket:"cgn-rental.firebasestorage.app",messagingSenderId:"665689013167",appId:"1:665689013167:web:81cda57f43bdee74b4cd5a"};
 const FBV="10.14.1";
 const HIST_DAYS=60;
+let fa=null, auth=null, adminUser=null;
 let fs=null, db=null, eqReady=false, loansSnap=false, recentLoans=[], range=null;
 function normEq(r){return {...r,_id:r.id,no:Number(r.no)||0,loan:r.status==="out"&&r.loanId?{id:r.loanId,batch:r.batch,borrower:r.borrower,program:r.program,outAt:r.outAt,due:r.due}:null}}
 function normLoan(r){return {...r,_id:r.id,returnedAt:r.returnedAt||null,condition:r.condition||null}}
@@ -306,6 +317,7 @@ async function boot(){
   try{
     const [appM,fsM]=await Promise.all([import(`https://www.gstatic.com/firebasejs/${FBV}/firebase-app.js`),import(`https://www.gstatic.com/firebasejs/${FBV}/firebase-firestore.js`)]);
     fs=fsM;const app=appM.initializeApp(FB_CONFIG);
+    import(`https://www.gstatic.com/firebasejs/${FBV}/firebase-auth.js`).then(m=>{fa=m;auth=fa.getAuth(app);fa.onAuthStateChanged(auth,u=>{adminUser=u||null;paintChrome()})}).catch(()=>{});
     try{db=fs.initializeFirestore(app,{localCache:fs.persistentLocalCache({tabManager:fs.persistentMultipleTabManager()})})}catch(e){db=fs.getFirestore(app)}
     fs.onSnapshot(fs.collection(db,"equipment"),snap=>{eq.clear();snap.forEach(d=>eq.set(d.id,normEq({...d.data(),id:d.id})));eqReady=true;if(loansSnap)onData()},err=>{dbFailed=true;ready=true;render()});
     fs.onSnapshot(fs.query(fs.collection(db,"loans"),fs.where("outAt",">=",cutoff()),fs.orderBy("outAt","desc")),snap=>{recentLoans=snap.docs.map(d=>normLoan({...d.data(),id:d.id}));loansSnap=true;if(!range)loans=recentLoans;if(eqReady)onData()},err=>{loansSnap=true;if(eqReady)onData()});
@@ -336,6 +348,71 @@ async function fbReturn({loanIds,condition,note}){
       if(e&&e.exists()&&e.data().loanId===l.id)tx.update(e.ref,{status:condition==="issue"?"repair":"available",issue:condition==="issue"?(note||""):"",loanId:"",batch:"",borrower:"",program:"",outAt:"",due:"",updated:now});
       n++});
     return n});
+}
+async function fbDeleteLoans(ids){
+  const now=stamp();
+  return fs.runTransaction(db,async tx=>{
+    const ls=await Promise.all(ids.map(id=>tx.get(fs.doc(db,"loans",id))));
+    const es=await Promise.all(ls.map(l=>l.exists()&&l.data().eqId&&!l.data().returnedAt?tx.get(fs.doc(db,"equipment",l.data().eqId)):null));
+    let n=0;
+    ls.forEach((l,i)=>{if(!l.exists())return;const e=es[i];
+      if(e&&e.exists()&&e.data().loanId===l.id)tx.update(e.ref,{status:"available",loanId:"",batch:"",borrower:"",program:"",outAt:"",due:"",updated:now});
+      tx.delete(l.ref);n++});
+    return n});
+}
+async function fbEditLoans(ids,{borrower,program,outDate,due}){
+  const now=stamp();
+  return fs.runTransaction(db,async tx=>{
+    const ls=await Promise.all(ids.map(id=>tx.get(fs.doc(db,"loans",id))));
+    const es=await Promise.all(ls.map(l=>l.exists()&&l.data().eqId&&!l.data().returnedAt?tx.get(fs.doc(db,"equipment",l.data().eqId)):null));
+    ls.forEach((l,i)=>{if(!l.exists())return;const d=l.data();const outAt=outDate+" "+String(d.outAt||"").slice(11,16);
+      tx.update(l.ref,{borrower,program,due,outAt});
+      const e=es[i];if(e&&e.exists()&&e.data().loanId===l.id)tx.update(e.ref,{borrower,program,due,outAt,updated:now})});
+  });
+}
+function afterLoanChange(ids,patch){
+  if(range){loans=patch?loans.map(l=>ids.includes(l.id)?{...l,...patch(l)}:l):loans.filter(l=>!ids.includes(l.id))}
+}
+function isAdmin(){return !!adminUser}
+function openAdmin(){
+  if(!auth){toast(tk("loading"));return}
+  if(isAdmin()){
+    openSheet(`<h2>${esc(tk("admin"))}</h2><p class="lead">${esc(tk("adminOn",adminUser.email||""))}</p><p class="lead">${esc(tk("adminLead"))}</p>
+    <div class="actions"><button class="btn" id="aOut" type="button">${esc(tk("logout"))}</button><button class="btn primary" id="aClose" type="button">${esc(tk("close"))}</button></div>`,root=>{
+      root.querySelector("#aClose").addEventListener("click",closeSheet);
+      root.querySelector("#aOut").addEventListener("click",async()=>{try{await fa.signOut(auth)}catch(e){}closeSheet();toast(tk("loggedOut"))})});
+    return}
+  openSheet(`<h2>${esc(tk("adminLogin"))}</h2><p class="lead">${esc(tk("adminLead"))}</p>
+  <form id="aForm" autocomplete="on"><div class="field"><label for="aEmail">${esc(tk("email"))}</label><input id="aEmail" type="email" autocomplete="username" inputmode="email" required></div>
+  <div class="field"><label for="aPw">${esc(tk("password"))}</label><input id="aPw" type="password" autocomplete="current-password" required></div>
+  <div class="actions"><button class="btn" id="aCancel" type="button">${esc(tk("cancel"))}</button><button class="btn primary" id="aGo" type="submit">${esc(tk("login"))}</button></div></form>`,root=>{
+    const em=root.querySelector("#aEmail");em.value=LS.get("adminEmail")||"";
+    root.querySelector("#aCancel").addEventListener("click",closeSheet);
+    root.querySelector("#aForm").addEventListener("submit",async ev=>{ev.preventDefault();const b=root.querySelector("#aGo");b.disabled=true;b.textContent=tk("loading");
+      try{await fa.signInWithEmailAndPassword(auth,em.value.trim(),root.querySelector("#aPw").value);LS.set("adminEmail",em.value.trim());closeSheet();toast(tk("adminOn",em.value.trim()))}
+      catch(e){toast(tk("loginFail"));b.disabled=false;b.textContent=tk("login")}})});
+}
+function armBtn(b,fn){b.addEventListener("click",async()=>{
+  if(!b.classList.contains("arm")){b.dataset.lbl=b.textContent;b.classList.add("arm");b.textContent=tk("confirmDel");setTimeout(()=>{if(b.isConnected&&!b.disabled){b.classList.remove("arm");b.textContent=b.dataset.lbl}},4000);return}
+  b.disabled=true;await fn()})}
+async function doDelete(ids){
+  try{const n=await fbDeleteLoans(ids);afterLoanChange(ids);closeSheet();render();toast(tk("deleted",n))}
+  catch(e){closeSheet();toast(tk("delFail"))}
+}
+function openEditBatch(k){const items=histGroups.get(k);if(!items||!items.length)return;const L=items[0];const ids=items.map(l=>l.id);
+  openSheet(`<h2>${esc(tk("editLoan"))}</h2>
+  <div class="field"><label for="eP">${esc(tk("program"))}</label><input id="eP" maxlength="120"></div>
+  <div class="field"><label for="eB">${esc(tk("borrower"))}</label><input id="eB" maxlength="80"></div>
+  <div class="field"><label for="eO">${esc(tk("outDate"))}</label><input id="eO" type="date"></div>
+  <div class="field"><label for="eD">${esc(tk("dueDate"))}</label><input id="eD" type="date"></div>
+  <div class="actions"><button class="btn" id="eC" type="button">${esc(tk("cancel"))}</button><button class="btn primary" id="eS" type="button">${esc(tk("save"))}</button></div>`,root=>{
+    const q=s=>root.querySelector(s);q("#eP").value=L.program||"";q("#eB").value=L.borrower||"";q("#eO").value=String(L.outAt||"").slice(0,10);q("#eD").value=L.due||"";
+    q("#eC").addEventListener("click",()=>openBatch(k));
+    q("#eS").addEventListener("click",async ev=>{const v={program:q("#eP").value.trim(),borrower:q("#eB").value.trim(),outDate:q("#eO").value,due:q("#eD").value};
+      if(!v.program||!v.borrower||!v.outDate||!v.due){toast(tk("needFields"));return}
+      ev.target.disabled=true;ev.target.textContent=tk("saving");
+      try{await fbEditLoans(ids,v);afterLoanChange(ids,l=>({program:v.program,borrower:v.borrower,due:v.due,outAt:v.outDate+" "+String(l.outAt||"").slice(11,16)}));closeSheet();render();toast(tk("saved"))}
+      catch(e){closeSheet();toast(tk("failed"))}})});
 }
 async function searchRange(from,to){
   const snap=await fs.getDocs(fs.query(fs.collection(db,"loans"),fs.where("outAt",">=",from),fs.where("outAt","<=",to+" 99:99"),fs.orderBy("outAt","desc")));
@@ -380,6 +457,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("#sheet").hidden
 function paintChrome(){
   document.documentElement.lang=lang;
   $("#appTitle").textContent=t("title");$("#appSub").textContent=t("sub");$("#langBtn").textContent=t("switchTo");
+  {const ab=$("#adminBtn");ab.classList.toggle("on",isAdmin());ab.querySelector("span").textContent=tk("admin");ab.setAttribute("aria-label",isAdmin()?tk("admin"):"Admin")}
   document.querySelectorAll("[data-t]").forEach(el=>el.textContent=t(el.dataset.t));
   document.querySelectorAll(".nav button").forEach(b=>b.setAttribute("aria-current",b.dataset.tab===ui.tab?"page":"false"));
   const late=[...eq.values()].filter(e=>stOf(e)==="overdue").length;
@@ -394,6 +472,7 @@ function paintSel(){
   const tb=$("#toTop");if(tb)tb.classList.toggle("lift",!bar.hidden);
   $("#selCount").textContent=t("selected",selected.size);$("#selClear").textContent=t("clear");$("#selGo").textContent=t("rent");
 }
+$("#adminBtn").addEventListener("click",openAdmin);
 $("#langBtn").addEventListener("click",()=>{lang=lang==="ko"?"th":"ko";LS.set("lang",lang);render()});
 document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>{ui.tab=b.dataset.tab;LS.set("tab",ui.tab);render();window.scrollTo(0,0)}));
 $("#selClear").addEventListener("click",()=>{selected.clear();render()});
@@ -630,16 +709,19 @@ function paintHist(){
   histVisible=groups.flatMap(([k,items])=>items);
   $("#hList").innerHTML=h;
 }
-function openBatch(k){const items=histGroups.get(k);if(!items||!items.length)return;const L=items[0];
+function openBatch(k){const items=histGroups.get(k);if(!items||!items.length)return;const L=items[0];const adm=isAdmin();
   const notes=[...new Set(items.map(l=>l.outNote).filter(Boolean))];
   const h=`<h2>${esc(L.program)}</h2><p class="lead">${esc(L.borrower)} · ${esc(t("outSince",fD(L.outAt)))} · ${esc(t("dueDate"))} ${esc(fD(L.due))}</p>
   ${notes.length?`<p class="lead">${notes.map(esc).join("<br>")}</p>`:""}
   <div class="sec">${esc(t("rentedItems"))} · ${items.length}</div>
   <ul class="chosen">${items.map(l=>`<li><div class="grow"><b>${esc(lnm(l))}</b><div class="sub">${l.code?tags(l.code):""}<span>${esc(l.model||"")}</span></div>
     ${l.condition==="issue"?`<div class="sub issue">${esc(t("condIssue"))}${l.returnNote?": "+esc(l.returnNote):""}</div>`:(l.returnNote?`<div class="sub">${esc(l.returnNote)}</div>`:"")}</div>
-    <span class="d" style="font-size:12.5px;white-space:nowrap">${l.returnedAt?esc(t("allBack",fD(l.returnedAt))):`<span class="open">${esc(t("inUse"))}</span>`}</span></li>`).join("")}</ul>
+    <span class="d" style="font-size:12.5px;white-space:nowrap">${l.returnedAt?esc(t("allBack",fD(l.returnedAt))):`<span class="open">${esc(t("inUse"))}</span>`}</span>${adm?`<button class="xdel" type="button" data-del="${esc(l.id)}">${esc(tk("delOne"))}</button>`:""}</li>`).join("")}</ul>
+  ${adm?`<div class="admbox"><span class="flabel">${esc(tk("admin"))}</span><div class="actions-row"><button class="btn" id="bEdit" type="button">${esc(tk("editLoan"))}</button><button class="btn danger" id="bDel" type="button">${esc(tk("delBatch"))}</button></div><p class="warnp">${esc(tk("delWarn"))}</p></div>`:""}
   <div class="actions"><button class="btn block" id="bClose" type="button">${esc(t("close"))}</button></div>`;
-  openSheet(h,root=>{root.querySelector("#bClose").addEventListener("click",closeSheet)});
+  openSheet(h,root=>{root.querySelector("#bClose").addEventListener("click",closeSheet);
+    if(adm){root.querySelector("#bEdit").addEventListener("click",()=>openEditBatch(k));armBtn(root.querySelector("#bDel"),()=>doDelete(items.map(l=>l.id)));
+      root.querySelectorAll("[data-del]").forEach(b=>armBtn(b,()=>doDelete([b.dataset.del])))}});
 }
 
 
