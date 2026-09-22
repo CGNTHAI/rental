@@ -139,6 +139,8 @@ button{cursor:pointer}
 .hrow .l2{font-size:13px;color:var(--muted);margin-top:2px}
 .hrow .l3{font-size:13px;margin-top:4px}
 .issue{color:var(--bad)}
+.warnc{color:var(--warn)}
+.flagline{font-size:12.5px;font-weight:600;color:var(--warn);margin-top:3px}
 .range{display:flex;gap:6px;align-items:center;margin-top:10px}
 .range input{flex:1;min-width:0;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 8px}
 .range span{color:var(--muted)}
@@ -246,8 +248,8 @@ ko:{title:"CGN 장비 대여",sub:"태국 CGN · 카메라·렌즈·조명·마�
  notePh:"구성품, 상태 등",confirmRent:"대여 기록 저장",
  needFields:"대여자, 프로그램명, 반납 예정일을 입력해 주세요.",
  rented:n=>`${n}개 장비 대여를 기록했어요.`,skipped:n=>`${n}개는 이미 다른 사람이 대여 중이라 제외했어요.`,
- returnTitle:"장비 반납",returnLead:n=>`${n}개 장비를 반납 처리합니다.`,condition:"장비 상태",condOk:"정상",condIssue:"이상 있음",
- issueNote:"어떤 문제가 있나요? (이상 있음이면 수리 중으로 바뀝니다)",confirmReturn:"반납 완료",returned:n=>`${n}개 장비를 반납 처리했어요.`,
+ returnTitle:"장비 반납",returnLead:n=>`${n}개 장비를 반납 처리합니다.`,condition:"장비 상태",condOk:"정상",condMinor:"증상 있음·사용 가능",condIssue:"수리 필요",
+ issueNote:"증상이나 문제 내용을 적어 주세요. '수리 필요'면 대여가 막혀요.",flag:"증상",setFlag:"증상 표시",editFlag:"증상 수정",clearFlag:"증상 해제",flagTitle:"장비 증상",flagPh:"어떤 증상인가요? (수리 안 해도 사용 가능)",flagSaved:"증상을 표시했어요.",flagCleared:"증상 표시를 해제했어요.",confirmReturn:"반납 완료",returned:n=>`${n}개 장비를 반납 처리했어요.`,
  returnAll:"전체 반납",returnOne:"반납",noOut:"지금 대여 중인 장비가 없어요.",
  outSince:d=>`${d} 대여`,
  histSearch:"대여자, 프로그램, 장비 검색",noHist:"아직 대여 기록이 없어요.",inUse:"사용 중",
@@ -276,8 +278,8 @@ th:{title:"ยืม-คืนอุปกรณ์ CGN",sub:"CGN ประเ�
  notePh:"อุปกรณ์เสริม สภาพ ฯลฯ",confirmRent:"บันทึกการยืม",
  needFields:"กรุณากรอกผู้ยืม ชื่อรายการ และกำหนดคืนด้วยครับ",
  rented:n=>`บันทึกการยืมอุปกรณ์ ${n} รายการแล้วครับ`,skipped:n=>`มี ${n} รายการที่ถูกยืมไปแล้ว จึงไม่ได้บันทึกครับ`,
- returnTitle:"คืนอุปกรณ์",returnLead:n=>`คืนอุปกรณ์ ${n} รายการครับ`,condition:"สภาพอุปกรณ์",condOk:"ปกติ",condIssue:"มีปัญหา",
- issueNote:"มีปัญหาอะไรครับ (ถ้ามีปัญหา สถานะจะเปลี่ยนเป็นซ่อม)",confirmReturn:"ยืนยันการคืน",returned:n=>`คืนอุปกรณ์ ${n} รายการแล้วครับ`,
+ returnTitle:"คืนอุปกรณ์",returnLead:n=>`คืนอุปกรณ์ ${n} รายการครับ`,condition:"สภาพอุปกรณ์",condOk:"ปกติ",condMinor:"มีอาการ·ยังใช้ได้",condIssue:"ต้องซ่อม",
+ issueNote:"กรุณาระบุอาการหรือปัญหาครับ ถ้าเลือก 'ต้องซ่อม' จะยืมไม่ได้ครับ",flag:"อาการ",setFlag:"ระบุอาการ",editFlag:"แก้อาการ",clearFlag:"ล้างอาการ",flagTitle:"อาการอุปกรณ์",flagPh:"มีอาการอย่างไรครับ (ไม่ต้องซ่อมก็ใช้ได้)",flagSaved:"บันทึกอาการแล้วครับ",flagCleared:"ล้างอาการแล้วครับ",confirmReturn:"ยืนยันการคืน",returned:n=>`คืนอุปกรณ์ ${n} รายการแล้วครับ`,
  returnAll:"คืนทั้งหมด",returnOne:"คืน",noOut:"ตอนนี้ไม่มีอุปกรณ์ที่ถูกยืมครับ",
  outSince:d=>`ยืม ${d}`,
  histSearch:"ค้นหาผู้ยืม รายการ หรืออุปกรณ์",noHist:"ยังไม่มีประวัติการยืมครับ",inUse:"ยังไม่คืน",
@@ -345,7 +347,7 @@ async function fbReturn({loanIds,condition,note}){
     ls.forEach((l,i)=>{if(!l.exists()||l.data().returnedAt)return;
       tx.update(l.ref,{returnedAt:now,condition,returnNote:note||""});
       const e=es[i];
-      if(e&&e.exists()&&e.data().loanId===l.id)tx.update(e.ref,{status:condition==="issue"?"repair":"available",issue:condition==="issue"?(note||""):"",loanId:"",batch:"",borrower:"",program:"",outAt:"",due:"",updated:now});
+      if(e&&e.exists()&&e.data().loanId===l.id)tx.update(e.ref,{status:condition==="issue"?"repair":"available",issue:condition==="issue"?(note||""):"",flag:condition==="minor"?(note||""):"",loanId:"",batch:"",borrower:"",program:"",outAt:"",due:"",updated:now});
       n++});
     return n});
 }
@@ -421,7 +423,7 @@ async function searchRange(from,to){
 function exportCsv(list){
   const head=["대여일/วันที่ยืม","반납 예정일/กำหนดคืน","반납일/วันที่คืน","프로그램/รายการ","대여자/ผู้ยืม","장비/อุปกรณ์","관리번호/รหัส","모델/รุ่น","상태/สภาพ","메모/หมายเหตุ"];
   const q=v=>{v=String(v??"");return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
-  const rows=list.map(l=>[l.outAt,l.due,l.returnedAt||"",l.program,l.borrower,l.eqName,l.code,l.model,l.condition==="issue"?"이상 있음/มีปัญหา":(l.returnedAt?"정상/ปกติ":"대여 중/กำลังยืม"),[l.outNote,l.returnNote].filter(Boolean).join(" / ")]);
+  const rows=list.map(l=>[l.outAt,l.due,l.returnedAt||"",l.program,l.borrower,l.eqName,l.code,l.model,l.condition==="issue"?"이상 있음/มีปัญหา":l.condition==="minor"?"증상 있음/มีอาการ":(l.returnedAt?"정상/ปกติ":"대여 중/กำลังยืม"),[l.outNote,l.returnNote].filter(Boolean).join(" / ")]);
   const csv="﻿"+[head,...rows].map(r=>r.map(q).join(",")).join("\r\n");
   const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
   const a=document.createElement("a");a.href=url;a.download="cgn-rental-"+(range?range.from+"_"+range.to:today())+".csv";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
@@ -536,9 +538,10 @@ function tags(code){return String(code||"").split(",").map(x=>x.trim()).filter(B
 const standRank=e=>/조명|Lighting|C-Stand|RA-C/i.test((e.name||"")+" "+(e.model||""))?1:0;
 function standSort(a,b){return (standRank(a)-standRank(b))||((a.no||0)-(b.no||0))}
 function rowHtml(e){const s=stOf(e);
+  const flagLine=(e.flag&&s!=="repair"&&s!=="retired")?`<div class="flagline">⚠ ${esc(e.flag)}</div>`:"";
   const pick=s==="available"?`<button type="button" class="pick" data-id="${e._id}" aria-pressed="${selected.has(e._id)}" aria-label="${esc(nm(e))}">${ICON_CHECK}</button>`:`<span class="pick-ph"></span>`;
   let who="";if((s==="out"||s==="overdue")&&e.loan){who=`<div class="who">${esc(e.loan.borrower)} · ${esc(e.loan.program)} · ${s==="overdue"?esc(t("daysLate",lateDays(e.loan.due))):esc(t("dueOn",fD(e.loan.due)))}</div>`}
-  return `<div class="row s-${s}">${pick}<div class="main" data-id="${e._id}" role="button" tabindex="0"><div class="nm">${esc(nm(e))}</div><div class="sub">${e.code?tags(e.code):""}<span>${esc(e.model)}</span></div>${who}</div><span class="pill p-${s}">${esc(t(s))}</span></div>`}
+  return `<div class="row s-${s}">${pick}<div class="main" data-id="${e._id}" role="button" tabindex="0"><div class="nm">${esc(nm(e))}</div><div class="sub">${e.code?tags(e.code):""}<span>${esc(e.model)}</span></div>${who}${flagLine}</div><span class="pill p-${s}">${esc(t(s))}</span></div>`}
 
 
 function openDetail(id){const e=eq.get(id);if(!e)return;const s=stOf(e);
@@ -551,19 +554,22 @@ function openDetail(id){const e=eq.get(id);if(!e)return;const s=stOf(e);
   <dt>${esc(t("code"))}</dt><dd>${e.code?tags(e.code):"—"}</dd>
   <dt>${esc(t("serial"))}</dt><dd>${esc(e.serial)||"—"}</dd>
   ${e.note?`<dt>${esc(t("noteLbl"))}</dt><dd>${esc(e.note)}</dd>`:""}
-  ${e.issue&&s==="repair"?`<dt>${esc(t("condIssue"))}</dt><dd class="issue">${esc(e.issue)}</dd>`:""}</dl>`;
+  ${e.issue&&s==="repair"?`<dt>${esc(t("condIssue"))}</dt><dd class="issue">${esc(e.issue)}</dd>`:""}
+  ${e.flag&&s!=="repair"&&s!=="retired"?`<dt>${esc(t("flag"))}</dt><dd class="warnc">${esc(e.flag)}</dd>`:""}</dl>`;
   if((s==="out"||s==="overdue")&&e.loan){const L=e.loan;
     h+=`<div class="sec">${esc(t("current"))}</div><dl class="kv"><dt>${esc(t("borrower"))}</dt><dd>${esc(L.borrower)}</dd><dt>${esc(t("program"))}</dt><dd>${esc(L.program)}</dd><dt>${esc(t("outDate"))}</dt><dd>${esc(fD(L.outAt))}</dd><dt>${esc(t("dueDate"))}</dt><dd${s==="overdue"?' class="issue"':""}>${esc(fD(L.due))}${s==="overdue"?" · "+esc(t("daysLate",lateDays(L.due))):""}</dd></dl>`}
   const adm=isAdmin();const eBtn=adm?`<button class="btn" id="dEdit" type="button">${esc(t("edit"))}</button>`:"";
   h+=`<div class="actions">`;
-  if(s==="available")h+=`<button class="btn primary block" id="dRent" type="button">${esc(t("rent"))}</button><div class="actions-row"><button class="btn" id="dRepair" type="button">${esc(t("markRepair"))}</button>${eBtn}</div>`;
-  if((s==="out"||s==="overdue")&&e.loan)h+=`<button class="btn primary block" id="dReturn" type="button">${esc(t("returnOne"))}</button>${eBtn}`;
+  const fBtn=`<button class="btn" id="dFlag" type="button">${esc(t(e.flag?"editFlag":"setFlag"))}</button>`;
+  if(s==="available")h+=`<button class="btn primary block" id="dRent" type="button">${esc(t("rent"))}</button><div class="actions-row">${fBtn}<button class="btn" id="dRepair" type="button">${esc(t("markRepair"))}</button>${eBtn}</div>`;
+  if((s==="out"||s==="overdue")&&e.loan)h+=`<button class="btn primary block" id="dReturn" type="button">${esc(t("returnOne"))}</button><div class="actions-row">${fBtn}${eBtn}</div>`;
   if(s==="repair")h+=`<button class="btn primary block" id="dFixed" type="button">${esc(t("repairDone"))}</button>${adm?`<div class="actions-row"><button class="btn" id="dRetire" type="button">${esc(t("markRetired"))}</button>${eBtn}</div>`:""}`;
   if(s==="retired"&&adm)h+=`<div class="actions-row"><button class="btn" id="dFixed" type="button">${esc(t("restore"))}</button>${eBtn}</div>`;
   h+=`</div>`;
   if(hist.length){h+=`<div class="sec">${esc(t("recent"))}</div>`+hist.map(l=>`<div class="mini"><b>${esc(l.borrower)}</b> · ${esc(l.program)}<br><span style="color:var(--muted)">${esc(fD(l.outAt))} → ${l.returnedAt?esc(fD(l.returnedAt)):esc(t("inUse"))}</span>${l.condition==="issue"?` <span class="issue">· ${esc(t("condIssue"))}</span>`:""}</div>`).join("")}
   openSheet(h,root=>{
     const on=(sel,fn)=>{const b=root.querySelector(sel);b&&b.addEventListener("click",fn)};
+    on("#dFlag",()=>openFlag(id));
     on("#dRent",()=>openCheckout([id]));
     on("#dReturn",()=>openReturn([e.loan.id]));
     on("#dEdit",()=>openEdit(id));
@@ -638,17 +644,28 @@ function openCheckout(ids){
 }
 
 
+function openFlag(id){const e=eq.get(id);if(!e)return;
+  const h=`<h2>${esc(t("flagTitle"))}</h2><p class="lead">${esc(nm(e))}</p>
+  <div class="field"><label for="fgN">${esc(t("flag"))}</label><textarea id="fgN" placeholder="${esc(t("flagPh"))}">${esc(e.flag||"")}</textarea></div>
+  <div class="actions-row">${e.flag?`<button class="btn danger" id="fgClear" type="button">${esc(t("clearFlag"))}</button>`:""}<button class="btn" id="fgCancel" type="button">${esc(t("cancel"))}</button><button class="btn primary" id="fgSave" type="button">${esc(t("save"))}</button></div>`;
+  openSheet(h,root=>{
+    root.querySelector("#fgCancel").addEventListener("click",()=>openDetail(id));
+    const cl=root.querySelector("#fgClear");cl&&cl.addEventListener("click",()=>setFlag(id,""));
+    root.querySelector("#fgSave").addEventListener("click",()=>setFlag(id,root.querySelector("#fgN").value.trim()));
+  });
+}
+async function setFlag(id,flag){try{await fs.updateDoc(fs.doc(db,"equipment",id),{flag,updated:stamp()});closeSheet();render();toast(t(flag?"flagSaved":"flagCleared"))}catch(err){toast(t("failed"))}}
 function openReturn(loanIds){
   const act=[...eq.values()].filter(e=>e.status==="out"&&e.loan&&loanIds.includes(e.loan.id));if(!act.length)return;
   const h=`<h2>${esc(t("returnTitle"))}</h2><p class="lead">${esc(t("returnLead",act.length))}</p>
   <ul class="chosen">${act.map(e=>`<li><div class="grow"><b>${esc(nm(e))}</b><div class="sub">${e.code?tags(e.code):""}<span>${esc(e.loan.borrower)} · ${esc(e.loan.program)}</span></div></div></li>`).join("")}</ul>
-  <div class="field"><span class="flabel">${esc(t("condition"))}</span><div class="seg"><label><input type="radio" name="cond" id="rOk" value="ok" checked><span>${esc(t("condOk"))}</span></label><label><input type="radio" name="cond" id="rIssue" value="issue"><span>${esc(t("condIssue"))}</span></label></div></div>
+  <div class="field"><span class="flabel">${esc(t("condition"))}</span><div class="seg"><label><input type="radio" name="cond" id="rOk" value="ok" checked><span>${esc(t("condOk"))}</span></label><label><input type="radio" name="cond" id="rMinor" value="minor"><span>${esc(t("condMinor"))}</span></label><label><input type="radio" name="cond" id="rIssue" value="issue"><span>${esc(t("condIssue"))}</span></label></div></div>
   <div class="field"><label for="rNote">${esc(t("note"))}</label><textarea id="rNote" placeholder="${esc(t("issueNote"))}"></textarea></div>
   <div class="actions-row"><button class="btn" id="rCancel" type="button">${esc(t("cancel"))}</button><button class="btn primary" id="rSave" type="button">${esc(t("confirmReturn"))}</button></div>`;
   openSheet(h,root=>{
     root.querySelector("#rCancel").addEventListener("click",closeSheet);
     root.querySelector("#rSave").addEventListener("click",async ev=>{
-      const cond=root.querySelector("#rIssue").checked?"issue":"ok",note=root.querySelector("#rNote").value.trim();
+      const cond=root.querySelector('input[name="cond"]:checked').value,note=root.querySelector("#rNote").value.trim();
       const btn=ev.target;btn.disabled=true;btn.textContent=t("saving");
       try{const n=await fbReturn({loanIds:act.map(e=>e.loan.id),condition:cond,note});
         closeSheet();render();toast(t("returned",n));
@@ -703,10 +720,10 @@ function paintHist(){
   let h="";
   if(!groups.length)h=`<div class="empty">${esc(loansReady?t("noHist"):t("loading"))}</div>`;
   h+=groups.slice(0,300).map(([k,items])=>{const L=items[0];const back=items.filter(l=>l.returnedAt);const open=back.length<items.length;
-    const last=back.map(l=>l.returnedAt).sort().pop();const issue=items.some(l=>l.condition==="issue");
+    const last=back.map(l=>l.returnedAt).sort().pop();const issue=items.some(l=>l.condition==="issue");const minor=!issue&&items.some(l=>l.condition==="minor");
     const end=open?(back.length?`<span class="open">${esc(t("partBack",back.length,items.length))}</span>`:`<span class="open">${esc(t("inUse"))}</span>`):esc(fD(last));
     return `<div class="hrow grp" data-g="${esc(k)}" role="button" tabindex="0"><div class="gmain"><div class="l1"><b>${esc(L.program)}</b><span class="d">${esc(fD(L.outAt))} → ${end}</span></div>
-   <div class="l2">${esc(L.borrower)} · <span class="cnt">${esc(t("itemsN",items.length))}</span>${issue?` · <span class="issue">${esc(t("condIssue"))}</span>`:""}</div></div><span class="chev" aria-hidden="true">›</span></div>`}).join("");
+   <div class="l2">${esc(L.borrower)} · <span class="cnt">${esc(t("itemsN",items.length))}</span>${issue?` · <span class="issue">${esc(t("condIssue"))}</span>`:minor?` · <span class="warnc">${esc(t("flag"))}</span>`:""}</div></div><span class="chev" aria-hidden="true">›</span></div>`}).join("");
   histVisible=groups.flatMap(([k,items])=>items);
   $("#hList").innerHTML=h;
 }
@@ -716,7 +733,7 @@ function openBatch(k){const items=histGroups.get(k);if(!items||!items.length)ret
   ${notes.length?`<p class="lead">${notes.map(esc).join("<br>")}</p>`:""}
   <div class="sec">${esc(t("rentedItems"))} · ${items.length}</div>
   <ul class="chosen">${items.map(l=>`<li><div class="grow"><b>${esc(lnm(l))}</b><div class="sub">${l.code?tags(l.code):""}<span>${esc(l.model||"")}</span></div>
-    ${l.condition==="issue"?`<div class="sub issue">${esc(t("condIssue"))}${l.returnNote?": "+esc(l.returnNote):""}</div>`:(l.returnNote?`<div class="sub">${esc(l.returnNote)}</div>`:"")}</div>
+    ${l.condition==="issue"?`<div class="sub issue">${esc(t("condIssue"))}${l.returnNote?": "+esc(l.returnNote):""}</div>`:l.condition==="minor"?`<div class="sub warnc">${esc(t("flag"))}${l.returnNote?": "+esc(l.returnNote):""}</div>`:(l.returnNote?`<div class="sub">${esc(l.returnNote)}</div>`:"")}</div>
     <span class="d" style="font-size:12.5px;white-space:nowrap">${l.returnedAt?esc(t("allBack",fD(l.returnedAt))):`<span class="open">${esc(t("inUse"))}</span>`}</span>${adm?`<button class="xdel" type="button" data-del="${esc(l.id)}">${esc(tk("delOne"))}</button>`:""}</li>`).join("")}</ul>
   ${adm?`<div class="admbox"><span class="flabel">${esc(tk("admin"))}</span><div class="actions-row"><button class="btn" id="bEdit" type="button">${esc(tk("editLoan"))}</button><button class="btn danger" id="bDel" type="button">${esc(tk("delBatch"))}</button></div><p class="warnp">${esc(tk("delWarn"))}</p></div>`:""}
   <div class="actions"><button class="btn block" id="bClose" type="button">${esc(t("close"))}</button></div>`;
