@@ -317,7 +317,7 @@ async function boot(){
   try{
     const [appM,fsM]=await Promise.all([import(`https://www.gstatic.com/firebasejs/${FBV}/firebase-app.js`),import(`https://www.gstatic.com/firebasejs/${FBV}/firebase-firestore.js`)]);
     fs=fsM;const app=appM.initializeApp(FB_CONFIG);
-    import(`https://www.gstatic.com/firebasejs/${FBV}/firebase-auth.js`).then(m=>{fa=m;auth=fa.getAuth(app);fa.onAuthStateChanged(auth,u=>{adminUser=u||null;paintChrome()})}).catch(()=>{});
+    import(`https://www.gstatic.com/firebasejs/${FBV}/firebase-auth.js`).then(m=>{fa=m;auth=fa.getAuth(app);fa.onAuthStateChanged(auth,u=>{adminUser=u||null;if($("#sheet").hidden)render();else paintChrome()})}).catch(()=>{});
     try{db=fs.initializeFirestore(app,{localCache:fs.persistentLocalCache({tabManager:fs.persistentMultipleTabManager()})})}catch(e){db=fs.getFirestore(app)}
     fs.onSnapshot(fs.collection(db,"equipment"),snap=>{eq.clear();snap.forEach(d=>eq.set(d.id,normEq({...d.data(),id:d.id})));eqReady=true;if(loansSnap)onData()},err=>{dbFailed=true;ready=true;render()});
     fs.onSnapshot(fs.query(fs.collection(db,"loans"),fs.where("outAt",">=",cutoff()),fs.orderBy("outAt","desc")),snap=>{recentLoans=snap.docs.map(d=>normLoan({...d.data(),id:d.id}));loansSnap=true;if(!range)loans=recentLoans;if(eqReady)onData()},err=>{loansSnap=true;if(eqReady)onData()});
@@ -380,7 +380,7 @@ function openAdmin(){
     openSheet(`<h2>${esc(tk("admin"))}</h2><p class="lead">${esc(tk("adminOn",adminUser.email||""))}</p><p class="lead">${esc(tk("adminLead"))}</p>
     <div class="actions"><button class="btn" id="aOut" type="button">${esc(tk("logout"))}</button><button class="btn primary" id="aClose" type="button">${esc(tk("close"))}</button></div>`,root=>{
       root.querySelector("#aClose").addEventListener("click",closeSheet);
-      root.querySelector("#aOut").addEventListener("click",async()=>{try{await fa.signOut(auth)}catch(e){}closeSheet();toast(tk("loggedOut"))})});
+      root.querySelector("#aOut").addEventListener("click",async()=>{try{await fa.signOut(auth)}catch(e){}closeSheet();render();toast(tk("loggedOut"))})});
     return}
   openSheet(`<h2>${esc(tk("adminLogin"))}</h2><p class="lead">${esc(tk("adminLead"))}</p>
   <form id="aForm" autocomplete="on"><div class="field"><label for="aEmail">${esc(tk("email"))}</label><input id="aEmail" type="email" autocomplete="username" inputmode="email" required></div>
@@ -389,7 +389,7 @@ function openAdmin(){
     const em=root.querySelector("#aEmail");em.value=LS.get("adminEmail")||"";
     root.querySelector("#aCancel").addEventListener("click",closeSheet);
     root.querySelector("#aForm").addEventListener("submit",async ev=>{ev.preventDefault();const b=root.querySelector("#aGo");b.disabled=true;b.textContent=tk("loading");
-      try{await fa.signInWithEmailAndPassword(auth,em.value.trim(),root.querySelector("#aPw").value);LS.set("adminEmail",em.value.trim());closeSheet();toast(tk("adminOn",em.value.trim()))}
+      try{await fa.signInWithEmailAndPassword(auth,em.value.trim(),root.querySelector("#aPw").value);LS.set("adminEmail",em.value.trim());closeSheet();render();toast(tk("adminOn",em.value.trim()))}
       catch(e){toast(tk("loginFail"));b.disabled=false;b.textContent=tk("login")}})});
 }
 function armBtn(b,fn){b.addEventListener("click",async()=>{
@@ -485,15 +485,15 @@ function render(){paintChrome();const v=$("#view");
 
 
 function renderEquip(v){
-  const key="equip-"+lang;
+  const key="equip-"+lang+(isAdmin()?"-a":"");
   if(v.dataset.shell!==key){
     v.dataset.shell=key;
     v.innerHTML=`<div class="summary" id="sumBox"></div>
-    <div class="tools"><input class="search" id="q" type="search" placeholder="${esc(t("search"))}"><button class="btn" id="addEq" type="button">+ ${esc(t("addEq"))}</button></div>
+    <div class="tools"><input class="search" id="q" type="search" placeholder="${esc(t("search"))}">${isAdmin()?`<button class="btn" id="addEq" type="button">+ ${esc(t("addEq"))}</button>`:""}</div>
     <div id="chipAnchor"></div><div class="chipbar" id="chipBar"><div class="chips" id="chipBox"></div></div><div id="eqList"></div>`;
     const qi=$("#q");qi.value=ui.q;
     qi.addEventListener("input",()=>{ui.q=qi.value;paintEquip()});
-    $("#addEq").addEventListener("click",()=>openEdit(null));
+    {const ab=$("#addEq");ab&&ab.addEventListener("click",()=>openEdit(null));}
   }
   paintEquip();
 }
@@ -554,11 +554,12 @@ function openDetail(id){const e=eq.get(id);if(!e)return;const s=stOf(e);
   ${e.issue&&s==="repair"?`<dt>${esc(t("condIssue"))}</dt><dd class="issue">${esc(e.issue)}</dd>`:""}</dl>`;
   if((s==="out"||s==="overdue")&&e.loan){const L=e.loan;
     h+=`<div class="sec">${esc(t("current"))}</div><dl class="kv"><dt>${esc(t("borrower"))}</dt><dd>${esc(L.borrower)}</dd><dt>${esc(t("program"))}</dt><dd>${esc(L.program)}</dd><dt>${esc(t("outDate"))}</dt><dd>${esc(fD(L.outAt))}</dd><dt>${esc(t("dueDate"))}</dt><dd${s==="overdue"?' class="issue"':""}>${esc(fD(L.due))}${s==="overdue"?" · "+esc(t("daysLate",lateDays(L.due))):""}</dd></dl>`}
+  const adm=isAdmin();const eBtn=adm?`<button class="btn" id="dEdit" type="button">${esc(t("edit"))}</button>`:"";
   h+=`<div class="actions">`;
-  if(s==="available")h+=`<button class="btn primary block" id="dRent" type="button">${esc(t("rent"))}</button><div class="actions-row"><button class="btn" id="dRepair" type="button">${esc(t("markRepair"))}</button><button class="btn" id="dEdit" type="button">${esc(t("edit"))}</button></div>`;
-  if((s==="out"||s==="overdue")&&e.loan)h+=`<button class="btn primary block" id="dReturn" type="button">${esc(t("returnOne"))}</button><button class="btn" id="dEdit" type="button">${esc(t("edit"))}</button>`;
-  if(s==="repair")h+=`<button class="btn primary block" id="dFixed" type="button">${esc(t("repairDone"))}</button><div class="actions-row"><button class="btn" id="dRetire" type="button">${esc(t("markRetired"))}</button><button class="btn" id="dEdit" type="button">${esc(t("edit"))}</button></div>`;
-  if(s==="retired")h+=`<div class="actions-row"><button class="btn" id="dFixed" type="button">${esc(t("restore"))}</button><button class="btn" id="dEdit" type="button">${esc(t("edit"))}</button></div>`;
+  if(s==="available")h+=`<button class="btn primary block" id="dRent" type="button">${esc(t("rent"))}</button><div class="actions-row"><button class="btn" id="dRepair" type="button">${esc(t("markRepair"))}</button>${eBtn}</div>`;
+  if((s==="out"||s==="overdue")&&e.loan)h+=`<button class="btn primary block" id="dReturn" type="button">${esc(t("returnOne"))}</button>${eBtn}`;
+  if(s==="repair")h+=`<button class="btn primary block" id="dFixed" type="button">${esc(t("repairDone"))}</button>${adm?`<div class="actions-row"><button class="btn" id="dRetire" type="button">${esc(t("markRetired"))}</button>${eBtn}</div>`:""}`;
+  if(s==="retired"&&adm)h+=`<div class="actions-row"><button class="btn" id="dFixed" type="button">${esc(t("restore"))}</button>${eBtn}</div>`;
   h+=`</div>`;
   if(hist.length){h+=`<div class="sec">${esc(t("recent"))}</div>`+hist.map(l=>`<div class="mini"><b>${esc(l.borrower)}</b> · ${esc(l.program)}<br><span style="color:var(--muted)">${esc(fD(l.outAt))} → ${l.returnedAt?esc(fD(l.returnedAt)):esc(t("inUse"))}</span>${l.condition==="issue"?` <span class="issue">· ${esc(t("condIssue"))}</span>`:""}</div>`).join("")}
   openSheet(h,root=>{
