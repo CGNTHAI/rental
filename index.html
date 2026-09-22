@@ -130,6 +130,11 @@ button{cursor:pointer}
 .hrow .l2{font-size:13px;color:var(--muted);margin-top:2px}
 .hrow .l3{font-size:13px;margin-top:4px}
 .issue{color:var(--bad)}
+.range{display:flex;gap:6px;align-items:center;margin-top:10px}
+.range input{flex:1;min-width:0;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 8px}
+.range span{color:var(--muted)}
+.rangebar{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:13px;color:var(--muted)}
+.rangebar .grow{flex:1}
 .grp{cursor:pointer;display:flex;gap:10px;align-items:center}
 .grp .gmain{flex:1;min-width:0}
 .grp .chev{color:var(--muted);font-size:18px;flex:none}
@@ -237,7 +242,7 @@ ko:{title:"CGN 장비 대여",sub:"태국 CGN · 카메라·렌즈·조명·마�
  returnAll:"전체 반납",returnOne:"반납",noOut:"지금 대여 중인 장비가 없어요.",
  outSince:d=>`${d} 대여`,
  histSearch:"대여자, 프로그램, 장비 검색",noHist:"아직 대여 기록이 없어요.",inUse:"사용 중",
- outPhoto:"대여 사진",retPhoto:"반납 사진",itemsN:n=>`장비 ${n}개`,allBack:d=>`${d} 반납`,partBack:(a,b)=>`${b}개 중 ${a}개 반납`,rentedItems:"대여한 장비",
+ outPhoto:"대여 사진",retPhoto:"반납 사진",itemsN:n=>`장비 ${n}개`,allBack:d=>`${d} 반납`,partBack:(a,b)=>`${b}개 중 ${a}개 반납`,rentedItems:"대여한 장비",from:"시작일",to:"종료일",periodSearch:"기간 검색",backRecent:"최근으로",exportCsv:"엑셀로 내보내기",recentLbl:"최근 2개월",rangeLbl:(a,b)=>`${a} ~ ${b}`,badRange:"기간을 다시 확인해 주세요.",
  model:"모델",serial:"시리얼",code:"관리번호",category:"품목",status:"상태",
  current:"현재 대여",recent:"최근 대여 이력",
  markRepair:"수리 중으로 표시",repairDone:"수리 완료 · 대여 가능으로",markRetired:"불용 처리",restore:"다시 사용",
@@ -267,7 +272,7 @@ th:{title:"ยืม-คืนอุปกรณ์ CGN",sub:"CGN ประเ�
  returnAll:"คืนทั้งหมด",returnOne:"คืน",noOut:"ตอนนี้ไม่มีอุปกรณ์ที่ถูกยืมครับ",
  outSince:d=>`ยืม ${d}`,
  histSearch:"ค้นหาผู้ยืม รายการ หรืออุปกรณ์",noHist:"ยังไม่มีประวัติการยืมครับ",inUse:"ยังไม่คืน",
- outPhoto:"รูปตอนยืม",retPhoto:"รูปตอนคืน",itemsN:n=>`อุปกรณ์ ${n} รายการ`,allBack:d=>`คืน ${d}`,partBack:(a,b)=>`คืนแล้ว ${a} จาก ${b} รายการ`,rentedItems:"อุปกรณ์ที่ยืม",
+ outPhoto:"รูปตอนยืม",retPhoto:"รูปตอนคืน",itemsN:n=>`อุปกรณ์ ${n} รายการ`,allBack:d=>`คืน ${d}`,partBack:(a,b)=>`คืนแล้ว ${a} จาก ${b} รายการ`,rentedItems:"อุปกรณ์ที่ยืม",from:"วันที่เริ่ม",to:"วันที่สิ้นสุด",periodSearch:"ค้นหาตามช่วงเวลา",backRecent:"กลับไปล่าสุด",exportCsv:"ส่งออกเป็น Excel",recentLbl:"2 เดือนล่าสุด",rangeLbl:(a,b)=>`${a} ~ ${b}`,badRange:"กรุณาตรวจสอบช่วงเวลาอีกครั้งครับ",
  model:"รุ่น",serial:"ซีเรียล",code:"รหัสอุปกรณ์",category:"ประเภท",status:"สถานะ",
  current:"การยืมปัจจุบัน",recent:"ประวัติการยืมล่าสุด",
  markRepair:"ตั้งเป็นซ่อม",repairDone:"ซ่อมเสร็จ · พร้อมให้ยืม",markRetired:"ตั้งเป็นเลิกใช้",restore:"กลับมาใช้งาน",
@@ -288,12 +293,62 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
 let ready=false, dbFailed=false;
-const API="https://script.google.com/macros/s/AKfycbyPMZRQMbppfG3VcS8V8JPjXesjHhgZs1LWmWZyzAGZcK_C5kzaDpEhROPdyR4aVH6F/exec";
-const api=(fn,...args)=>fetch(API,{method:"POST",credentials:"omit",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({fn,args})}).then(r=>{if(!r.ok)throw new Error("http "+r.status);return r.json()}).then(j=>{if(!j.ok)throw new Error(j.error||"error");return j.data});
+const FB_CONFIG={apiKey:"AIzaSyDQc14PHuYCxUjoI0-8PLYGuTrQOMVvNeQ",authDomain:"cgn-rental.firebaseapp.com",projectId:"cgn-rental",storageBucket:"cgn-rental.firebasestorage.app",messagingSenderId:"665689013167",appId:"1:665689013167:web:81cda57f43bdee74b4cd5a"};
+const FBV="10.14.1";
+const HIST_DAYS=60;
+let fs=null, db=null, eqReady=false, loansSnap=false, recentLoans=[], range=null;
 function normEq(r){return {...r,_id:r.id,no:Number(r.no)||0,loan:r.status==="out"&&r.loanId?{id:r.loanId,batch:r.batch,borrower:r.borrower,program:r.program,outAt:r.outAt,due:r.due}:null}}
-function normLoan(r){return {...r,_id:r.id,returnedAt:r.returnedAt||null,condition:r.condition||null,outPhoto:r.outPhoto||null,returnPhoto:r.returnPhoto||null}}
-function applyState(s){if(!s)return;eq.clear();(s.equipment||[]).forEach(r=>eq.set(r.id,normEq(r)));loans=(s.loans||[]).map(normLoan);ready=true;loansReady=true;dbFailed=false;if($("#sheet").hidden)render();else paintChrome()}
-let busy=false;function refresh(){if(busy)return;busy=true;api("getState").then(applyState).catch(()=>{if(!ready){dbFailed=true;ready=true;render()}}).finally(()=>busy=false)}
+function normLoan(r){return {...r,_id:r.id,returnedAt:r.returnedAt||null,condition:r.condition||null}}
+function stamp(){const d=new Date();return ymd(d)+" "+pad(d.getHours())+":"+pad(d.getMinutes())}
+function cutoff(){const d=new Date();d.setDate(d.getDate()-HIST_DAYS);return ymd(d)}
+function onData(){ready=true;loansReady=true;dbFailed=false;if($("#sheet").hidden)render();else paintChrome()}
+async function boot(){
+  try{
+    const [appM,fsM]=await Promise.all([import(`https://www.gstatic.com/firebasejs/${FBV}/firebase-app.js`),import(`https://www.gstatic.com/firebasejs/${FBV}/firebase-firestore.js`)]);
+    fs=fsM;const app=appM.initializeApp(FB_CONFIG);
+    try{db=fs.initializeFirestore(app,{localCache:fs.persistentLocalCache({tabManager:fs.persistentMultipleTabManager()})})}catch(e){db=fs.getFirestore(app)}
+    fs.onSnapshot(fs.collection(db,"equipment"),snap=>{eq.clear();snap.forEach(d=>eq.set(d.id,normEq({...d.data(),id:d.id})));eqReady=true;if(loansSnap)onData()},err=>{dbFailed=true;ready=true;render()});
+    fs.onSnapshot(fs.query(fs.collection(db,"loans"),fs.where("outAt",">=",cutoff()),fs.orderBy("outAt","desc")),snap=>{recentLoans=snap.docs.map(d=>normLoan({...d.data(),id:d.id}));loansSnap=true;if(!range)loans=recentLoans;if(eqReady)onData()},err=>{loansSnap=true;if(eqReady)onData()});
+  }catch(e){dbFailed=true;ready=true;render()}
+}
+async function fbCheckout({ids,borrower,program,outDate,due,note}){
+  const now=stamp(),at=(outDate||today())+" "+now.slice(11),batch="b"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  return fs.runTransaction(db,async tx=>{
+    const refs=ids.map(id=>fs.doc(db,"equipment",id));
+    const snaps=await Promise.all(refs.map(r=>tx.get(r)));
+    let ok=0,skipped=0;
+    snaps.forEach((sn,i)=>{const e=sn.exists()?sn.data():null;
+      if(!e||(e.status||"available")!=="available"){skipped++;return}
+      const lref=fs.doc(fs.collection(db,"loans"));
+      tx.set(lref,{batch,eqId:sn.id,eqName:e.name||"",eqNameTh:e.nameTh||"",code:e.code||"",model:e.model||"",type:e.type||"",borrower,program,outAt:at,due,outNote:note||"",returnedAt:"",condition:"",returnNote:""});
+      tx.update(refs[i],{status:"out",loanId:lref.id,batch,borrower,program,outAt:at,due,updated:now});ok++});
+    return {ok,skipped}});
+}
+async function fbReturn({loanIds,condition,note}){
+  const now=stamp();
+  return fs.runTransaction(db,async tx=>{
+    const ls=await Promise.all(loanIds.map(id=>tx.get(fs.doc(db,"loans",id))));
+    const es=await Promise.all(ls.map(l=>l.exists()&&l.data().eqId?tx.get(fs.doc(db,"equipment",l.data().eqId)):null));
+    let n=0;
+    ls.forEach((l,i)=>{if(!l.exists()||l.data().returnedAt)return;
+      tx.update(l.ref,{returnedAt:now,condition,returnNote:note||""});
+      const e=es[i];
+      if(e&&e.exists()&&e.data().loanId===l.id)tx.update(e.ref,{status:condition==="issue"?"repair":"available",issue:condition==="issue"?(note||""):"",loanId:"",batch:"",borrower:"",program:"",outAt:"",due:"",updated:now});
+      n++});
+    return n});
+}
+async function searchRange(from,to){
+  const snap=await fs.getDocs(fs.query(fs.collection(db,"loans"),fs.where("outAt",">=",from),fs.where("outAt","<=",to+" 99:99"),fs.orderBy("outAt","desc")));
+  range={from,to};loans=snap.docs.map(d=>normLoan({...d.data(),id:d.id}));
+}
+function exportCsv(list){
+  const head=["대여일/วันที่ยืม","반납 예정일/กำหนดคืน","반납일/วันที่คืน","프로그램/รายการ","대여자/ผู้ยืม","장비/อุปกรณ์","관리번호/รหัส","모델/รุ่น","상태/สภาพ","메모/หมายเหตุ"];
+  const q=v=>{v=String(v??"");return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+  const rows=list.map(l=>[l.outAt,l.due,l.returnedAt||"",l.program,l.borrower,l.eqName,l.code,l.model,l.condition==="issue"?"이상 있음/มีปัญหา":(l.returnedAt?"정상/ปกติ":"대여 중/กำลังยืม"),[l.outNote,l.returnNote].filter(Boolean).join(" / ")]);
+  const csv="﻿"+[head,...rows].map(r=>r.map(q).join(",")).join("\r\n");
+  const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+  const a=document.createElement("a");a.href=url;a.download="cgn-rental-"+(range?range.from+"_"+range.to:today())+".csv";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
+}
 const eq=new Map(); let loans=[]; let loansReady=false;
 const ui={tab:LS.get("tab")||"equip",cat:"all",filter:"all",q:"",hq:""};
 const selected=new Set();
@@ -437,7 +492,7 @@ function openDetail(id){const e=eq.get(id);if(!e)return;const s=stOf(e);
     on("#dRetire",()=>setStatus(id,"retired"));
   });
 }
-async function setStatus(id,status){try{const s=await api("setStatus",id,status);closeSheet();applyState(s);toast(t("saved"))}catch(err){toast(t("failed"))}}
+async function setStatus(id,status){try{await fs.updateDoc(fs.doc(db,"equipment",id),{status,updated:stamp(),...(status==="available"?{issue:""}:{})});closeSheet();toast(t("saved"))}catch(err){toast(t("failed"))}}
 
 
 function openEdit(id){const e=id?eq.get(id):{cat:"cam",type:ui.cat!=="all"?ui.cat:"camera",name:"",nameTh:"",model:"",serial:"",code:"",note:""};
@@ -459,41 +514,19 @@ function openEdit(id){const e=id?eq.get(id):{cat:"cam",type:ui.cat!=="all"?ui.ca
       if(!data.name&&!data.nameTh){root.querySelector("#fName").focus();return}
       ev.target.disabled=true;ev.target.textContent=t("saving");
       try{
-        const st=await api("saveEquipment",id||"",data);
-        closeSheet();applyState(st);toast(t("saved"));
+        data.updated=stamp();
+        if(id)await fs.updateDoc(fs.doc(db,"equipment",id),data);
+        else{const maxNo=Math.max(0,...[...eq.values()].map(x=>x.no||0));await fs.setDoc(fs.doc(db,"equipment","eq-"+Date.now().toString(36)),{...data,no:maxNo+1,status:"available",issue:"",loanId:"",batch:"",borrower:"",program:"",outAt:"",due:""})}
+        closeSheet();toast(t("saved"));
       }catch(err){toast(t("failed"));ev.target.disabled=false;ev.target.textContent=t("save")}
     });
   });
 }
 
 
-function loadImg(file){return new Promise((res,rej)=>{const u=URL.createObjectURL(file);const i=new Image();i.onload=()=>{res(i)};i.onerror=rej;i.src=u})}
-async function compress(file){
-  let src;try{src=await createImageBitmap(file)}catch(e){src=await loadImg(file)}
-  let max=1280,q=.72,out="";
-  for(let k=0;k<6;k++){const w=src.width,h=src.height,sc=Math.min(1,max/Math.max(w,h));
-    const c=document.createElement("canvas");c.width=Math.round(w*sc);c.height=Math.round(h*sc);
-    c.getContext("2d").drawImage(src,0,0,c.width,c.height);out=c.toDataURL("image/jpeg",q);
-    if(out.length<230000)return out;max*=.8;q=Math.max(.45,q-.07)}
-  if(out.length<250000)return out;throw new Error("too big")
-}
-function photoField(root,holder){
-  const inp=root.querySelector("#pFile"),box=root.querySelector("#pBox");
-  inp.addEventListener("change",async()=>{const f=inp.files&&inp.files[0];if(!f)return;
-    try{holder.data=await compress(f);box.innerHTML=`<img src="${holder.data}" alt=""><button class="linkbtn" type="button" id="pRm">${esc(t("removePhoto"))}</button>`;
-      box.querySelector("#pRm").addEventListener("click",()=>{holder.data=null;inp.value="";box.innerHTML=""})}
-    catch(e){toast(t("photoFail"))}});
-}
-const photoHtml=()=>`<div class="field"><span class="flabel">${esc(t("photo"))}</span><div class="photo-pick"><label class="btn" for="pFile" style="text-align:center">${esc(t("addPhoto"))}</label><input id="pFile" type="file" accept="image/*" hidden><div id="pBox" class="photo-pick"></div></div></div>`;
-async function showPhoto(pid){openSheet(`<div class="viewer"><div class="empty">${esc(t("loading"))}</div></div><div class="actions"><button class="btn block" id="pvClose" type="button">${esc(t("close"))}</button></div>`,async root=>{
-  root.querySelector("#pvClose").addEventListener("click",closeSheet);
-  try{const d=await api("getPhoto",pid);const box=root.querySelector(".viewer");if(box)box.innerHTML=d?`<img src="${esc(d)}" alt="">`:`<div class="empty">—</div>`}catch(e){const box=root.querySelector(".viewer");if(box)box.innerHTML=`<div class="empty">—</div>`}})}
-
-
 function uniq(arr){return [...new Set(arr.filter(Boolean))].slice(0,60)}
 function openCheckout(ids){
   let items=ids.map(i=>eq.get(i)).filter(e=>e&&stOf(e)==="available");if(!items.length)return;
-  const ph={data:null};
   const d1=new Date();d1.setDate(d1.getDate()+1);
   const people=uniq(loans.map(l=>l.borrower)),progs=uniq(loans.map(l=>l.program));
   const listHtml=()=>items.map(e=>`<li><div class="grow"><b>${esc(nm(e))}</b><div class="sub">${e.code?tags(e.code):""}<span>${esc(e.model)}</span></div></div>${items.length>1?`<button class="x" type="button" data-rm="${e._id}" aria-label="remove">×</button>`:""}</li>`).join("");
@@ -506,10 +539,8 @@ function openCheckout(ids){
   <div class="two"><div class="field"><label for="cOut">${esc(t("outDate"))}</label><input id="cOut" type="date" value="${today()}"></div>
   <div class="field"><label for="cDue">${esc(t("dueDate"))}</label><input id="cDue" type="date" value="${ymd(d1)}"></div></div>
   <div class="field"><label for="cNote">${esc(t("note"))}</label><textarea id="cNote" placeholder="${esc(t("notePh"))}"></textarea></div>
-  ${photoHtml()}
   <div class="actions-row"><button class="btn" id="cCancel" type="button">${esc(t("cancel"))}</button><button class="btn primary" id="cSave" type="button">${esc(t("confirmRent"))}</button></div>`;
   openSheet(h,root=>{
-    photoField(root,ph);
     const bindRm=()=>root.querySelectorAll("[data-rm]").forEach(b=>b.addEventListener("click",()=>{items=items.filter(e=>e._id!==b.dataset.rm);root.querySelector("#chosen").innerHTML=listHtml();bindRm()}));bindRm();
     root.querySelector("#cCancel").addEventListener("click",closeSheet);
     root.querySelector("#cSave").addEventListener("click",async ev=>{
@@ -518,9 +549,9 @@ function openCheckout(ids){
       if(!who||!prog||!due){toast(t("needFields"));return}
       const btn=ev.target;btn.disabled=true;btn.textContent=t("saving");LS.set("me",who);
       try{
-        const r=await api("checkout",{ids:items.map(e=>e._id),borrower:who,program:prog,outDate:outD,due,note,photo:ph.data||""});
+        const r=await fbCheckout({ids:items.map(e=>e._id),borrower:who,program:prog,outDate:outD,due,note});
         const ok=r.ok,skip=r.skipped;
-        selected.clear();closeSheet();applyState(r.state);toast(t("rented",ok)+(skip?" "+t("skipped",skip):""));
+        selected.clear();closeSheet();render();toast(t("rented",ok)+(skip?" "+t("skipped",skip):""));
       }catch(err){toast(t("failed"));btn.disabled=false;btn.textContent=t("confirmRent")}
     });
   });
@@ -529,21 +560,18 @@ function openCheckout(ids){
 
 function openReturn(loanIds){
   const act=[...eq.values()].filter(e=>e.status==="out"&&e.loan&&loanIds.includes(e.loan.id));if(!act.length)return;
-  const ph={data:null};
   const h=`<h2>${esc(t("returnTitle"))}</h2><p class="lead">${esc(t("returnLead",act.length))}</p>
   <ul class="chosen">${act.map(e=>`<li><div class="grow"><b>${esc(nm(e))}</b><div class="sub">${e.code?tags(e.code):""}<span>${esc(e.loan.borrower)} · ${esc(e.loan.program)}</span></div></div></li>`).join("")}</ul>
   <div class="field"><span class="flabel">${esc(t("condition"))}</span><div class="seg"><label><input type="radio" name="cond" id="rOk" value="ok" checked><span>${esc(t("condOk"))}</span></label><label><input type="radio" name="cond" id="rIssue" value="issue"><span>${esc(t("condIssue"))}</span></label></div></div>
   <div class="field"><label for="rNote">${esc(t("note"))}</label><textarea id="rNote" placeholder="${esc(t("issueNote"))}"></textarea></div>
-  ${photoHtml()}
   <div class="actions-row"><button class="btn" id="rCancel" type="button">${esc(t("cancel"))}</button><button class="btn primary" id="rSave" type="button">${esc(t("confirmReturn"))}</button></div>`;
   openSheet(h,root=>{
-    photoField(root,ph);
     root.querySelector("#rCancel").addEventListener("click",closeSheet);
     root.querySelector("#rSave").addEventListener("click",async ev=>{
       const cond=root.querySelector("#rIssue").checked?"issue":"ok",note=root.querySelector("#rNote").value.trim();
       const btn=ev.target;btn.disabled=true;btn.textContent=t("saving");
-      try{const r=await api("returnItems",{loanIds:act.map(e=>e.loan.id),condition:cond,note,photo:ph.data||""});
-        closeSheet();applyState(r.state);toast(t("returned",r.returned));
+      try{const n=await fbReturn({loanIds:act.map(e=>e.loan.id),condition:cond,note});
+        closeSheet();render();toast(t("returned",n));
       }catch(err){toast(t("failed"));btn.disabled=false;btn.textContent=t("confirmReturn")}
     });
   });
@@ -568,18 +596,29 @@ function renderHist(v){
   const key="hist-"+lang;
   if(v.dataset.hshell!==key||!$("#hq")){
     v.dataset.hshell=key;
-    v.innerHTML=`<div class="tools" style="margin-top:14px"><input class="search" id="hq" type="search" placeholder="${esc(t("histSearch"))}"></div><div class="list" style="margin-top:12px" id="hList"></div>`;
+    v.innerHTML=`<div class="tools" style="margin-top:14px"><input class="search" id="hq" type="search" placeholder="${esc(t("histSearch"))}"></div>
+    <div class="range"><input type="date" id="rFrom" aria-label="${esc(t("from"))}"><span>~</span><input type="date" id="rTo" aria-label="${esc(t("to"))}"><button class="btn" id="rGo" type="button">${esc(t("periodSearch"))}</button></div>
+    <div class="rangebar"><span id="rLabel"></span><span class="grow"></span><button class="linkbtn" id="rReset" type="button">${esc(t("backRecent"))}</button><button class="linkbtn" id="rExport" type="button">${esc(t("exportCsv"))}</button></div>
+    <div class="list" style="margin-top:8px" id="hList"></div>`;
+    const f=$("#rFrom"),to=$("#rTo");f.value=range?range.from:cutoff();to.value=range?range.to:today();
+    $("#rGo").addEventListener("click",async ev=>{if(!f.value||!to.value||f.value>to.value){toast(t("badRange"));return}
+      const b=ev.target;b.disabled=true;b.textContent=t("loading");
+      try{await searchRange(f.value,to.value);paintHist()}catch(e){toast(t("failed"))}b.disabled=false;b.textContent=t("periodSearch")});
+    $("#rReset").addEventListener("click",()=>{range=null;loans=recentLoans;f.value=cutoff();to.value=today();paintHist()});
+    $("#rExport").addEventListener("click",()=>exportCsv(histVisible));
     const qi=$("#hq");qi.value=ui.hq;qi.addEventListener("input",()=>{ui.hq=qi.value;paintHist()});
     $("#hList").addEventListener("click",ev=>{const g=ev.target.closest("[data-g]");if(g)openBatch(g.dataset.g)});
     $("#hList").addEventListener("keydown",ev=>{const g=ev.target.closest&&ev.target.closest("[data-g]");if(g&&(ev.key==="Enter"||ev.key===" ")){ev.preventDefault();openBatch(g.dataset.g)}});
   }
   paintHist();
 }
-let histGroups=new Map();
+let histGroups=new Map(), histVisible=[];
 function groupLoans(list){const m=new Map();list.forEach(l=>{const k=l.batch||l.id;if(!m.has(k))m.set(k,[]);m.get(k).push(l)});return m}
 function paintHist(){
   const q=ui.hq.trim().toLowerCase();
   histGroups=groupLoans(loans);
+  const lbl=$("#rLabel");if(lbl)lbl.textContent=range?t("rangeLbl",range.from,range.to):t("recentLbl");
+  const rr=$("#rReset");if(rr)rr.hidden=!range;
   const groups=[...histGroups.entries()].filter(([k,items])=>!q||items.some(l=>[l.borrower,l.program,l.eqName,l.eqNameTh,l.code,l.model].join(" ").toLowerCase().includes(q)));
   let h="";
   if(!groups.length)h=`<div class="empty">${esc(loansReady?t("noHist"):t("loading"))}</div>`;
@@ -588,11 +627,10 @@ function paintHist(){
     const end=open?(back.length?`<span class="open">${esc(t("partBack",back.length,items.length))}</span>`:`<span class="open">${esc(t("inUse"))}</span>`):esc(fD(last));
     return `<div class="hrow grp" data-g="${esc(k)}" role="button" tabindex="0"><div class="gmain"><div class="l1"><b>${esc(L.program)}</b><span class="d">${esc(fD(L.outAt))} → ${end}</span></div>
    <div class="l2">${esc(L.borrower)} · <span class="cnt">${esc(t("itemsN",items.length))}</span>${issue?` · <span class="issue">${esc(t("condIssue"))}</span>`:""}</div></div><span class="chev" aria-hidden="true">›</span></div>`}).join("");
+  histVisible=groups.flatMap(([k,items])=>items);
   $("#hList").innerHTML=h;
 }
 function openBatch(k){const items=histGroups.get(k);if(!items||!items.length)return;const L=items[0];
-  const photos=[];const seen=new Set();const addP=(id,label)=>{if(id&&!seen.has(id)){seen.add(id);photos.push([id,label])}};
-  items.forEach(l=>{addP(l.outPhoto,t("outPhoto"));addP(l.returnPhoto,t("retPhoto"))});
   const notes=[...new Set(items.map(l=>l.outNote).filter(Boolean))];
   const h=`<h2>${esc(L.program)}</h2><p class="lead">${esc(L.borrower)} · ${esc(t("outSince",fD(L.outAt)))} · ${esc(t("dueDate"))} ${esc(fD(L.due))}</p>
   ${notes.length?`<p class="lead">${notes.map(esc).join("<br>")}</p>`:""}
@@ -600,9 +638,8 @@ function openBatch(k){const items=histGroups.get(k);if(!items||!items.length)ret
   <ul class="chosen">${items.map(l=>`<li><div class="grow"><b>${esc(lnm(l))}</b><div class="sub">${l.code?tags(l.code):""}<span>${esc(l.model||"")}</span></div>
     ${l.condition==="issue"?`<div class="sub issue">${esc(t("condIssue"))}${l.returnNote?": "+esc(l.returnNote):""}</div>`:(l.returnNote?`<div class="sub">${esc(l.returnNote)}</div>`:"")}</div>
     <span class="d" style="font-size:12.5px;white-space:nowrap">${l.returnedAt?esc(t("allBack",fD(l.returnedAt))):`<span class="open">${esc(t("inUse"))}</span>`}</span></li>`).join("")}</ul>
-  ${photos.length?`<div class="actions-row" style="margin-bottom:10px">${photos.map(([id,lb])=>`<button class="btn" type="button" data-ph="${esc(id)}">${esc(lb)}</button>`).join("")}</div>`:""}
   <div class="actions"><button class="btn block" id="bClose" type="button">${esc(t("close"))}</button></div>`;
-  openSheet(h,root=>{root.querySelector("#bClose").addEventListener("click",closeSheet);root.querySelectorAll("[data-ph]").forEach(b=>b.addEventListener("click",()=>showPhoto(b.dataset.ph)))});
+  openSheet(h,root=>{root.querySelector("#bClose").addEventListener("click",closeSheet)});
 }
 
 
@@ -625,9 +662,7 @@ function onScroll(){const b=$("#toTop");b.hidden=window.scrollY<500||!$("#sheet"
 window.addEventListener("scroll",onScroll,{passive:true});
 $("#toTop").addEventListener("click",()=>window.scrollTo({top:0,behavior:smooth()}));
 render();
-refresh();
-setInterval(()=>{if(document.visibilityState==="visible"&&$("#sheet").hidden)refresh()},20000);
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")refresh()});
+boot();
 })();
 </script>
 
