@@ -61,8 +61,13 @@ button{cursor:pointer}
 .adm svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .adm.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);padding:6px 11px}
 .adm:not(.on) span{display:none}
+.iadm{display:flex;gap:6px;margin-top:6px}
+.iadm .xdel{margin-left:0}
+.xundo{border:1px solid var(--line);background:var(--surface);color:var(--accent);border-radius:8px;padding:4px 9px;font-size:12.5px;font-weight:600}
+.xundo.arm{background:var(--warn);border-color:var(--warn);color:#fff}
 .xdel{border:1px solid var(--line);background:var(--surface);color:var(--bad);border-radius:8px;padding:4px 9px;font-size:12.5px;font-weight:600;margin-left:8px;flex:none}
 .xdel.arm,.btn.danger.arm{background:var(--bad);border-color:var(--bad);color:#fff}
+.btn.arm:not(.danger):not(.primary){background:var(--warn);border-color:var(--warn);color:#fff}
 .btn.primary.arm{background:var(--warn);border-color:var(--warn);color:#fff}
 .admbox{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
 .admbox .flabel{display:block;margin-bottom:8px}
@@ -275,7 +280,7 @@ ko:{title:"CGN 장비 대여",sub:"태국 CGN · 카메라·렌즈·조명·마�
  returnAll:"전체 반납",returnOne:"반납",noOut:"지금 대여 중인 장비가 없어요.",
  outSince:d=>`${d} 대여`,
  histSearch:"대여자, 프로그램, 장비 검색",noHist:"아직 대여 기록이 없어요.",inUse:"사용 중",
- outPhoto:"대여 사진",retPhoto:"반납 사진",itemsN:n=>`장비 ${n}개`,allBack:d=>`${d} 반납`,partBack:(a,b)=>`${b}개 중 ${a}개 반납`,rentedItems:"대여한 장비",from:"시작일",to:"종료일",periodSearch:"기간 검색",backRecent:"최근으로",exportCsv:"엑셀로 내보내기",recentLbl:"최근 2개월",rangeLbl:(a,b)=>`${a} ~ ${b}`,badRange:"기간을 다시 확인해 주세요.",
+ outPhoto:"대여 사진",retPhoto:"반납 사진",itemsN:n=>`장비 ${n}개`,allBack:d=>`${d} 반납`,backBy:(d,n)=>`${d} 반납 · ${n}`,returner:"반납자",needReturner:"반납하는 사람 이름을 입력해 주세요.",partBack:(a,b)=>`${b}개 중 ${a}개 반납`,rentedItems:"대여한 장비",from:"시작일",to:"종료일",periodSearch:"기간 검색",backRecent:"최근으로",exportCsv:"엑셀로 내보내기",recentLbl:"최근 2개월",rangeLbl:(a,b)=>`${a} ~ ${b}`,badRange:"기간을 다시 확인해 주세요.",
  model:"모델",serial:"시리얼",code:"관리번호",category:"품목",status:"상태",
  current:"현재 대여",recent:"최근 대여 이력",
  markRepair:"수리 중으로 표시",repairDone:"수리 완료 · 대여 가능으로",markRetired:"불용 처리",restore:"다시 사용",
@@ -283,7 +288,7 @@ ko:{title:"CGN 장비 대여",sub:"태국 CGN · 카메라·렌즈·조명·마�
  nameKo:"장비명 (한국어)",nameTh:"장비명 (태국어)",
  saved:"저장했어요.",failed:"저장하지 못했어요. 인터넷 연결을 확인하고 다시 시도해 주세요.",
  photoFail:"사진을 처리하지 못했어요. 다른 사진으로 시도해 주세요.",
- saving:"저장 중…",noteLbl:"비고",admin:"관리자",adminLogin:"관리자 로그인",adminLead:"관리자는 대여 기록을 수정하거나 삭제할 수 있어요.",email:"이메일",password:"비밀번호",login:"로그인",logout:"로그아웃",loginFail:"이메일 또는 비밀번호가 맞지 않아요.",adminOn:u=>`${u} 계정으로 관리자 모드가 켜져 있어요.`,loggedOut:"로그아웃했어요.",editLoan:"대여 정보 수정",delBatch:"이 대여 건 전체 삭제",delOne:"삭제",confirmDel:"한 번 더 누르면 삭제돼요",deleted:n=>`기록 ${n}개를 삭제했어요.`,delFail:"삭제하지 못했어요. 관리자 로그인 상태를 확인해 주세요.",delWarn:"삭제한 기록은 되돌릴 수 없어요. 아직 반납 안 된 장비는 대여 가능 상태로 돌아가요.",bulkTitle:"장비 상태 일괄 관리",bulkLead:"여러 장비의 상태를 한 번에 바꿀 수 있어요. 적용 버튼은 두 번 눌러야 적용돼요.",bulkBar:(r,f)=>`장비 상태 일괄 관리 · 수리 중 ${r} · 증상 ${f}`,secRepair:n=>`수리 중 · ${n}개`,secFlag:n=>`증상 있음 · ${n}개`,selAll:"전체 선택",selNone:"전체 해제",toAvail:n=>`선택한 ${n}개 대여 가능으로`,clrFlags:n=>`선택한 ${n}개 증상 해제`,noRepair:"수리 중인 장비가 없어요.",noFlag:"증상이 표시된 장비가 없어요.",pickSome:"장비를 먼저 선택해 주세요.",confirmApply:"한 번 더 누르면 적용돼요",bulkDone:n=>`${n}개 장비를 대여 가능으로 바꿨어요.`,flagsDone:n=>`${n}개 장비의 증상을 해제했어요.`},
+ saving:"저장 중…",noteLbl:"비고",admin:"관리자",adminLogin:"관리자 로그인",adminLead:"관리자는 대여 기록을 수정하거나 삭제할 수 있어요.",email:"이메일",password:"비밀번호",login:"로그인",logout:"로그아웃",loginFail:"이메일 또는 비밀번호가 맞지 않아요.",adminOn:u=>`${u} 계정으로 관리자 모드가 켜져 있어요.`,loggedOut:"로그아웃했어요.",editLoan:"대여 정보 수정",delBatch:"이 대여 건 전체 삭제",delOne:"삭제",confirmDel:"한 번 더 누르면 삭제돼요",deleted:n=>`기록 ${n}개를 삭제했어요.`,delFail:"삭제하지 못했어요. 관리자 로그인 상태를 확인해 주세요.",delWarn:"삭제한 기록은 되돌릴 수 없어요. 아직 반납 안 된 장비는 대여 가능 상태로 돌아가요.",bulkTitle:"장비 상태 일괄 관리",bulkLead:"여러 장비의 상태를 한 번에 바꿀 수 있어요. 적용 버튼은 두 번 눌러야 적용돼요.",bulkBar:(r,f)=>`장비 상태 일괄 관리 · 수리 중 ${r} · 증상 ${f}`,secRepair:n=>`수리 중 · ${n}개`,secFlag:n=>`증상 있음 · ${n}개`,selAll:"전체 선택",selNone:"전체 해제",toAvail:n=>`선택한 ${n}개 대여 가능으로`,clrFlags:n=>`선택한 ${n}개 증상 해제`,noRepair:"수리 중인 장비가 없어요.",noFlag:"증상이 표시된 장비가 없어요.",pickSome:"장비를 먼저 선택해 주세요.",confirmApply:"한 번 더 누르면 적용돼요",bulkDone:n=>`${n}개 장비를 대여 가능으로 바꿨어요.`,undoOne:"반납 취소",undoAll:n=>`반납 취소 (${n}개)`,undoDone:n=>`${n}개 장비를 다시 대여 중으로 되돌렸어요.`,undoBlocked:n=>`${n}개는 이미 다른 사람이 빌렸거나 불용 처리돼서 되돌리지 못했어요.`,undoWarn:"반납 취소하면 그 장비는 다시 이 대여 건의 '대여 중'으로 돌아가고, 반납할 때 남긴 증상·수리 표시도 지워져요.",flagsDone:n=>`${n}개 장비의 증상을 해제했어요.`},
 th:{title:"ยืม-คืนอุปกรณ์ CGN",sub:"CGN ประเทศไทย · กล้อง·เลนส์·ไฟ·ไมค์·แบตเตอรี่",switchTo:"한국어",
  tabEquip:"อุปกรณ์",tabOut:"กำลังยืม",tabHist:"ประวัติ",
  all:"ทั้งหมด",available:"ว่าง",out:"กำลังยืม",overdue:"เกินกำหนด",repair:"ซ่อม",retired:"เลิกใช้",
@@ -305,7 +310,7 @@ th:{title:"ยืม-คืนอุปกรณ์ CGN",sub:"CGN ประเ�
  returnAll:"คืนทั้งหมด",returnOne:"คืน",noOut:"ตอนนี้ไม่มีอุปกรณ์ที่ถูกยืมครับ",
  outSince:d=>`ยืม ${d}`,
  histSearch:"ค้นหาผู้ยืม รายการ หรืออุปกรณ์",noHist:"ยังไม่มีประวัติการยืมครับ",inUse:"ยังไม่คืน",
- outPhoto:"รูปตอนยืม",retPhoto:"รูปตอนคืน",itemsN:n=>`อุปกรณ์ ${n} รายการ`,allBack:d=>`คืน ${d}`,partBack:(a,b)=>`คืนแล้ว ${a} จาก ${b} รายการ`,rentedItems:"อุปกรณ์ที่ยืม",from:"วันที่เริ่ม",to:"วันที่สิ้นสุด",periodSearch:"ค้นหาตามช่วงเวลา",backRecent:"กลับไปล่าสุด",exportCsv:"ส่งออกเป็น Excel",recentLbl:"2 เดือนล่าสุด",rangeLbl:(a,b)=>`${a} ~ ${b}`,badRange:"กรุณาตรวจสอบช่วงเวลาอีกครั้งครับ",
+ outPhoto:"รูปตอนยืม",retPhoto:"รูปตอนคืน",itemsN:n=>`อุปกรณ์ ${n} รายการ`,allBack:d=>`คืน ${d}`,backBy:(d,n)=>`คืน ${d} · ${n}`,returner:"ผู้คืน",needReturner:"กรุณากรอกชื่อผู้คืนครับ",partBack:(a,b)=>`คืนแล้ว ${a} จาก ${b} รายการ`,rentedItems:"อุปกรณ์ที่ยืม",from:"วันที่เริ่ม",to:"วันที่สิ้นสุด",periodSearch:"ค้นหาตามช่วงเวลา",backRecent:"กลับไปล่าสุด",exportCsv:"ส่งออกเป็น Excel",recentLbl:"2 เดือนล่าสุด",rangeLbl:(a,b)=>`${a} ~ ${b}`,badRange:"กรุณาตรวจสอบช่วงเวลาอีกครั้งครับ",
  model:"รุ่น",serial:"ซีเรียล",code:"รหัสอุปกรณ์",category:"ประเภท",status:"สถานะ",
  current:"การยืมปัจจุบัน",recent:"ประวัติการยืมล่าสุด",
  markRepair:"ตั้งเป็นซ่อม",repairDone:"ซ่อมเสร็จ · พร้อมให้ยืม",markRetired:"ตั้งเป็นเลิกใช้",restore:"กลับมาใช้งาน",
@@ -360,7 +365,7 @@ async function fbCheckout({ids,borrower,program,outDate,due,note}){
       tx.update(refs[i],{status:"out",loanId:lref.id,batch,borrower,program,outAt:at,due,updated:now});ok++});
     return {ok,skipped}});
 }
-async function fbReturn({loanIds,condition,note,notes}){
+async function fbReturn({loanIds,condition,note,notes,by}){
   const now=stamp();
   return fs.runTransaction(db,async tx=>{
     const ls=await Promise.all(loanIds.map(id=>tx.get(fs.doc(db,"loans",id))));
@@ -368,7 +373,7 @@ async function fbReturn({loanIds,condition,note,notes}){
     let n=0;
     ls.forEach((l,i)=>{if(!l.exists()||l.data().returnedAt)return;
       const cd=condition,nt=(notes&&notes[l.id]!=null?notes[l.id]:note)||"";
-      tx.update(l.ref,{returnedAt:now,condition:cd,returnNote:nt});
+      tx.update(l.ref,{returnedAt:now,condition:cd,returnNote:nt,returnedBy:by||""});
       const e=es[i];
       if(e&&e.exists()&&e.data().loanId===l.id)tx.update(e.ref,{status:cd==="issue"?"repair":"available",issue:cd==="issue"?nt:"",flag:cd==="minor"?nt:"",loanId:"",batch:"",borrower:"",program:"",outAt:"",due:"",updated:now});
       n++});
@@ -419,6 +424,27 @@ function openAdmin(){
       try{await fa.signInWithEmailAndPassword(auth,em.value.trim(),root.querySelector("#aPw").value);LS.set("adminEmail",em.value.trim());closeSheet();render();toast(tk("adminOn",em.value.trim()))}
       catch(e){toast(tk("loginFail"));b.disabled=false;b.textContent=tk("login")}})});
 }
+async function fbUndoReturn(ids){const now=stamp();
+  return fs.runTransaction(db,async tx=>{
+    const ls=await Promise.all(ids.map(id=>tx.get(fs.doc(db,"loans",id))));
+    const es=await Promise.all(ls.map(l=>l.exists()&&l.data().eqId?tx.get(fs.doc(db,"equipment",l.data().eqId)):null));
+    let n=0,blocked=0;const done=[];
+    ls.forEach((l,i)=>{if(!l.exists())return;const d=l.data();if(!d.returnedAt)return;const e=es[i];
+      if(!e||!e.exists()||!["available","repair"].includes(e.data().status||"available")){blocked++;return}
+      const ed=e.data();const up={status:"out",loanId:l.id,batch:d.batch||"",borrower:d.borrower||"",program:d.program||"",outAt:d.outAt||"",due:d.due||"",updated:now};
+      if(d.condition==="issue")up.issue="";
+      if(d.condition==="minor"&&(ed.flag||"")===(d.returnNote||""))up.flag="";
+      tx.update(e.ref,up);
+      tx.update(l.ref,{returnedAt:"",condition:"",returnNote:"",returnedBy:""});
+      done.push(l.id);n++});
+    return {n,blocked,done}});
+}
+async function doUndo(ids){
+  try{const r=await fbUndoReturn(ids);
+    if(range)loans=loans.map(l=>r.done.includes(l.id)?{...l,returnedAt:null,condition:null,returnNote:"",returnedBy:""}:l);
+    closeSheet();render();toast(tk("undoDone",r.n)+(r.blocked?" "+tk("undoBlocked",r.blocked):""))}
+  catch(e){closeSheet();toast(tk("failed"))}
+}
 async function fbBulk(ids,kind){const now=stamp();
   const n=await fs.runTransaction(db,async tx=>{
     const snaps=await Promise.all(ids.map(id=>tx.get(fs.doc(db,"equipment",id))));let n=0;
@@ -460,8 +486,8 @@ function openBulk(){if(!isAdmin())return;
     wire("bFl","bFlGo","clrFlags","flag","flagsDone");
   });
 }
-function armBtn(b,fn){b.addEventListener("click",async()=>{
-  if(!b.classList.contains("arm")){b.dataset.lbl=b.textContent;b.classList.add("arm");b.textContent=tk("confirmDel");setTimeout(()=>{if(b.isConnected&&!b.disabled){b.classList.remove("arm");b.textContent=b.dataset.lbl}},4000);return}
+function armBtn(b,fn,msg){b.addEventListener("click",async()=>{
+  if(!b.classList.contains("arm")){b.dataset.lbl=b.textContent;b.classList.add("arm");b.textContent=msg||tk("confirmDel");setTimeout(()=>{if(b.isConnected&&!b.disabled){b.classList.remove("arm");b.textContent=b.dataset.lbl}},4000);return}
   b.disabled=true;await fn()})}
 async function doDelete(ids){
   try{const n=await fbDeleteLoans(ids);afterLoanChange(ids);closeSheet();render();toast(tk("deleted",n))}
@@ -487,9 +513,9 @@ async function searchRange(from,to){
   range={from,to};loans=snap.docs.map(d=>normLoan({...d.data(),id:d.id}));
 }
 function exportCsv(list){
-  const head=["대여일/วันที่ยืม","반납 예정일/กำหนดคืน","반납일/วันที่คืน","프로그램/รายการ","대여자/ผู้ยืม","장비/อุปกรณ์","관리번호/รหัส","모델/รุ่น","상태/สภาพ","메모/หมายเหตุ"];
+  const head=["대여일/วันที่ยืม","반납 예정일/กำหนดคืน","반납일/วันที่คืน","프로그램/รายการ","대여자/ผู้ยืม","장비/อุปกรณ์","관리번호/รหัส","모델/รุ่น","상태/สภาพ","반납자/ผู้คืน","메모/หมายเหตุ"];
   const q=v=>{v=String(v??"");return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
-  const rows=list.map(l=>[l.outAt,l.due,l.returnedAt||"",l.program,l.borrower,l.eqName,l.code,l.model,l.condition==="issue"?"이상 있음/มีปัญหา":l.condition==="minor"?"증상 있음/มีอาการ":(l.returnedAt?"정상/ปกติ":"대여 중/กำลังยืม"),[l.outNote,l.returnNote].filter(Boolean).join(" / ")]);
+  const rows=list.map(l=>[l.outAt,l.due,l.returnedAt||"",l.program,l.borrower,l.eqName,l.code,l.model,l.condition==="issue"?"이상 있음/มีปัญหา":l.condition==="minor"?"증상 있음/มีอาการ":(l.returnedAt?"정상/ปกติ":"대여 중/กำลังยืม"),l.returnedBy||"",[l.outNote,l.returnNote].filter(Boolean).join(" / ")]);
   const csv="﻿"+[head,...rows].map(r=>r.map(q).join(",")).join("\r\n");
   const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
   const a=document.createElement("a");a.href=url;a.download="cgn-rental-"+(range?range.from+"_"+range.to:today())+".csv";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
@@ -736,6 +762,8 @@ function openReturn(loanIds){
   const act=[...eq.values()].filter(e=>e.status==="out"&&e.loan&&loanIds.includes(e.loan.id));if(!act.length)return;const multi=act.length>1;
   const h=`<h2>${esc(t("returnTitle"))}</h2><p class="lead">${esc(t("returnLead",act.length))}</p>
   <ul class="chosen">${act.map(e=>`<li><div class="grow"><b>${esc(nm(e))}</b><div class="sub">${e.code?tags(e.code):""}<span>${esc(e.loan.borrower)} · ${esc(e.loan.program)}</span></div></div></li>`).join("")}</ul>
+  <div class="field"><label for="rBy">${esc(t("returner"))}</label><input id="rBy" list="dlBy" autocomplete="off" maxlength="80" value="${esc(LS.get("me")||"")}"></div>
+  <datalist id="dlBy">${uniq(loans.map(l=>l.borrower)).map(p=>`<option value="${esc(p)}">`).join("")}</datalist>
   <div class="field"><span class="flabel">${esc(t("condition"))}</span><div class="seg"><label><input type="radio" name="cond" id="rOk" value="ok" checked><span>${esc(t("condOk"))}</span></label><label><input type="radio" name="cond" id="rMinor" value="minor"><span>${esc(t("condMinor"))}</span></label><label><input type="radio" name="cond" id="rIssue" value="issue"><span>${esc(t("condIssue"))}</span></label></div></div>
   ${multi?`<div class="field" id="rPickBox" hidden><span class="flabel">${esc(t("pickIssue"))}</span><div class="plist">${act.map(e=>`<div class="pitem"><label class="prow"><input type="checkbox" value="${esc(e.loan.id)}"><div class="grow"><b>${esc(nm(e))}</b><div class="sub">${e.code?tags(e.code):""}<span>${esc(e.model||"")}</span></div></div></label><input class="pnote" data-for="${esc(e.loan.id)}" maxlength="500" placeholder="${esc(t("pnotePh"))}" hidden></div>`).join("")}</div></div>`:""}
   <div class="field" id="rNoteBox"><label for="rNote" id="rNoteLbl">${esc(t("note"))}</label><textarea id="rNote" maxlength="500" placeholder="${esc(t("issueNote"))}"></textarea></div>
@@ -753,14 +781,16 @@ function openReturn(loanIds){
     root.querySelectorAll('input[name="cond"]').forEach(r=>r.addEventListener("change",sync));
     box&&box.addEventListener("change",sync);
     save.addEventListener("click",async ev=>{
-      const cond=curCond(),note=root.querySelector("#rNote").value.trim();
+      const cond=curCond(),note=root.querySelector("#rNote").value.trim(),by=root.querySelector("#rBy").value.trim();
+      if(!by){toast(t("needReturner"));root.querySelector("#rBy").focus();return}
       const pk=multi&&cond!=="ok"?picked():null;
       if(pk&&!pk.length){toast(t("needPick"));box.scrollIntoView({block:"center",behavior:"smooth"});return}
       let notes=null;
       if(pk){notes={};for(const id of pk){const n=box.querySelector(`.pnote[data-for="${id}"]`);const v=n.value.trim();if(!v){toast(t("needNotes"));n.focus();return}notes[id]=v}}
       else if(cond!=="ok"&&!note){toast(t("needNote"));root.querySelector("#rNote").focus();return}
       const btn=ev.target;btn.disabled=true;btn.textContent=t("saving");
-      try{const n=await fbReturn({loanIds:pk||act.map(e=>e.loan.id),condition:cond,note,notes});
+      LS.set("me",by);
+      try{const n=await fbReturn({loanIds:pk||act.map(e=>e.loan.id),condition:cond,note,notes,by});
         const left=pk?act.map(e=>e.loan.id).filter(id=>!pk.includes(id)):[];
         closeSheet();render();
         if(left.length){openReturn(left);toast(t("returnedLeft",n,left.length))}else toast(t("returned",n));
@@ -822,19 +852,22 @@ function paintHist(){
   histVisible=groups.flatMap(([k,items])=>items);
   $("#hList").innerHTML=h;
 }
-function openBatch(k){const items=histGroups.get(k);if(!items||!items.length)return;const L=items[0];const adm=isAdmin();
+function openBatch(k){const items=histGroups.get(k);if(!items||!items.length)return;const L=items[0];const adm=isAdmin();const nBack=items.filter(l=>l.returnedAt).length;
   const notes=[...new Set(items.map(l=>l.outNote).filter(Boolean))];
   const h=`<h2>${esc(L.program)}</h2><p class="lead">${esc(L.borrower)} · ${esc(t("outSince",fD(L.outAt)))} · ${esc(t("dueDate"))} ${esc(fD(L.due))}</p>
   ${notes.length?`<p class="lead">${notes.map(esc).join("<br>")}</p>`:""}
   <div class="sec">${esc(t("rentedItems"))} · ${items.length}</div>
   <ul class="chosen">${items.map(l=>`<li><div class="grow"><b>${esc(lnm(l))}</b><div class="sub">${l.code?tags(l.code):""}<span>${esc(l.model||"")}</span></div>
-    ${l.condition==="issue"?`<div class="sub issue">${esc(t("condIssue"))}${l.returnNote?": "+esc(l.returnNote):""}</div>`:l.condition==="minor"?`<div class="sub warnc">${esc(t("flag"))}${l.returnNote?": "+esc(l.returnNote):""}</div>`:(l.returnNote?`<div class="sub">${esc(l.returnNote)}</div>`:"")}</div>
-    <span class="d" style="font-size:12.5px;white-space:nowrap">${l.returnedAt?esc(t("allBack",fD(l.returnedAt))):`<span class="open">${esc(t("inUse"))}</span>`}</span>${adm?`<button class="xdel" type="button" data-del="${esc(l.id)}">${esc(tk("delOne"))}</button>`:""}</li>`).join("")}</ul>
-  ${adm?`<div class="admbox"><span class="flabel">${esc(tk("admin"))}</span><div class="actions-row"><button class="btn" id="bEdit" type="button">${esc(tk("editLoan"))}</button><button class="btn danger" id="bDel" type="button">${esc(tk("delBatch"))}</button></div><p class="warnp">${esc(tk("delWarn"))}</p></div>`:""}
+    ${l.condition==="issue"?`<div class="sub issue">${esc(t("condIssue"))}${l.returnNote?": "+esc(l.returnNote):""}</div>`:l.condition==="minor"?`<div class="sub warnc">${esc(t("flag"))}${l.returnNote?": "+esc(l.returnNote):""}</div>`:(l.returnNote?`<div class="sub">${esc(l.returnNote)}</div>`:"")}
+    ${adm?`<div class="iadm">${l.returnedAt?`<button class="xundo" type="button" data-undo="${esc(l.id)}">${esc(tk("undoOne"))}</button>`:""}<button class="xdel" type="button" data-del="${esc(l.id)}">${esc(tk("delOne"))}</button></div>`:""}</div>
+    <span class="d" style="font-size:12.5px;white-space:nowrap">${l.returnedAt?esc(l.returnedBy?t("backBy",fD(l.returnedAt),l.returnedBy):t("allBack",fD(l.returnedAt))):`<span class="open">${esc(t("inUse"))}</span>`}</span></li>`).join("")}</ul>
+  ${adm?`<div class="admbox"><span class="flabel">${esc(tk("admin"))}</span><div class="actions-row"><button class="btn" id="bEdit" type="button">${esc(tk("editLoan"))}</button><button class="btn danger" id="bDel" type="button">${esc(tk("delBatch"))}</button></div>${nBack>1?`<button class="btn block" id="bUndo" type="button" style="margin-top:8px">${esc(tk("undoAll",nBack))}</button>`:""}<p class="warnp">${esc(tk("delWarn"))}</p>${nBack?`<p class="warnp">${esc(tk("undoWarn"))}</p>`:""}</div>`:""}
   <div class="actions"><button class="btn block" id="bClose" type="button">${esc(t("close"))}</button></div>`;
   openSheet(h,root=>{root.querySelector("#bClose").addEventListener("click",closeSheet);
     if(adm){root.querySelector("#bEdit").addEventListener("click",()=>openEditBatch(k));armBtn(root.querySelector("#bDel"),()=>doDelete(items.map(l=>l.id)));
-      root.querySelectorAll("[data-del]").forEach(b=>armBtn(b,()=>doDelete([b.dataset.del])))}});
+      root.querySelectorAll("[data-del]").forEach(b=>armBtn(b,()=>doDelete([b.dataset.del])));
+      root.querySelectorAll("[data-undo]").forEach(b=>armBtn(b,()=>doUndo([b.dataset.undo]),tk("confirmApply")));
+      const ub=root.querySelector("#bUndo");if(ub)armBtn(ub,()=>doUndo(items.filter(l=>l.returnedAt).map(l=>l.id)),tk("confirmApply"))}});
 }
 
 
