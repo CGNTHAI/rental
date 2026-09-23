@@ -141,8 +141,10 @@ button{cursor:pointer}
 .issue{color:var(--bad)}
 .warnc{color:var(--warn)}
 .plist{display:flex;flex-direction:column;gap:6px}
-.pitem{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
-.field .pitem input{width:20px;height:20px;padding:0;margin:0;border:0;background:none;flex:none;accent-color:var(--bad)}
+.pitem{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.prow{display:flex;gap:10px;align-items:center;cursor:pointer}
+.field .pitem input[type=checkbox]{width:20px;height:20px;padding:0;margin:0;border:0;background:none;flex:none;accent-color:var(--bad)}
+.field .pitem .pnote{margin-top:8px;background:var(--surface)}
 .pitem .grow{flex:1;min-width:0}
 .pitem:has(input:checked){border-color:var(--bad);background:var(--bad-soft)}
 .pitem .sub{margin-top:2px}
@@ -255,7 +257,7 @@ ko:{title:"CGN 장비 대여",sub:"태국 CGN · 카메라·렌즈·조명·마�
  needFields:"대여자, 프로그램명, 반납 예정일을 입력해 주세요.",
  rented:n=>`${n}개 장비 대여를 기록했어요.`,skipped:n=>`${n}개는 이미 다른 사람이 대여 중이라 제외했어요.`,
  returnTitle:"장비 반납",returnLead:n=>`${n}개 장비를 반납 처리합니다.`,condition:"장비 상태",condOk:"정상",condMinor:"증상 있음·사용 가능",condIssue:"수리 필요",
- issueNote:"증상이나 문제 내용을 적어 주세요. '수리 필요'면 대여가 막혀요.",flag:"증상",setFlag:"증상 표시",editFlag:"증상 수정",clearFlag:"증상 해제",flagTitle:"장비 증상",flagPh:"어떤 증상인가요? (수리 안 해도 사용 가능)",flagSaved:"증상을 표시했어요.",flagCleared:"증상 표시를 해제했어요.",pickIssue:"문제가 있는 장비를 선택하세요 (선택한 장비만 먼저 반납되고, 나머지는 남아 있어요)",needPick:"문제가 있는 장비를 하나 이상 선택해 주세요.",retPicked:(n,l)=>`선택한 ${n}개 반납 (${l})`,returnedLeft:(n,m)=>`${n}개 반납 처리했어요. 남은 ${m}개를 이어서 반납하세요.`,confirmReturn:"반납 완료",returned:n=>`${n}개 장비를 반납 처리했어요.`,
+ issueNote:"증상이나 문제 내용을 적어 주세요. '수리 필요'면 대여가 막혀요.",flag:"증상",setFlag:"증상 표시",editFlag:"증상 수정",clearFlag:"증상 해제",flagTitle:"장비 증상",flagPh:"어떤 증상인가요? (수리 안 해도 사용 가능)",flagSaved:"증상을 표시했어요.",flagCleared:"증상 표시를 해제했어요.",pickIssue:"문제가 있는 장비를 선택하고 장비마다 증상을 적어 주세요 (선택한 장비만 먼저 반납되고, 나머지는 남아 있어요)",pnotePh:"이 장비의 증상 (필수)",needNotes:"선택한 장비마다 증상을 적어 주세요.",needNote:"증상이나 문제 내용을 적어 주세요.",noteReq:"증상 (필수)",needPick:"문제가 있는 장비를 하나 이상 선택해 주세요.",retPicked:(n,l)=>`선택한 ${n}개 반납 (${l})`,returnedLeft:(n,m)=>`${n}개 반납 처리했어요. 남은 ${m}개를 이어서 반납하세요.`,confirmReturn:"반납 완료",returned:n=>`${n}개 장비를 반납 처리했어요.`,
  returnAll:"전체 반납",returnOne:"반납",noOut:"지금 대여 중인 장비가 없어요.",
  outSince:d=>`${d} 대여`,
  histSearch:"대여자, 프로그램, 장비 검색",noHist:"아직 대여 기록이 없어요.",inUse:"사용 중",
@@ -285,7 +287,7 @@ th:{title:"ยืม-คืนอุปกรณ์ CGN",sub:"CGN ประเ�
  needFields:"กรุณากรอกผู้ยืม ชื่อรายการ และกำหนดคืนด้วยครับ",
  rented:n=>`บันทึกการยืมอุปกรณ์ ${n} รายการแล้วครับ`,skipped:n=>`มี ${n} รายการที่ถูกยืมไปแล้ว จึงไม่ได้บันทึกครับ`,
  returnTitle:"คืนอุปกรณ์",returnLead:n=>`คืนอุปกรณ์ ${n} รายการครับ`,condition:"สภาพอุปกรณ์",condOk:"ปกติ",condMinor:"มีอาการ·ยังใช้ได้",condIssue:"ต้องซ่อม",
- issueNote:"กรุณาระบุอาการหรือปัญหาครับ ถ้าเลือก 'ต้องซ่อม' จะยืมไม่ได้ครับ",flag:"อาการ",setFlag:"ระบุอาการ",editFlag:"แก้อาการ",clearFlag:"ล้างอาการ",flagTitle:"อาการอุปกรณ์",flagPh:"มีอาการอย่างไรครับ (ไม่ต้องซ่อมก็ใช้ได้)",flagSaved:"บันทึกอาการแล้วครับ",flagCleared:"ล้างอาการแล้วครับ",pickIssue:"กรุณาเลือกอุปกรณ์ที่มีปัญหาครับ (จะคืนเฉพาะรายการที่เลือกก่อน ที่เหลือจะยังอยู่ครับ)",needPick:"กรุณาเลือกอุปกรณ์ที่มีปัญหาอย่างน้อย 1 รายการครับ",retPicked:(n,l)=>`คืนที่เลือก ${n} รายการ (${l})`,returnedLeft:(n,m)=>`คืนแล้ว ${n} รายการครับ กรุณาคืนอีก ${m} รายการที่เหลือต่อครับ`,confirmReturn:"ยืนยันการคืน",returned:n=>`คืนอุปกรณ์ ${n} รายการแล้วครับ`,
+ issueNote:"กรุณาระบุอาการหรือปัญหาครับ ถ้าเลือก 'ต้องซ่อม' จะยืมไม่ได้ครับ",flag:"อาการ",setFlag:"ระบุอาการ",editFlag:"แก้อาการ",clearFlag:"ล้างอาการ",flagTitle:"อาการอุปกรณ์",flagPh:"มีอาการอย่างไรครับ (ไม่ต้องซ่อมก็ใช้ได้)",flagSaved:"บันทึกอาการแล้วครับ",flagCleared:"ล้างอาการแล้วครับ",pickIssue:"กรุณาเลือกอุปกรณ์ที่มีปัญหาและระบุอาการของแต่ละรายการครับ (จะคืนเฉพาะรายการที่เลือกก่อน ที่เหลือจะยังอยู่ครับ)",pnotePh:"อาการของอุปกรณ์นี้ (จำเป็น)",needNotes:"กรุณาระบุอาการของอุปกรณ์ที่เลือกทุกรายการครับ",needNote:"กรุณาระบุอาการหรือปัญหาครับ",noteReq:"อาการ (จำเป็น)",needPick:"กรุณาเลือกอุปกรณ์ที่มีปัญหาอย่างน้อย 1 รายการครับ",retPicked:(n,l)=>`คืนที่เลือก ${n} รายการ (${l})`,returnedLeft:(n,m)=>`คืนแล้ว ${n} รายการครับ กรุณาคืนอีก ${m} รายการที่เหลือต่อครับ`,confirmReturn:"ยืนยันการคืน",returned:n=>`คืนอุปกรณ์ ${n} รายการแล้วครับ`,
  returnAll:"คืนทั้งหมด",returnOne:"คืน",noOut:"ตอนนี้ไม่มีอุปกรณ์ที่ถูกยืมครับ",
  outSince:d=>`ยืม ${d}`,
  histSearch:"ค้นหาผู้ยืม รายการ หรืออุปกรณ์",noHist:"ยังไม่มีประวัติการยืมครับ",inUse:"ยังไม่คืน",
@@ -344,14 +346,14 @@ async function fbCheckout({ids,borrower,program,outDate,due,note}){
       tx.update(refs[i],{status:"out",loanId:lref.id,batch,borrower,program,outAt:at,due,updated:now});ok++});
     return {ok,skipped}});
 }
-async function fbReturn({loanIds,condition,note}){
+async function fbReturn({loanIds,condition,note,notes}){
   const now=stamp();
   return fs.runTransaction(db,async tx=>{
     const ls=await Promise.all(loanIds.map(id=>tx.get(fs.doc(db,"loans",id))));
     const es=await Promise.all(ls.map(l=>l.exists()&&l.data().eqId?tx.get(fs.doc(db,"equipment",l.data().eqId)):null));
     let n=0;
     ls.forEach((l,i)=>{if(!l.exists()||l.data().returnedAt)return;
-      const cd=condition,nt=note||"";
+      const cd=condition,nt=(notes&&notes[l.id]!=null?notes[l.id]:note)||"";
       tx.update(l.ref,{returnedAt:now,condition:cd,returnNote:nt});
       const e=es[i];
       if(e&&e.exists()&&e.data().loanId===l.id)tx.update(e.ref,{status:cd==="issue"?"repair":"available",issue:cd==="issue"?nt:"",flag:cd==="minor"?nt:"",loanId:"",batch:"",borrower:"",program:"",outAt:"",due:"",updated:now});
@@ -667,15 +669,18 @@ function openReturn(loanIds){
   const h=`<h2>${esc(t("returnTitle"))}</h2><p class="lead">${esc(t("returnLead",act.length))}</p>
   <ul class="chosen">${act.map(e=>`<li><div class="grow"><b>${esc(nm(e))}</b><div class="sub">${e.code?tags(e.code):""}<span>${esc(e.loan.borrower)} · ${esc(e.loan.program)}</span></div></div></li>`).join("")}</ul>
   <div class="field"><span class="flabel">${esc(t("condition"))}</span><div class="seg"><label><input type="radio" name="cond" id="rOk" value="ok" checked><span>${esc(t("condOk"))}</span></label><label><input type="radio" name="cond" id="rMinor" value="minor"><span>${esc(t("condMinor"))}</span></label><label><input type="radio" name="cond" id="rIssue" value="issue"><span>${esc(t("condIssue"))}</span></label></div></div>
-  ${multi?`<div class="field" id="rPickBox" hidden><span class="flabel">${esc(t("pickIssue"))}</span><div class="plist">${act.map(e=>`<label class="pitem"><input type="checkbox" value="${esc(e.loan.id)}"><div class="grow"><b>${esc(nm(e))}</b><div class="sub">${e.code?tags(e.code):""}<span>${esc(e.model||"")}</span></div></div></label>`).join("")}</div></div>`:""}
-  <div class="field"><label for="rNote">${esc(t("note"))}</label><textarea id="rNote" placeholder="${esc(t("issueNote"))}"></textarea></div>
+  ${multi?`<div class="field" id="rPickBox" hidden><span class="flabel">${esc(t("pickIssue"))}</span><div class="plist">${act.map(e=>`<div class="pitem"><label class="prow"><input type="checkbox" value="${esc(e.loan.id)}"><div class="grow"><b>${esc(nm(e))}</b><div class="sub">${e.code?tags(e.code):""}<span>${esc(e.model||"")}</span></div></div></label><input class="pnote" data-for="${esc(e.loan.id)}" maxlength="500" placeholder="${esc(t("pnotePh"))}" hidden></div>`).join("")}</div></div>`:""}
+  <div class="field" id="rNoteBox"><label for="rNote" id="rNoteLbl">${esc(t("note"))}</label><textarea id="rNote" maxlength="500" placeholder="${esc(t("issueNote"))}"></textarea></div>
   <div class="actions-row"><button class="btn" id="rCancel" type="button">${esc(t("cancel"))}</button><button class="btn primary" id="rSave" type="button">${esc(t("confirmReturn"))}</button></div>`;
   openSheet(h,root=>{
     root.querySelector("#rCancel").addEventListener("click",closeSheet);
     const box=root.querySelector("#rPickBox"),save=root.querySelector("#rSave");
     const curCond=()=>root.querySelector('input[name="cond"]:checked').value;
-    const picked=()=>box?[...box.querySelectorAll("input:checked")].map(i=>i.value):null;
+    const picked=()=>box?[...box.querySelectorAll("input[type=checkbox]:checked")].map(i=>i.value):null;
+    const noteBox=root.querySelector("#rNoteBox"),noteLbl=root.querySelector("#rNoteLbl");
     const sync=()=>{const c=curCond();if(box)box.hidden=c==="ok";
+      if(box)box.querySelectorAll(".pnote").forEach(n=>{const on=box.querySelector(`input[type=checkbox][value="${n.dataset.for}"]`).checked;if(n.hidden===on){n.hidden=!on;if(on)n.focus()}});
+      noteBox.hidden=multi&&c!=="ok";noteLbl.textContent=!multi&&c!=="ok"?t("noteReq"):t("note");
       if(multi&&c!=="ok"){const p=picked().length;save.textContent=p?t("retPicked",p,t(c==="issue"?"condIssue":"condMinor")):t("confirmReturn")}else save.textContent=t("confirmReturn")};
     root.querySelectorAll('input[name="cond"]').forEach(r=>r.addEventListener("change",sync));
     box&&box.addEventListener("change",sync);
@@ -683,8 +688,11 @@ function openReturn(loanIds){
       const cond=curCond(),note=root.querySelector("#rNote").value.trim();
       const pk=multi&&cond!=="ok"?picked():null;
       if(pk&&!pk.length){toast(t("needPick"));box.scrollIntoView({block:"center",behavior:"smooth"});return}
+      let notes=null;
+      if(pk){notes={};for(const id of pk){const n=box.querySelector(`.pnote[data-for="${id}"]`);const v=n.value.trim();if(!v){toast(t("needNotes"));n.focus();return}notes[id]=v}}
+      else if(cond!=="ok"&&!note){toast(t("needNote"));root.querySelector("#rNote").focus();return}
       const btn=ev.target;btn.disabled=true;btn.textContent=t("saving");
-      try{const n=await fbReturn({loanIds:pk||act.map(e=>e.loan.id),condition:cond,note});
+      try{const n=await fbReturn({loanIds:pk||act.map(e=>e.loan.id),condition:cond,note,notes});
         const left=pk?act.map(e=>e.loan.id).filter(id=>!pk.includes(id)):[];
         closeSheet();render();
         if(left.length){openReturn(left);toast(t("returnedLeft",n,left.length))}else toast(t("returned",n));
