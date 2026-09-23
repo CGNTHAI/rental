@@ -255,7 +255,7 @@ ko:{title:"CGN 장비 대여",sub:"태국 CGN · 카메라·렌즈·조명·마�
  needFields:"대여자, 프로그램명, 반납 예정일을 입력해 주세요.",
  rented:n=>`${n}개 장비 대여를 기록했어요.`,skipped:n=>`${n}개는 이미 다른 사람이 대여 중이라 제외했어요.`,
  returnTitle:"장비 반납",returnLead:n=>`${n}개 장비를 반납 처리합니다.`,condition:"장비 상태",condOk:"정상",condMinor:"증상 있음·사용 가능",condIssue:"수리 필요",
- issueNote:"증상이나 문제 내용을 적어 주세요. '수리 필요'면 대여가 막혀요.",flag:"증상",setFlag:"증상 표시",editFlag:"증상 수정",clearFlag:"증상 해제",flagTitle:"장비 증상",flagPh:"어떤 증상인가요? (수리 안 해도 사용 가능)",flagSaved:"증상을 표시했어요.",flagCleared:"증상 표시를 해제했어요.",pickIssue:"문제가 있는 장비를 선택하세요 (선택 안 한 장비는 정상 반납)",needPick:"문제가 있는 장비를 하나 이상 선택해 주세요.",retSum:(a,b,l)=>`반납 완료 (정상 ${a} · ${l} ${b})`,confirmReturn:"반납 완료",returned:n=>`${n}개 장비를 반납 처리했어요.`,
+ issueNote:"증상이나 문제 내용을 적어 주세요. '수리 필요'면 대여가 막혀요.",flag:"증상",setFlag:"증상 표시",editFlag:"증상 수정",clearFlag:"증상 해제",flagTitle:"장비 증상",flagPh:"어떤 증상인가요? (수리 안 해도 사용 가능)",flagSaved:"증상을 표시했어요.",flagCleared:"증상 표시를 해제했어요.",pickIssue:"문제가 있는 장비를 선택하세요 (선택한 장비만 먼저 반납되고, 나머지는 남아 있어요)",needPick:"문제가 있는 장비를 하나 이상 선택해 주세요.",retPicked:(n,l)=>`선택한 ${n}개 반납 (${l})`,returnedLeft:(n,m)=>`${n}개 반납 처리했어요. 남은 ${m}개를 이어서 반납하세요.`,confirmReturn:"반납 완료",returned:n=>`${n}개 장비를 반납 처리했어요.`,
  returnAll:"전체 반납",returnOne:"반납",noOut:"지금 대여 중인 장비가 없어요.",
  outSince:d=>`${d} 대여`,
  histSearch:"대여자, 프로그램, 장비 검색",noHist:"아직 대여 기록이 없어요.",inUse:"사용 중",
@@ -285,7 +285,7 @@ th:{title:"ยืม-คืนอุปกรณ์ CGN",sub:"CGN ประเ�
  needFields:"กรุณากรอกผู้ยืม ชื่อรายการ และกำหนดคืนด้วยครับ",
  rented:n=>`บันทึกการยืมอุปกรณ์ ${n} รายการแล้วครับ`,skipped:n=>`มี ${n} รายการที่ถูกยืมไปแล้ว จึงไม่ได้บันทึกครับ`,
  returnTitle:"คืนอุปกรณ์",returnLead:n=>`คืนอุปกรณ์ ${n} รายการครับ`,condition:"สภาพอุปกรณ์",condOk:"ปกติ",condMinor:"มีอาการ·ยังใช้ได้",condIssue:"ต้องซ่อม",
- issueNote:"กรุณาระบุอาการหรือปัญหาครับ ถ้าเลือก 'ต้องซ่อม' จะยืมไม่ได้ครับ",flag:"อาการ",setFlag:"ระบุอาการ",editFlag:"แก้อาการ",clearFlag:"ล้างอาการ",flagTitle:"อาการอุปกรณ์",flagPh:"มีอาการอย่างไรครับ (ไม่ต้องซ่อมก็ใช้ได้)",flagSaved:"บันทึกอาการแล้วครับ",flagCleared:"ล้างอาการแล้วครับ",pickIssue:"กรุณาเลือกอุปกรณ์ที่มีปัญหาครับ (รายการที่ไม่เลือกจะคืนเป็นปกติ)",needPick:"กรุณาเลือกอุปกรณ์ที่มีปัญหาอย่างน้อย 1 รายการครับ",retSum:(a,b,l)=>`ยืนยันการคืน (ปกติ ${a} · ${l} ${b})`,confirmReturn:"ยืนยันการคืน",returned:n=>`คืนอุปกรณ์ ${n} รายการแล้วครับ`,
+ issueNote:"กรุณาระบุอาการหรือปัญหาครับ ถ้าเลือก 'ต้องซ่อม' จะยืมไม่ได้ครับ",flag:"อาการ",setFlag:"ระบุอาการ",editFlag:"แก้อาการ",clearFlag:"ล้างอาการ",flagTitle:"อาการอุปกรณ์",flagPh:"มีอาการอย่างไรครับ (ไม่ต้องซ่อมก็ใช้ได้)",flagSaved:"บันทึกอาการแล้วครับ",flagCleared:"ล้างอาการแล้วครับ",pickIssue:"กรุณาเลือกอุปกรณ์ที่มีปัญหาครับ (จะคืนเฉพาะรายการที่เลือกก่อน ที่เหลือจะยังอยู่ครับ)",needPick:"กรุณาเลือกอุปกรณ์ที่มีปัญหาอย่างน้อย 1 รายการครับ",retPicked:(n,l)=>`คืนที่เลือก ${n} รายการ (${l})`,returnedLeft:(n,m)=>`คืนแล้ว ${n} รายการครับ กรุณาคืนอีก ${m} รายการที่เหลือต่อครับ`,confirmReturn:"ยืนยันการคืน",returned:n=>`คืนอุปกรณ์ ${n} รายการแล้วครับ`,
  returnAll:"คืนทั้งหมด",returnOne:"คืน",noOut:"ตอนนี้ไม่มีอุปกรณ์ที่ถูกยืมครับ",
  outSince:d=>`ยืม ${d}`,
  histSearch:"ค้นหาผู้ยืม รายการ หรืออุปกรณ์",noHist:"ยังไม่มีประวัติการยืมครับ",inUse:"ยังไม่คืน",
@@ -344,15 +344,14 @@ async function fbCheckout({ids,borrower,program,outDate,due,note}){
       tx.update(refs[i],{status:"out",loanId:lref.id,batch,borrower,program,outAt:at,due,updated:now});ok++});
     return {ok,skipped}});
 }
-async function fbReturn({loanIds,condition,note,pickedIds}){
+async function fbReturn({loanIds,condition,note}){
   const now=stamp();
   return fs.runTransaction(db,async tx=>{
     const ls=await Promise.all(loanIds.map(id=>tx.get(fs.doc(db,"loans",id))));
     const es=await Promise.all(ls.map(l=>l.exists()&&l.data().eqId?tx.get(fs.doc(db,"equipment",l.data().eqId)):null));
     let n=0;
     ls.forEach((l,i)=>{if(!l.exists()||l.data().returnedAt)return;
-      const cd=pickedIds&&!pickedIds.includes(l.id)?"ok":condition;
-      const nt=pickedIds&&cd==="ok"?"":(note||"");
+      const cd=condition,nt=note||"";
       tx.update(l.ref,{returnedAt:now,condition:cd,returnNote:nt});
       const e=es[i];
       if(e&&e.exists()&&e.data().loanId===l.id)tx.update(e.ref,{status:cd==="issue"?"repair":"available",issue:cd==="issue"?nt:"",flag:cd==="minor"?nt:"",loanId:"",batch:"",borrower:"",program:"",outAt:"",due:"",updated:now});
@@ -677,7 +676,7 @@ function openReturn(loanIds){
     const curCond=()=>root.querySelector('input[name="cond"]:checked').value;
     const picked=()=>box?[...box.querySelectorAll("input:checked")].map(i=>i.value):null;
     const sync=()=>{const c=curCond();if(box)box.hidden=c==="ok";
-      if(multi&&c!=="ok"){const p=picked().length;save.textContent=p?t("retSum",act.length-p,p,t(c==="issue"?"condIssue":"condMinor")):t("confirmReturn")}else save.textContent=t("confirmReturn")};
+      if(multi&&c!=="ok"){const p=picked().length;save.textContent=p?t("retPicked",p,t(c==="issue"?"condIssue":"condMinor")):t("confirmReturn")}else save.textContent=t("confirmReturn")};
     root.querySelectorAll('input[name="cond"]').forEach(r=>r.addEventListener("change",sync));
     box&&box.addEventListener("change",sync);
     save.addEventListener("click",async ev=>{
@@ -685,8 +684,10 @@ function openReturn(loanIds){
       const pk=multi&&cond!=="ok"?picked():null;
       if(pk&&!pk.length){toast(t("needPick"));box.scrollIntoView({block:"center",behavior:"smooth"});return}
       const btn=ev.target;btn.disabled=true;btn.textContent=t("saving");
-      try{const n=await fbReturn({loanIds:act.map(e=>e.loan.id),condition:cond,note,pickedIds:pk});
-        closeSheet();render();toast(t("returned",n));
+      try{const n=await fbReturn({loanIds:pk||act.map(e=>e.loan.id),condition:cond,note});
+        const left=pk?act.map(e=>e.loan.id).filter(id=>!pk.includes(id)):[];
+        closeSheet();render();
+        if(left.length){openReturn(left);toast(t("returnedLeft",n,left.length))}else toast(t("returned",n));
       }catch(err){toast(t("failed"));btn.disabled=false;btn.textContent=t("confirmReturn")}
     });
   });
