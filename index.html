@@ -63,6 +63,7 @@ button{cursor:pointer}
 .adm:not(.on) span{display:none}
 .xdel{border:1px solid var(--line);background:var(--surface);color:var(--bad);border-radius:8px;padding:4px 9px;font-size:12.5px;font-weight:600;margin-left:8px;flex:none}
 .xdel.arm,.btn.danger.arm{background:var(--bad);border-color:var(--bad);color:#fff}
+.btn.primary.arm{background:var(--warn);border-color:var(--warn);color:#fff}
 .admbox{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line)}
 .admbox .flabel{display:block;margin-bottom:8px}
 .warnp{font-size:12.5px;color:var(--muted);margin:8px 0 0}
@@ -148,6 +149,11 @@ button{cursor:pointer}
 .pitem .grow{flex:1;min-width:0}
 .pitem:has(input:checked){border-color:var(--bad);background:var(--bad-soft)}
 .pitem .sub{margin-top:2px}
+.bhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.bulk .pitem:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.bulk .pitem input[type=checkbox]{accent-color:var(--accent)}
+.bulk .empty{padding:14px;border:1px dashed var(--line);border-radius:10px}
+.admbar{margin-top:8px;width:100%;border-style:dashed;border-color:var(--accent);color:var(--accent);font-size:13.5px}
 .flagline{font-size:12.5px;font-weight:600;color:var(--warn);margin-top:3px}
 .range{display:flex;gap:6px;align-items:center;margin-top:10px}
 .range input{flex:1;min-width:0;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 8px}
@@ -269,7 +275,7 @@ ko:{title:"CGN 장비 대여",sub:"태국 CGN · 카메라·렌즈·조명·마�
  nameKo:"장비명 (한국어)",nameTh:"장비명 (태국어)",
  saved:"저장했어요.",failed:"저장하지 못했어요. 인터넷 연결을 확인하고 다시 시도해 주세요.",
  photoFail:"사진을 처리하지 못했어요. 다른 사진으로 시도해 주세요.",
- saving:"저장 중…",noteLbl:"비고",admin:"관리자",adminLogin:"관리자 로그인",adminLead:"관리자는 대여 기록을 수정하거나 삭제할 수 있어요.",email:"이메일",password:"비밀번호",login:"로그인",logout:"로그아웃",loginFail:"이메일 또는 비밀번호가 맞지 않아요.",adminOn:u=>`${u} 계정으로 관리자 모드가 켜져 있어요.`,loggedOut:"로그아웃했어요.",editLoan:"대여 정보 수정",delBatch:"이 대여 건 전체 삭제",delOne:"삭제",confirmDel:"한 번 더 누르면 삭제돼요",deleted:n=>`기록 ${n}개를 삭제했어요.`,delFail:"삭제하지 못했어요. 관리자 로그인 상태를 확인해 주세요.",delWarn:"삭제한 기록은 되돌릴 수 없어요. 아직 반납 안 된 장비는 대여 가능 상태로 돌아가요."},
+ saving:"저장 중…",noteLbl:"비고",admin:"관리자",adminLogin:"관리자 로그인",adminLead:"관리자는 대여 기록을 수정하거나 삭제할 수 있어요.",email:"이메일",password:"비밀번호",login:"로그인",logout:"로그아웃",loginFail:"이메일 또는 비밀번호가 맞지 않아요.",adminOn:u=>`${u} 계정으로 관리자 모드가 켜져 있어요.`,loggedOut:"로그아웃했어요.",editLoan:"대여 정보 수정",delBatch:"이 대여 건 전체 삭제",delOne:"삭제",confirmDel:"한 번 더 누르면 삭제돼요",deleted:n=>`기록 ${n}개를 삭제했어요.`,delFail:"삭제하지 못했어요. 관리자 로그인 상태를 확인해 주세요.",delWarn:"삭제한 기록은 되돌릴 수 없어요. 아직 반납 안 된 장비는 대여 가능 상태로 돌아가요.",bulkTitle:"장비 상태 일괄 관리",bulkLead:"여러 장비의 상태를 한 번에 바꿀 수 있어요. 적용 버튼은 두 번 눌러야 적용돼요.",bulkBar:(r,f)=>`장비 상태 일괄 관리 · 수리 중 ${r} · 증상 ${f}`,secRepair:n=>`수리 중 · ${n}개`,secFlag:n=>`증상 있음 · ${n}개`,selAll:"전체 선택",selNone:"전체 해제",toAvail:n=>`선택한 ${n}개 대여 가능으로`,clrFlags:n=>`선택한 ${n}개 증상 해제`,noRepair:"수리 중인 장비가 없어요.",noFlag:"증상이 표시된 장비가 없어요.",pickSome:"장비를 먼저 선택해 주세요.",confirmApply:"한 번 더 누르면 적용돼요",bulkDone:n=>`${n}개 장비를 대여 가능으로 바꿨어요.`,flagsDone:n=>`${n}개 장비의 증상을 해제했어요.`},
 th:{title:"ยืม-คืนอุปกรณ์ CGN",sub:"CGN ประเทศไทย · กล้อง·เลนส์·ไฟ·ไมค์·แบตเตอรี่",switchTo:"한국어",
  tabEquip:"อุปกรณ์",tabOut:"กำลังยืม",tabHist:"ประวัติ",
  all:"ทั้งหมด",available:"ว่าง",out:"กำลังยืม",overdue:"เกินกำหนด",repair:"ซ่อม",retired:"เลิกใช้",
@@ -389,8 +395,10 @@ function openAdmin(){
   if(!auth){toast(tk("loading"));return}
   if(isAdmin()){
     openSheet(`<h2>${esc(tk("admin"))}</h2><p class="lead">${esc(tk("adminOn",adminUser.email||""))}</p><p class="lead">${esc(tk("adminLead"))}</p>
-    <div class="actions"><button class="btn" id="aOut" type="button">${esc(tk("logout"))}</button><button class="btn primary" id="aClose" type="button">${esc(tk("close"))}</button></div>`,root=>{
+    <button class="btn primary block" id="aBulk" type="button">${esc(tk("bulkTitle"))}</button>
+    <div class="actions"><button class="btn" id="aOut" type="button">${esc(tk("logout"))}</button><button class="btn" id="aClose" type="button">${esc(tk("close"))}</button></div>`,root=>{
       root.querySelector("#aClose").addEventListener("click",closeSheet);
+      root.querySelector("#aBulk").addEventListener("click",openBulk);
       root.querySelector("#aOut").addEventListener("click",async()=>{try{await fa.signOut(auth)}catch(e){}closeSheet();render();toast(tk("loggedOut"))})});
     return}
   openSheet(`<h2>${esc(tk("adminLogin"))}</h2><p class="lead">${esc(tk("adminLead"))}</p>
@@ -402,6 +410,47 @@ function openAdmin(){
     root.querySelector("#aForm").addEventListener("submit",async ev=>{ev.preventDefault();const b=root.querySelector("#aGo");b.disabled=true;b.textContent=tk("loading");
       try{await fa.signInWithEmailAndPassword(auth,em.value.trim(),root.querySelector("#aPw").value);LS.set("adminEmail",em.value.trim());closeSheet();render();toast(tk("adminOn",em.value.trim()))}
       catch(e){toast(tk("loginFail"));b.disabled=false;b.textContent=tk("login")}})});
+}
+async function fbBulk(ids,kind){const now=stamp();
+  const n=await fs.runTransaction(db,async tx=>{
+    const snaps=await Promise.all(ids.map(id=>tx.get(fs.doc(db,"equipment",id))));let n=0;
+    snaps.forEach(sn=>{if(!sn.exists())return;const d=sn.data();
+      if(kind==="repair"){if(d.status!=="repair")return;tx.update(sn.ref,{status:"available",issue:"",updated:now})}
+      else{if(!d.flag)return;tx.update(sn.ref,{flag:"",updated:now})}
+      n++});
+    return n});
+  ids.forEach(id=>{const e=eq.get(id);if(e)eq.set(id,normEq(kind==="repair"?{...e,status:"available",issue:""}:{...e,flag:""}))});
+  return n;
+}
+function openBulk(){if(!isAdmin())return;
+  const all=[...eq.values()].sort((a,b)=>(a.no||9999)-(b.no||9999));
+  const rep=all.filter(e=>e.status==="repair");
+  const fl=all.filter(e=>e.flag&&e.status!=="repair"&&e.status!=="retired");
+  const row=(e,extra,cls)=>`<div class="pitem"><label class="prow"><input type="checkbox" value="${esc(e._id)}"><div class="grow"><b>${esc(e.name||e.nameTh)}</b><div class="sub">${e.code?tags(e.code):""}<span>${esc(e.model||"")}</span></div>${extra?`<div class="sub ${cls}">${esc(extra)}</div>`:""}</div></label></div>`;
+  const sec=(id,title,items,empty,btnId,extraOf,cls)=>`<div class="field bulk" id="${id}"><div class="bhead"><span class="flabel">${esc(title)}</span>${items.length?`<button class="linkbtn" type="button" data-all>${esc(tk("selAll"))}</button>`:""}</div>${items.length?`<div class="plist">${items.map(e=>row(e,extraOf(e),cls)).join("")}</div><button class="btn primary block" id="${btnId}" type="button" style="margin-top:10px"></button>`:`<div class="empty">${esc(tk(empty))}</div>`}</div>`;
+  const h=`<h2>${esc(tk("bulkTitle"))}</h2><p class="lead">${esc(tk("bulkLead"))}</p>
+  ${sec("bRep",tk("secRepair",rep.length),rep,"noRepair","bRepGo",e=>e.issue,"issue")}
+  ${sec("bFl",tk("secFlag",fl.length),fl,"noFlag","bFlGo",e=>e.flag,"warnc")}
+  <div class="actions"><button class="btn block" id="bkClose" type="button">${esc(tk("close"))}</button></div>`;
+  openSheet(h,root=>{
+    root.querySelector("#bkClose").addEventListener("click",closeSheet);
+    const wire=(secId,btnId,lblKey,kind,doneKey)=>{const sec=root.querySelector("#"+secId),btn=root.querySelector("#"+btnId);if(!btn)return;
+      const boxes=()=>[...sec.querySelectorAll("input[type=checkbox]")];
+      const sel=()=>boxes().filter(b=>b.checked).map(b=>b.value);
+      const allBtn=sec.querySelector("[data-all]");
+      const upd=()=>{if(!btn.classList.contains("arm"))btn.textContent=tk(lblKey,sel().length);allBtn.textContent=tk(boxes().every(b=>b.checked)?"selNone":"selAll")};
+      sec.addEventListener("change",()=>{btn.classList.remove("arm");upd()});
+      allBtn.addEventListener("click",()=>{const on=!boxes().every(b=>b.checked);boxes().forEach(b=>b.checked=on);btn.classList.remove("arm");upd()});
+      upd();
+      btn.addEventListener("click",async()=>{const ids=sel();if(!ids.length){toast(tk("pickSome"));return}
+        if(!btn.classList.contains("arm")){btn.classList.add("arm");btn.textContent=tk("confirmApply");setTimeout(()=>{if(btn.isConnected&&!btn.disabled){btn.classList.remove("arm");upd()}},4000);return}
+        btn.disabled=true;btn.textContent=tk("saving");
+        try{const n=await fbBulk(ids,kind);closeSheet();render();openBulk();toast(tk(doneKey,n))}
+        catch(e){btn.disabled=false;btn.classList.remove("arm");upd();toast(tk("failed"))}});
+    };
+    wire("bRep","bRepGo","toAvail","repair","bulkDone");
+    wire("bFl","bFlGo","clrFlags","flag","flagsDone");
+  });
 }
 function armBtn(b,fn){b.addEventListener("click",async()=>{
   if(!b.classList.contains("arm")){b.dataset.lbl=b.textContent;b.classList.add("arm");b.textContent=tk("confirmDel");setTimeout(()=>{if(b.isConnected&&!b.disabled){b.classList.remove("arm");b.textContent=b.dataset.lbl}},4000);return}
@@ -499,12 +548,13 @@ function renderEquip(v){
   const key="equip-"+lang+(isAdmin()?"-a":"");
   if(v.dataset.shell!==key){
     v.dataset.shell=key;
-    v.innerHTML=`<div class="summary" id="sumBox"></div>
+    v.innerHTML=`<div class="summary" id="sumBox"></div>${isAdmin()?`<button class="btn admbar" id="admBar" type="button"></button>`:""}
     <div class="tools"><input class="search" id="q" type="search" placeholder="${esc(t("search"))}">${isAdmin()?`<button class="btn" id="addEq" type="button">+ ${esc(t("addEq"))}</button>`:""}</div>
     <div id="chipAnchor"></div><div class="chipbar" id="chipBar"><div class="chips" id="chipBox"></div></div><div id="eqList"></div>`;
     const qi=$("#q");qi.value=ui.q;
     qi.addEventListener("input",()=>{ui.q=qi.value;paintEquip()});
     {const ab=$("#addEq");ab&&ab.addEventListener("click",()=>openEdit(null));}
+    {const bb=$("#admBar");bb&&bb.addEventListener("click",openBulk);}
   }
   paintEquip();
 }
@@ -524,6 +574,7 @@ function paintEquip(){
   const catCount=c=>all.filter(e=>typeOf(e)===c&&e.status!=="retired").length;
   const sumBtn=(k,n)=>`<button type="button" class="sum k-${k}" data-filter="${k}" aria-pressed="${ui.filter===k}"><b>${n}</b><span>${esc(t(k))}</span></button>`;
   $("#sumBox").innerHTML=sumBtn("all",cnt.all)+sumBtn("available",cnt.available)+sumBtn("out",cnt.out)+sumBtn("overdue",cnt.overdue);
+  {const bb=$("#admBar");if(bb)bb.textContent=tk("bulkBar",all.filter(e=>e.status==="repair").length,all.filter(e=>e.flag&&e.status!=="repair"&&e.status!=="retired").length)}
   $("#chipBox").innerHTML=`<button type="button" class="chip" data-cat="all" aria-pressed="${ui.cat==="all"}">${esc(t("all"))}</button>`+TYPES.map(c=>`<button type="button" class="chip" data-cat="${c}" aria-pressed="${ui.cat===c}">${esc(t("type_"+c))}<small>${catCount(c)}</small></button>`).join("");
   let h="";
   if(!list.length)h=`<div class="list" style="margin-top:18px"><div class="empty">${esc(t("noItems"))}</div></div>`;
