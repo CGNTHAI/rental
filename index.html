@@ -281,7 +281,7 @@ ko:{title:"CGN 장비 대여",sub:"태국 CGN · 카메라·렌즈·조명·마�
  outSince:d=>`${d} 대여`,
  histSearch:"대여자, 프로그램, 장비 검색",noHist:"아직 대여 기록이 없어요.",inUse:"사용 중",
  outPhoto:"대여 사진",retPhoto:"반납 사진",itemsN:n=>`장비 ${n}개`,allBack:d=>`${d} 반납`,backBy:(d,n)=>`${d} 반납 · ${n}`,returner:"반납자",needReturner:"반납하는 사람 이름을 입력해 주세요.",partBack:(a,b)=>`${b}개 중 ${a}개 반납`,rentedItems:"대여한 장비",from:"시작일",to:"종료일",periodSearch:"기간 검색",backRecent:"최근으로",exportCsv:"엑셀로 내보내기",recentLbl:"최근 2개월",rangeLbl:(a,b)=>`${a} ~ ${b}`,badRange:"기간을 다시 확인해 주세요.",
- model:"모델",serial:"시리얼",code:"관리번호",category:"품목",status:"상태",
+ model:"모델",serial:"시리얼",buyDate:"구입일",vendor:"구매처",code:"관리번호",category:"품목",status:"상태",
  current:"현재 대여",recent:"최근 대여 이력",
  markRepair:"수리 중으로 표시",repairDone:"수리 완료 · 대여 가능으로",markRetired:"불용 처리",restore:"다시 사용",
  edit:"정보 수정",save:"저장",cancel:"취소",close:"닫기",
@@ -311,7 +311,7 @@ th:{title:"ยืม-คืนอุปกรณ์ CGN",sub:"CGN ประเ�
  outSince:d=>`ยืม ${d}`,
  histSearch:"ค้นหาผู้ยืม รายการ หรืออุปกรณ์",noHist:"ยังไม่มีประวัติการยืมครับ",inUse:"ยังไม่คืน",
  outPhoto:"รูปตอนยืม",retPhoto:"รูปตอนคืน",itemsN:n=>`อุปกรณ์ ${n} รายการ`,allBack:d=>`คืน ${d}`,backBy:(d,n)=>`คืน ${d} · ${n}`,returner:"ผู้คืน",needReturner:"กรุณากรอกชื่อผู้คืนครับ",partBack:(a,b)=>`คืนแล้ว ${a} จาก ${b} รายการ`,rentedItems:"อุปกรณ์ที่ยืม",from:"วันที่เริ่ม",to:"วันที่สิ้นสุด",periodSearch:"ค้นหาตามช่วงเวลา",backRecent:"กลับไปล่าสุด",exportCsv:"ส่งออกเป็น Excel",recentLbl:"2 เดือนล่าสุด",rangeLbl:(a,b)=>`${a} ~ ${b}`,badRange:"กรุณาตรวจสอบช่วงเวลาอีกครั้งครับ",
- model:"รุ่น",serial:"ซีเรียล",code:"รหัสอุปกรณ์",category:"ประเภท",status:"สถานะ",
+ model:"รุ่น",serial:"ซีเรียล",buyDate:"วันที่ซื้อ",vendor:"ร้านที่ซื้อ",code:"รหัสอุปกรณ์",category:"ประเภท",status:"สถานะ",
  current:"การยืมปัจจุบัน",recent:"ประวัติการยืมล่าสุด",
  markRepair:"ตั้งเป็นซ่อม",repairDone:"ซ่อมเสร็จ · พร้อมให้ยืม",markRetired:"ตั้งเป็นเลิกใช้",restore:"กลับมาใช้งาน",
  edit:"แก้ไขข้อมูล",save:"บันทึก",cancel:"ยกเลิก",close:"ปิด",
@@ -531,6 +531,7 @@ const today=()=>ymd(new Date());
 const parseYmd=s=>{const [y,m,d]=String(s).slice(0,10).split("-").map(Number);return new Date(y,m-1,d)};
 const loc=()=>lang==="th"?"th-TH":"ko-KR";
 const fD=v=>{if(!v)return"";const d=typeof v==="number"?new Date(v):parseYmd(v);return d.toLocaleDateString(loc(),{month:"short",day:"numeric"})};
+const fDY=v=>{if(!/^\d{4}-\d{2}-\d{2}/.test(v||""))return String(v||"");return parseYmd(v).toLocaleDateString(lang==="th"?"th-TH-u-ca-gregory":"ko-KR",{year:"numeric",month:"short",day:"numeric"})};
 const lateDays=due=>Math.round((parseYmd(today())-parseYmd(due))/864e5);
 
 const nm=e=>lang==="th"?(e.nameTh||e.name):(e.name||e.nameTh);
@@ -656,6 +657,8 @@ function openDetail(id){const e=eq.get(id);if(!e)return;const s=stOf(e);
   <dt>${esc(t("model"))}</dt><dd>${esc(e.model)||"—"}</dd>
   <dt>${esc(t("code"))}</dt><dd>${e.code?tags(e.code):"—"}</dd>
   <dt>${esc(t("serial"))}</dt><dd>${esc(e.serial)||"—"}</dd>
+  <dt>${esc(t("buyDate"))}</dt><dd>${e.buyDate?esc(fDY(e.buyDate)):"—"}</dd>
+  <dt>${esc(t("vendor"))}</dt><dd>${esc(e.vendor)||"—"}</dd>
   ${e.note?`<dt>${esc(t("noteLbl"))}</dt><dd>${esc(e.note)}</dd>`:""}
   ${e.issue&&s==="repair"?`<dt>${esc(t("condIssue"))}</dt><dd class="issue">${esc(e.issue)}</dd>`:""}
   ${e.flag&&s!=="repair"&&s!=="retired"?`<dt>${esc(t("flag"))}</dt><dd class="warnc">${esc(e.flag)}</dd>`:""}</dl>`;
@@ -684,7 +687,7 @@ function openDetail(id){const e=eq.get(id);if(!e)return;const s=stOf(e);
 async function setStatus(id,status){try{await fs.updateDoc(fs.doc(db,"equipment",id),{status,updated:stamp(),...(status==="available"?{issue:""}:{})});closeSheet();toast(t("saved"))}catch(err){toast(t("failed"))}}
 
 
-function openEdit(id){const e=id?eq.get(id):{cat:"cam",type:ui.cat!=="all"?ui.cat:"camera",name:"",nameTh:"",model:"",serial:"",code:"",note:""};
+function openEdit(id){const e=id?eq.get(id):{cat:"cam",type:ui.cat!=="all"?ui.cat:"camera",name:"",nameTh:"",model:"",serial:"",code:"",note:"",buyDate:"",vendor:""};
   const h=`<h2>${esc(id?t("edit"):t("addEq"))}</h2><p class="lead"></p>
   <div class="two"><div class="field"><label for="fType">${esc(t("kind"))}</label><select id="fType">${TYPES.map(c=>`<option value="${c}"${typeOf(e)===c?" selected":""}>${esc(t("type_"+c))}</option>`).join("")}</select></div>
   <div class="field"><label for="fCat">${esc(t("category"))}</label><select id="fCat">${CATS.map(c=>`<option value="${c}"${e.cat===c?" selected":""}>${esc(t("cat_"+c))}</option>`).join("")}</select></div></div>
@@ -693,13 +696,15 @@ function openEdit(id){const e=id?eq.get(id):{cat:"cam",type:ui.cat!=="all"?ui.ca
   <div class="two"><div class="field"><label for="fModel">${esc(t("model"))}</label><input id="fModel" value="${esc(e.model)}"></div>
   <div class="field"><label for="fCode">${esc(t("code"))}</label><input id="fCode" value="${esc(e.code)}"></div></div>
   <div class="field"><label for="fSerial">${esc(t("serial"))}</label><input id="fSerial" value="${esc(e.serial)}"></div>
+  <div class="two"><div class="field"><label for="fBuy">${esc(t("buyDate"))}</label><input id="fBuy" type="date" value="${esc(/^\d{4}-\d{2}-\d{2}$/.test(e.buyDate||"")?e.buyDate:"")}"${e.buyDate&&!/^\d{4}-\d{2}-\d{2}$/.test(e.buyDate)?` placeholder="${esc(e.buyDate)}"`:""}></div>
+  <div class="field"><label for="fVendor">${esc(t("vendor"))}</label><input id="fVendor" maxlength="120" value="${esc(e.vendor||"")}"></div></div>
   <div class="field"><label for="fNote">${esc(t("noteLbl"))}</label><input id="fNote" value="${esc(e.note)}"></div>
   <div class="actions-row"><button class="btn" id="fCancel" type="button">${esc(t("cancel"))}</button><button class="btn primary" id="fSave" type="button">${esc(t("save"))}</button></div>`;
   openSheet(h,root=>{
     root.querySelector("#fCancel").addEventListener("click",closeSheet);
     root.querySelector("#fSave").addEventListener("click",async ev=>{
       const g=s=>root.querySelector(s).value.trim();
-      const data={type:g("#fType"),cat:g("#fCat"),name:g("#fName"),nameTh:g("#fNameTh"),model:g("#fModel"),code:g("#fCode"),serial:g("#fSerial"),note:g("#fNote"),updated:Date.now()};
+      const data={type:g("#fType"),cat:g("#fCat"),name:g("#fName"),nameTh:g("#fNameTh"),model:g("#fModel"),code:g("#fCode"),serial:g("#fSerial"),buyDate:g("#fBuy")||(e.buyDate&&!/^\d{4}-\d{2}-\d{2}$/.test(e.buyDate)?e.buyDate:""),vendor:g("#fVendor"),note:g("#fNote"),updated:Date.now()};
       if(!data.name&&!data.nameTh){root.querySelector("#fName").focus();return}
       ev.target.disabled=true;ev.target.textContent=t("saving");
       try{
