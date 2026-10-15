@@ -103,6 +103,9 @@ button{cursor:pointer}
 
 .group{margin-top:18px}
 .group h2{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.06em;margin:0 0 6px;text-transform:uppercase}
+.group h3.subh{font-size:14px;font-weight:700;color:var(--ink);margin:14px 2px 6px;display:flex;align-items:center;gap:6px}
+.group h3.subh:first-of-type{margin-top:6px}
+.group h3.subh small{font-weight:600;color:var(--muted);font-size:12px}
 .list{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
 .row{display:flex;align-items:center;gap:10px;padding:11px 12px;border-top:1px solid var(--line)}
 .row:first-child{border-top:0}
@@ -270,7 +273,7 @@ ko:{title:"CGN 장비 대여",sub:"태국 CGN · 카메라·렌즈·조명·마�
  all:"전체",available:"대여 가능",out:"대여 중",overdue:"연체",repair:"수리 중",retired:"불용",
  search:"장비명, 모델, 관리번호 검색",addEq:"장비 추가",
  type_camera:"카메라",type_lens:"렌즈",type_filter:"필터",type_light:"조명",type_stand:"다리",type_mic:"마이크",type_battery:"배터리",toTop:"맨 위로",type_monitor:"모니터",type_etc:"기타",kind:"분류",
- cat_cam:"촬영장비",cat_video:"영상장비",cat_audio:"음향장비",cat_light:"조명장비",cat_live:"중계장비",
+ sub_cam:"카메라",sub_action:"액션캠",sub_light:"조명",sub_lacc:"조명 액세서리",sub_tripod:"카메라 트라이포드",sub_mono:"카메라 모노포드",sub_lstand:"조명 다리",cat_cam:"촬영장비",cat_video:"영상장비",cat_audio:"음향장비",cat_light:"조명장비",cat_live:"중계장비",
  selected:n=>`${n}개 선택됨`,clear:"선택 해제",rent:"대여하기",pickHint:"대여할 장비를 눌러서 선택하세요",pickNone:"장비를 눌러서 선택하세요",next:n=>`다음 (${n})`,pickFirst:"대여할 장비를 먼저 선택해 주세요.",gAll:n=>`모두 선택 (${n})`,gNone:"모두 해제",gAvail:n=>`대여 가능 ${n}개`,cancelPick:"취소",
  noItems:"조건에 맞는 장비가 없어요.",loading:"불러오는 중…",
  noDb:"서버에 연결할 수 없어요. 인터넷 연결을 확인하고 페이지를 새로고침해 주세요.",
@@ -300,7 +303,7 @@ th:{title:"ยืม-คืนอุปกรณ์ CGN",sub:"CGN ประเ�
  all:"ทั้งหมด",available:"ว่าง",out:"กำลังยืม",overdue:"เกินกำหนด",repair:"ซ่อม",retired:"เลิกใช้",
  search:"ค้นหาชื่อ รุ่น หรือรหัสอุปกรณ์",addEq:"เพิ่มอุปกรณ์",
  type_camera:"กล้อง",type_lens:"เลนส์",type_filter:"ฟิลเตอร์",type_light:"ไฟ",type_stand:"ขาตั้ง",type_mic:"ไมค์",type_battery:"แบตเตอรี่",toTop:"กลับขึ้นด้านบน",type_monitor:"จอมอนิเตอร์",type_etc:"อื่นๆ",kind:"ชนิด",
- cat_cam:"อุปกรณ์ถ่ายทำ",cat_video:"อุปกรณ์วิดีโอ",cat_audio:"อุปกรณ์เสียง",cat_light:"อุปกรณ์ไฟ",cat_live:"อุปกรณ์ถ่ายทอดสด",
+ sub_cam:"กล้อง",sub_action:"กล้องแอคชั่น",sub_light:"ไฟ",sub_lacc:"อุปกรณ์เสริมไฟ",sub_tripod:"ขาตั้งกล้อง",sub_mono:"โมโนพอด",sub_lstand:"ขาตั้งไฟ",cat_cam:"อุปกรณ์ถ่ายทำ",cat_video:"อุปกรณ์วิดีโอ",cat_audio:"อุปกรณ์เสียง",cat_light:"อุปกรณ์ไฟ",cat_live:"อุปกรณ์ถ่ายทอดสด",
  selected:n=>`เลือกแล้ว ${n} รายการ`,clear:"ยกเลิก",rent:"ยืมอุปกรณ์",pickHint:"แตะอุปกรณ์ที่ต้องการยืมเพื่อเลือกครับ",pickNone:"แตะอุปกรณ์เพื่อเลือกครับ",next:n=>`ถัดไป (${n})`,pickFirst:"กรุณาเลือกอุปกรณ์ที่ต้องการยืมก่อนครับ",gAll:n=>`เลือกทั้งหมด (${n})`,gNone:"ยกเลิกทั้งหมด",gAvail:n=>`ว่าง ${n} รายการ`,cancelPick:"ยกเลิก",
  noItems:"ไม่พบอุปกรณ์ที่ตรงกับเงื่อนไขครับ",loading:"กำลังโหลด…",
  noDb:"ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ครับ กรุณาตรวจสอบอินเทอร์เน็ตแล้วรีเฟรชหน้าอีกครั้งครับ",
@@ -626,13 +629,10 @@ function paintEquip(){
   let h="";
   if(!list.length)h=`<div class="list" style="margin-top:18px"><div class="empty">${esc(t("noItems"))}</div></div>`;
   for(const c of TYPES){let g=list.filter(e=>typeOf(e)===c);if(!g.length)continue;if(c==="light")g=g.slice().sort(lightSort);else if(c==="stand")g=g.slice().sort(standSort);
-    let rowsH;
-    if(ui.pick){const by=new Map();g.forEach(e=>{const k=gKey(e);if(!by.has(k))by.set(k,[]);by.get(k).push(e)});const seen=new Set();
-      rowsH=g.map(e=>{const k=gKey(e),arr=by.get(k);let pre="";if(arr.length>1&&!seen.has(k)){seen.add(k);const all=arr.every(x=>selected.has(x._id));
-        pre=`<div class="grpsel" data-gs="${esc(gId(k))}"><span class="gname">${esc(nm(e))}</span><span class="gcnt">${esc(t("gAvail",arr.length))}</span><button type="button" aria-pressed="${all}">${esc(all?t("gNone"):t("gAll",arr.length))}</button></div>`}
-        return pre+rowHtml(e)}).join("")}
-    else rowsH=g.map(rowHtml).join("");
-    h+=`<section class="group"><h2>${esc(t("type_"+c))} · ${g.length}</h2><div class="list">${rowsH}</div></section>`}
+    const parts=SUBS[c]?SUBS[c].map(k=>[k,g.filter(e=>subOf(c,e)===k)]):[[null,g]];let rowsH="";
+    for(const [sk,sg] of parts){if(!sg.length)continue;
+      rowsH+=(sk?`<h3 class="subh">${esc(t("sub_"+sk))} <small>${sg.length}</small></h3>`:"")+`<div class="list">${listRows(sg)}</div>`}
+    h+=`<section class="group"><h2>${esc(t("type_"+c))} · ${g.length}</h2>${rowsH}</section>`}
   if(ui.pick)h=`<div class="pickhint">${esc(t("pickHint"))}</div>`+h;
   $("#sumBox").hidden=ui.pick;{const bb=$("#admBar");if(bb)bb.hidden=ui.pick}
   $("#eqList").innerHTML=h;
@@ -650,6 +650,17 @@ function lightSort(a,b){const r=lightRank(a)-lightRank(b);if(r)return r;
 
 function tags(code){return String(code||"").split(",").map(x=>x.trim()).filter(Boolean).map(c=>`<span class="tag">${esc(c)}</span>`).join(" ")}
 
+const SUBS={camera:["cam","action"],light:["light","lacc"],stand:["tripod","mono","lstand"]};
+function listRows(g){if(!ui.pick)return g.map(rowHtml).join("");
+  const by=new Map();g.forEach(e=>{const k=gKey(e);if(!by.has(k))by.set(k,[]);by.get(k).push(e)});const seen=new Set();
+  return g.map(e=>{const k=gKey(e),arr=by.get(k);let pre="";if(arr.length>1&&!seen.has(k)){seen.add(k);const all=arr.every(x=>selected.has(x._id));
+    pre=`<div class="grpsel" data-gs="${esc(gId(k))}"><span class="gname">${esc(nm(e))}</span><span class="gcnt">${esc(t("gAvail",arr.length))}</span><button type="button" aria-pressed="${all}">${esc(all?t("gNone"):t("gAll",arr.length))}</button></div>`}
+    return pre+rowHtml(e)}).join("")}
+function subOf(c,e){const n=(e.name||"")+" "+(e.model||"")+" "+(e.code||"");
+  if(c==="camera")return /액션캠|Action|INSTA|Osmo|GoPro/i.test(n)?"action":"cam";
+  if(c==="light")return lightRank(e)===3?"lacc":"light";
+  if(c==="stand")return /모노포드|Monopod/i.test(n)?"mono":standRank(e)?"lstand":"tripod";
+  return null}
 const standRank=e=>/조명|Lighting|C-Stand|RA-C/i.test((e.name||"")+" "+(e.model||""))?1:0;
 function standSort(a,b){return (standRank(a)-standRank(b))||((a.no||0)-(b.no||0))}
 const gKey=e=>(e.name||"")+"|"+(e.model||"");const gIds=new Map();function gId(k){if(!gIds.has(k))gIds.set(k,"g"+gIds.size);return gIds.get(k)}
