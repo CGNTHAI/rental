@@ -196,7 +196,7 @@ body:has(.wrap.withbar) .toast{bottom:calc(150px + env(safe-area-inset-bottom,0p
 .row.pickrow{cursor:pointer;-webkit-tap-highlight-color:transparent}
 .row.pickrow[aria-checked="true"]{background:var(--accent-soft)}
 .grpsel{display:flex;align-items:center;gap:8px;padding:9px 12px;border-top:1px solid var(--line);background:var(--sunk);font-size:13px}
-.grpsel .gname{flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.grpsel .gname{flex:1;min-width:0;font-weight:600;overflow-wrap:anywhere}
 .grpsel .gcnt{color:var(--muted);white-space:nowrap}
 .grpsel button{border:1px solid var(--accent);background:var(--surface);color:var(--accent);border-radius:999px;padding:5px 11px;font-weight:700;font-size:12.5px;white-space:nowrap}
 .grpsel button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
@@ -274,7 +274,7 @@ ko:{title:"CGN 장비 대여",sub:"태국 CGN · 카메라·렌즈·조명·마�
  search:"장비명, 모델, 관리번호 검색",addEq:"장비 추가",
  type_camera:"카메라",type_lens:"렌즈",type_filter:"필터",type_light:"조명",type_stand:"다리",type_mic:"마이크",type_battery:"배터리",toTop:"맨 위로",type_monitor:"모니터",type_etc:"기타",kind:"분류",
  sub_cam:"카메라",sub_action:"액션캠",sub_light:"조명",sub_lacc:"조명 액세서리",sub_tripod:"카메라 트라이포드",sub_mono:"카메라 모노포드",sub_lstand:"조명 다리",cat_cam:"촬영장비",cat_video:"영상장비",cat_audio:"음향장비",cat_light:"조명장비",cat_live:"중계장비",
- selected:n=>`${n}개 선택됨`,clear:"선택 해제",rent:"대여하기",pickHint:"대여할 장비를 눌러서 선택하세요",pickNone:"장비를 눌러서 선택하세요",next:n=>`다음 (${n})`,pickFirst:"대여할 장비를 먼저 선택해 주세요.",gAll:n=>`모두 선택 (${n})`,gNone:"모두 해제",gAvail:n=>`대여 가능 ${n}개`,cancelPick:"취소",
+ selected:n=>`${n}개 선택됨`,clear:"선택 해제",rent:"대여하기",pickHint:"대여할 장비를 눌러서 선택하세요",pickNone:"장비를 눌러서 선택하세요",next:n=>`다음 (${n})`,pickFirst:"대여할 장비를 먼저 선택해 주세요.",gAll:n=>`모두 선택 (${n})`,gNone:"모두 해제",gAvail:n=>`대여 가능 ${n}개`,gCount:n=>`${n}개`,cancelPick:"취소",
  noItems:"조건에 맞는 장비가 없어요.",loading:"불러오는 중…",
  noDb:"서버에 연결할 수 없어요. 인터넷 연결을 확인하고 페이지를 새로고침해 주세요.",
  dueOn:d=>`${d} 반납`,daysLate:n=>`${n}일 연체`,
@@ -304,7 +304,7 @@ th:{title:"ยืม-คืนอุปกรณ์ CGN",sub:"CGN ประเ�
  search:"ค้นหาชื่อ รุ่น หรือรหัสอุปกรณ์",addEq:"เพิ่มอุปกรณ์",
  type_camera:"กล้อง",type_lens:"เลนส์",type_filter:"ฟิลเตอร์",type_light:"ไฟ",type_stand:"ขาตั้ง",type_mic:"ไมค์",type_battery:"แบตเตอรี่",toTop:"กลับขึ้นด้านบน",type_monitor:"จอมอนิเตอร์",type_etc:"อื่นๆ",kind:"ชนิด",
  sub_cam:"กล้อง",sub_action:"กล้องแอคชั่น",sub_light:"ไฟ",sub_lacc:"อุปกรณ์เสริมไฟ",sub_tripod:"ขาตั้งกล้อง",sub_mono:"โมโนพอด",sub_lstand:"ขาตั้งไฟ",cat_cam:"อุปกรณ์ถ่ายทำ",cat_video:"อุปกรณ์วิดีโอ",cat_audio:"อุปกรณ์เสียง",cat_light:"อุปกรณ์ไฟ",cat_live:"อุปกรณ์ถ่ายทอดสด",
- selected:n=>`เลือกแล้ว ${n} รายการ`,clear:"ยกเลิก",rent:"ยืมอุปกรณ์",pickHint:"แตะอุปกรณ์ที่ต้องการยืมเพื่อเลือกครับ",pickNone:"แตะอุปกรณ์เพื่อเลือกครับ",next:n=>`ถัดไป (${n})`,pickFirst:"กรุณาเลือกอุปกรณ์ที่ต้องการยืมก่อนครับ",gAll:n=>`เลือกทั้งหมด (${n})`,gNone:"ยกเลิกทั้งหมด",gAvail:n=>`ว่าง ${n} รายการ`,cancelPick:"ยกเลิก",
+ selected:n=>`เลือกแล้ว ${n} รายการ`,clear:"ยกเลิก",rent:"ยืมอุปกรณ์",pickHint:"แตะอุปกรณ์ที่ต้องการยืมเพื่อเลือกครับ",pickNone:"แตะอุปกรณ์เพื่อเลือกครับ",next:n=>`ถัดไป (${n})`,pickFirst:"กรุณาเลือกอุปกรณ์ที่ต้องการยืมก่อนครับ",gAll:n=>`เลือกทั้งหมด (${n})`,gNone:"ยกเลิกทั้งหมด",gAvail:n=>`ว่าง ${n} รายการ`,gCount:n=>`${n} รายการ`,cancelPick:"ยกเลิก",
  noItems:"ไม่พบอุปกรณ์ที่ตรงกับเงื่อนไขครับ",loading:"กำลังโหลด…",
  noDb:"ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ครับ กรุณาตรวจสอบอินเทอร์เน็ตแล้วรีเฟรชหน้าอีกครั้งครับ",
  dueOn:d=>`คืน ${d}`,daysLate:n=>`เกินกำหนด ${n} วัน`,
@@ -629,10 +629,8 @@ function paintEquip(){
   let h="";
   if(!list.length)h=`<div class="list" style="margin-top:18px"><div class="empty">${esc(t("noItems"))}</div></div>`;
   for(const c of TYPES){let g=list.filter(e=>typeOf(e)===c);if(!g.length)continue;if(c==="light")g=g.slice().sort(lightSort);else if(c==="stand")g=g.slice().sort(standSort);
-    const parts=SUBS[c]?SUBS[c].map(k=>[k,g.filter(e=>subOf(c,e)===k)]):[[null,g]];let rowsH="";
-    for(const [sk,sg] of parts){if(!sg.length)continue;
-      rowsH+=(sk?`<h3 class="subh">${esc(t("sub_"+sk))} <small>${sg.length}</small></h3>`:"")+`<div class="list">${listRows(sg)}</div>`}
-    h+=`<section class="group"><h2>${esc(t("type_"+c))} · ${g.length}</h2>${rowsH}</section>`}
+    if(SUBS[c]){const rk=e=>SUBS[c].indexOf(subOf(c,e));g=g.map((e,i)=>[e,i]).sort((a,b)=>rk(a[0])-rk(b[0])||a[1]-b[1]).map(x=>x[0])}
+    h+=`<section class="group"><h2>${esc(t("type_"+c))} · ${g.length}</h2><div class="list">${listRows(g)}</div></section>`}
   if(ui.pick)h=`<div class="pickhint">${esc(t("pickHint"))}</div>`+h;
   $("#sumBox").hidden=ui.pick;{const bb=$("#admBar");if(bb)bb.hidden=ui.pick}
   $("#eqList").innerHTML=h;
@@ -651,11 +649,19 @@ function lightSort(a,b){const r=lightRank(a)-lightRank(b);if(r)return r;
 function tags(code){return String(code||"").split(",").map(x=>x.trim()).filter(Boolean).map(c=>`<span class="tag">${esc(c)}</span>`).join(" ")}
 
 const SUBS={camera:["cam","action"],light:["light","lacc"],stand:["tripod","mono","lstand"]};
-function listRows(g){if(!ui.pick)return g.map(rowHtml).join("");
-  const by=new Map();g.forEach(e=>{const k=gKey(e);if(!by.has(k))by.set(k,[]);by.get(k).push(e)});const seen=new Set();
-  return g.map(e=>{const k=gKey(e),arr=by.get(k);let pre="";if(arr.length>1&&!seen.has(k)){seen.add(k);const all=arr.every(x=>selected.has(x._id));
-    pre=`<div class="grpsel" data-gs="${esc(gId(k))}"><span class="gname">${esc(nm(e))}</span><span class="gcnt">${esc(t("gAvail",arr.length))}</span><button type="button" aria-pressed="${all}">${esc(all?t("gNone"):t("gAll",arr.length))}</button></div>`}
-    return pre+rowHtml(e)}).join("")}
+const SPECIAL=["action","lacc","mono"];
+function gSpecial(e){const s=subOf(typeOf(e),e);return SPECIAL.includes(s)?s:null}
+function listRows(g){
+  const by=new Map();g.forEach(e=>{const k=gKey(e);if(!by.has(k))by.set(k,[]);by.get(k).push(e)});
+  const bars=[...by.entries()].some(([k,arr])=>arr.length>1||k.startsWith("§"));
+  const nameCnt={};for(const [k,arr] of by)if(!k.startsWith("§")){const n=nm(arr[0]);nameCnt[n]=(nameCnt[n]||0)+1}
+  let out="";for(const [k,arr] of by){
+    if(bars){const sp=gSpecial(arr[0]);const n0=nm(arr[0]);const label=sp?t("sub_"+sp):(nameCnt[n0]>1&&arr[0].model?n0+" · "+arr[0].model:n0);
+      if(ui.pick){const all=arr.every(x=>selected.has(x._id));
+        out+=`<div class="grpsel" data-gs="${esc(gId(k))}"><span class="gname">${esc(label)}</span><span class="gcnt">${esc(t("gAvail",arr.length))}</span>${arr.length>1?`<button type="button" aria-pressed="${all}">${esc(all?t("gNone"):t("gAll",arr.length))}</button>`:""}</div>`}
+      else out+=`<div class="grpsel"><span class="gname">${esc(label)}</span><span class="gcnt">${esc(t("gCount",arr.length))}</span></div>`}
+    out+=arr.map(rowHtml).join("")}
+  return out}
 function subOf(c,e){const n=(e.name||"")+" "+(e.model||"")+" "+(e.code||"");
   if(c==="camera")return /액션캠|Action|INSTA|Osmo|GoPro/i.test(n)?"action":"cam";
   if(c==="light")return lightRank(e)===3?"lacc":"light";
@@ -663,7 +669,7 @@ function subOf(c,e){const n=(e.name||"")+" "+(e.model||"")+" "+(e.code||"");
   return null}
 const standRank=e=>/조명|Lighting|C-Stand|RA-C/i.test((e.name||"")+" "+(e.model||""))?1:0;
 function standSort(a,b){return (standRank(a)-standRank(b))||((a.no||0)-(b.no||0))}
-const gKey=e=>(e.name||"")+"|"+(e.model||"");const gIds=new Map();function gId(k){if(!gIds.has(k))gIds.set(k,"g"+gIds.size);return gIds.get(k)}
+const gKey=e=>{const sp=gSpecial(e);return sp?"§"+sp:(e.name||"")+"|"+(e.model||"")};const gIds=new Map();function gId(k){if(!gIds.has(k))gIds.set(k,"g"+gIds.size);return gIds.get(k)}
 function rowHtml(e){const s=stOf(e);
   const flagLine=(e.flag&&s!=="repair"&&s!=="retired")?`<div class="flagline">⚠ ${esc(e.flag)}</div>`:"";
   const pk=ui.pick&&s==="available",on=selected.has(e._id);
@@ -911,7 +917,7 @@ viewEl.addEventListener("click",ev=>{
 function toggleGroup(gid){const rows=[...viewEl.querySelectorAll(`[data-pick][data-gk="${gid}"]`)];const on=!rows.every(r=>selected.has(r.dataset.pick));
   rows.forEach(r=>{const id=r.dataset.pick;on?selected.add(id):selected.delete(id);r.setAttribute("aria-checked",on);const p=r.querySelector(".pick");if(p)p.setAttribute("aria-pressed",on)});
   syncGroups();paintSel()}
-function syncGroups(){viewEl.querySelectorAll("[data-gs]").forEach(g=>{const rows=[...viewEl.querySelectorAll(`[data-pick][data-gk="${g.dataset.gs}"]`)];const all=rows.length&&rows.every(r=>selected.has(r.dataset.pick));const b=g.querySelector("button");b.setAttribute("aria-pressed",all);b.textContent=all?t("gNone"):t("gAll",rows.length)})}
+function syncGroups(){viewEl.querySelectorAll("[data-gs]").forEach(g=>{const rows=[...viewEl.querySelectorAll(`[data-pick][data-gk="${g.dataset.gs}"]`)];const all=rows.length&&rows.every(r=>selected.has(r.dataset.pick));const b=g.querySelector("button");if(!b)return;b.setAttribute("aria-pressed",all);b.textContent=all?t("gNone"):t("gAll",rows.length)})}
 function togglePick(r){const id=r.dataset.pick;selected.has(id)?selected.delete(id):selected.add(id);const on=selected.has(id);r.setAttribute("aria-checked",on);const p=r.querySelector(".pick");if(p)p.setAttribute("aria-pressed",on);syncGroups();paintSel()}
 viewEl.addEventListener("keydown",ev=>{if(ui.tab!=="equip")return;if(ui.pick){const r=ev.target.closest&&ev.target.closest("[data-pick]");if(r&&(ev.key==="Enter"||ev.key===" ")){ev.preventDefault();togglePick(r)}return}const m=ev.target.closest&&ev.target.closest(".row .main");if(m&&(ev.key==="Enter"||ev.key===" ")){ev.preventDefault();openDetail(m.dataset.id)}});
 
