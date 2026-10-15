@@ -628,7 +628,7 @@ function paintEquip(){
   $("#chipBox").innerHTML=`<button type="button" class="chip" data-cat="all" aria-pressed="${ui.cat==="all"}">${esc(t("all"))}</button>`+TYPES.map(c=>`<button type="button" class="chip" data-cat="${c}" aria-pressed="${ui.cat===c}">${esc(t("type_"+c))}<small>${catCount(c)}</small></button>`).join("");
   let h="";
   if(!list.length)h=`<div class="list" style="margin-top:18px"><div class="empty">${esc(t("noItems"))}</div></div>`;
-  for(const c of TYPES){let g=list.filter(e=>typeOf(e)===c);if(!g.length)continue;if(c==="light")g=g.slice().sort(lightSort);else if(c==="stand")g=g.slice().sort(standSort);else if(c==="camera")g=g.slice().sort((a,b)=>(camRank(a)-camRank(b))||((a.no||0)-(b.no||0)));
+  for(const c of TYPES){let g=list.filter(e=>typeOf(e)===c);if(!g.length)continue;if(c==="light")g=g.slice().sort(lightSort);else if(c==="stand")g=g.slice().sort(standSort);else if(c==="lens")g=g.slice().sort(lensSort);else if(c==="camera")g=g.slice().sort((a,b)=>(camRank(a)-camRank(b))||((a.no||0)-(b.no||0)));
     if(SUBS[c]){const rk=e=>SUBS[c].indexOf(subOf(c,e));g=g.map((e,i)=>[e,i]).sort((a,b)=>rk(a[0])-rk(b[0])||a[1]-b[1]).map(x=>x[0])}
     h+=`<section class="group"><h2>${esc(t("type_"+c))} · ${g.length}</h2><div class="list">${listRows(g)}</div></section>`}
   if(ui.pick)h=`<div class="pickhint">${esc(t("pickHint"))}</div>`+h;
@@ -672,6 +672,8 @@ function subOf(c,e){const n=(e.name||"")+" "+(e.model||"")+" "+(e.code||"");
   if(c==="mic"&&(e.name||"")==="Sony 무선마이크 세트")return "sonymic";
   if(c==="ob"){const nm0=e.name||"";if(nm0==="캡쳐보드")return "cap";if(nm0==="무선 영상 송수신기")return "wl";if(nm0==="HDMI 분배기"||nm0==="영상 컨버터")return "conv"}
   return null}
+function focal(e){const m=/(\d+)(?:\s*-\s*(\d+))?\s*mm/i.exec(e.model||"")||/(\d+)(?:-(\d+))?/.exec(e.code||"");return m?[+m[1],+(m[2]||m[1])]:[9999,9999]}
+function lensSort(a,b){const x=focal(a),y=focal(b);return (x[0]-y[0])||(x[1]-y[1])||natural(a.code,b.code)}
 const camRank=e=>{const n=(e.name||"")+" "+(e.model||"");return /A7S3|7SM3/i.test(n)?0:/A7M3|7M3/i.test(n)?1:2};
 const standRank=e=>/조명|Lighting|C-Stand|RA-C/i.test((e.name||"")+" "+(e.model||""))?1:0;
 function standSort(a,b){return (standRank(a)-standRank(b))||((a.no||0)-(b.no||0))}
