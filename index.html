@@ -272,7 +272,7 @@ ko:{title:"CGN 장비 대여",sub:"태국 CGN · 카메라·렌즈·조명·마�
  tabEquip:"장비",tabOut:"대여 중",tabHist:"이력",
  all:"전체",available:"대여 가능",out:"대여 중",overdue:"연체",repair:"수리 중",retired:"불용",
  search:"장비명, 모델, 관리번호 검색",addEq:"장비 추가",
- type_camera:"카메라",type_lens:"렌즈",type_filter:"필터",type_light:"조명",type_stand:"다리",type_mic:"마이크",type_battery:"배터리",toTop:"맨 위로",type_monitor:"모니터",type_etc:"기타",kind:"분류",
+ type_camera:"카메라",type_lens:"렌즈",type_filter:"필터",type_light:"조명",type_stand:"다리",type_mic:"마이크",type_battery:"배터리",type_ob:"중계",toTop:"맨 위로",type_monitor:"모니터",type_etc:"기타",kind:"분류",
  sub_cam:"카메라",sub_action:"액션캠",sub_light:"조명",sub_lacc:"조명 액세서리",sub_tripod:"카메라 트라이포드",sub_mono:"카메라 모노포드",sub_lstand:"조명 다리",sub_arm:"매직암",cat_cam:"촬영장비",cat_video:"영상장비",cat_audio:"음향장비",cat_light:"조명장비",cat_live:"중계장비",
  selected:n=>`${n}개 선택됨`,clear:"선택 해제",rent:"대여하기",pickHint:"대여할 장비를 눌러서 선택하세요",pickNone:"장비를 눌러서 선택하세요",next:n=>`다음 (${n})`,pickFirst:"대여할 장비를 먼저 선택해 주세요.",gAll:n=>`모두 선택 (${n})`,gNone:"모두 해제",gAvail:n=>`대여 가능 ${n}개`,gCount:n=>`${n}개`,cancelPick:"취소",
  noItems:"조건에 맞는 장비가 없어요.",loading:"불러오는 중…",
@@ -302,7 +302,7 @@ th:{title:"ยืม-คืนอุปกรณ์ CGN",sub:"CGN ประเ�
  tabEquip:"อุปกรณ์",tabOut:"กำลังยืม",tabHist:"ประวัติ",
  all:"ทั้งหมด",available:"ว่าง",out:"กำลังยืม",overdue:"เกินกำหนด",repair:"ซ่อม",retired:"เลิกใช้",
  search:"ค้นหาชื่อ รุ่น หรือรหัสอุปกรณ์",addEq:"เพิ่มอุปกรณ์",
- type_camera:"กล้อง",type_lens:"เลนส์",type_filter:"ฟิลเตอร์",type_light:"ไฟ",type_stand:"ขาตั้ง",type_mic:"ไมค์",type_battery:"แบตเตอรี่",toTop:"กลับขึ้นด้านบน",type_monitor:"จอมอนิเตอร์",type_etc:"อื่นๆ",kind:"ชนิด",
+ type_camera:"กล้อง",type_lens:"เลนส์",type_filter:"ฟิลเตอร์",type_light:"ไฟ",type_stand:"ขาตั้ง",type_mic:"ไมค์",type_ob:"OB",type_battery:"แบตเตอรี่",toTop:"กลับขึ้นด้านบน",type_monitor:"จอมอนิเตอร์",type_etc:"อื่นๆ",kind:"ชนิด",
  sub_cam:"กล้อง",sub_action:"กล้องแอคชั่น",sub_light:"ไฟ",sub_lacc:"อุปกรณ์เสริมไฟ",sub_tripod:"ขาตั้งกล้อง",sub_mono:"โมโนพอด",sub_lstand:"ขาตั้งไฟ",sub_arm:"แขนจับอุปกรณ์ (Magic Arm)",cat_cam:"อุปกรณ์ถ่ายทำ",cat_video:"อุปกรณ์วิดีโอ",cat_audio:"อุปกรณ์เสียง",cat_light:"อุปกรณ์ไฟ",cat_live:"อุปกรณ์ถ่ายทอดสด",
  selected:n=>`เลือกแล้ว ${n} รายการ`,clear:"ยกเลิก",rent:"ยืมอุปกรณ์",pickHint:"แตะอุปกรณ์ที่ต้องการยืมเพื่อเลือกครับ",pickNone:"แตะอุปกรณ์เพื่อเลือกครับ",next:n=>`ถัดไป (${n})`,pickFirst:"กรุณาเลือกอุปกรณ์ที่ต้องการยืมก่อนครับ",gAll:n=>`เลือกทั้งหมด (${n})`,gNone:"ยกเลิกทั้งหมด",gAvail:n=>`ว่าง ${n} รายการ`,gCount:n=>`${n} รายการ`,cancelPick:"ยกเลิก",
  noItems:"ไม่พบอุปกรณ์ที่ตรงกับเงื่อนไขครับ",loading:"กำลังโหลด…",
@@ -330,7 +330,7 @@ th:{title:"ยืม-คืนอุปกรณ์ CGN",sub:"CGN ประเ�
  saving:"กำลังบันทึก…",noteLbl:"หมายเหตุ"}
 };
 const CATS=["cam","video","audio","light","live"];
-const TYPES=["camera","lens","filter","light","stand","mic","battery","etc"];
+const TYPES=["camera","lens","filter","light","stand","mic","battery","ob","etc"];
 const TYPE_BY_NAME={"배터리":"battery","케이지":"etc","케이스":"etc","가방":"etc","렌즈 필터":"filter","필터":"filter","트라이포드":"stand","모노포드":"stand","카메라":"camera","핸디캠":"camera","액션캠":"camera","렌즈":"lens","트라이포드":"stand","모노포드":"stand","조명 다리":"stand","마이크":"mic","로닌":"etc","레코더":"mic","LED":"light","전구":"light","Softbox":"light","Projection":"light","Fresnel":"light","Scrim":"light"};
 function typeOf(e){if(TYPES.includes(e.type))return e.type;const n=e.name||"";for(const k in TYPE_BY_NAME)if(n.includes(k))return TYPE_BY_NAME[k];return "etc"}
 const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
@@ -648,7 +648,7 @@ function lightSort(a,b){const r=lightRank(a)-lightRank(b);if(r)return r;
 
 function tags(code){return String(code||"").split(",").map(x=>x.trim()).filter(Boolean).map(c=>`<span class="tag">${esc(c)}</span>`).join(" ")}
 
-const SUBS={camera:["cam","action"],light:["light","lacc"],stand:["tripod","mono","lstand"]};
+const SUBS={camera:["cam","action"],light:["light","lacc"],stand:["tripod","mono","lstand","bdrop"]};
 const SPECIAL=["action","lacc","mono","arm"];
 function gSpecial(e){const s=subOf(typeOf(e),e);return SPECIAL.includes(s)?s:null}
 function listRows(g){
@@ -665,7 +665,7 @@ function listRows(g){
 function subOf(c,e){const n=(e.name||"")+" "+(e.model||"")+" "+(e.code||"");
   if(c==="camera")return /액션캠|Action|INSTA|Osmo|GoPro/i.test(n)?"action":"cam";
   if(c==="light")return lightRank(e)===3?"lacc":"light";
-  if(c==="stand")return /모노포드|Monopod/i.test(n)?"mono":standRank(e)?"lstand":"tripod";
+  if(c==="stand")return /백드롭|Backdrop/i.test(n)?"bdrop":/모노포드|Monopod/i.test(n)?"mono":standRank(e)?"lstand":"tripod";
   if(c==="etc"&&/매직암|Magic\s*Arm/i.test(n))return "arm";
   return null}
 const standRank=e=>/조명|Lighting|C-Stand|RA-C/i.test((e.name||"")+" "+(e.model||""))?1:0;
