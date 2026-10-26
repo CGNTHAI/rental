@@ -196,6 +196,15 @@ button{cursor:pointer}
 .cal .d .ds .dot{width:6px;height:6px}
 .cal .d .c{font-size:11px;font-weight:700;color:var(--accent)}
 :root[data-theme="dark"] .rc-studio{--rc:#86A3EC}:root[data-theme="dark"] .rc-recording{--rc:#FB923C}:root[data-theme="dark"] .rc-meeting{--rc:#4ADE80}:root[data-theme="dark"] .rc-car1{--rc:#C4B5FD}:root[data-theme="dark"] .rc-car2{--rc:#F472B6}
+.tl.all{grid-template-columns:44px repeat(5,minmax(0,1fr))}
+.tl.all .hh{position:sticky;top:0;font-size:11px;font-weight:600;color:var(--ink);text-align:center;padding:7px 2px;line-height:1.2;display:flex;flex-direction:column;align-items:center;gap:3px;border-left:1px solid var(--line);background:var(--surface);z-index:2;word-break:keep-all}
+.tl.all .hh:first-child{border-left:0}
+.tl.all .hr{padding:6px 4px;font-size:11px;height:40px}
+.tl.all .slot{height:40px;padding:0}
+.tl.all button.slot::before{content:none}
+.tl.all .blk{margin:2px;padding:4px 5px;border-radius:7px;background:var(--rc);gap:1px}
+.tl.all .blk b{font-size:11.5px;line-height:1.25;word-break:keep-all;overflow-wrap:anywhere}
+.tl.all .blk span{font-size:10.5px}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted);margin:10px 2px 0}
 .legend span{display:flex;align-items:center;gap:5px}
 .bkup .item .rn{display:flex;align-items:center;gap:6px}
@@ -910,7 +919,7 @@ function renderOut(v){
 
 /* ---------- bookings (studio / rooms / cars) ---------- */
 const RES=["studio","recording","meeting","car1","car2"];
-const bk={res:LS.get("bkres")||"studio",date:null};
+const bk={res:LS.get("bkres")||"all",date:null};
 const hk=(d,h)=>d+" "+pad(h);                       // "YYYY-MM-DD HH"
 const addDays=(d,n)=>{const x=parseYmd(d);x.setDate(x.getDate()+n);return ymd(x)};
 function bkCutoff(){return hk(addDays(today(),-62),0)}
@@ -924,6 +933,7 @@ function fRange(b){const sd=b.start.slice(0,10),ed=b.end.slice(0,10),eh=b.end.sl
 function dayLabel(d){return parseYmd(d).toLocaleDateString(loc(),{month:"long",day:"numeric",weekday:"short"})}
 function renderBook(v){
   if(!bk.date)bk.date=today();const D=bk.date,D1=addDays(D,1);
+  if(bk.res==="all")return renderBookAll(v);
   const mine=bookings.filter(b=>b.res===bk.res);
   const dayB=mine.filter(b=>b.start<hk(D1,0)&&b.end>hk(D,0)).sort((a,b)=>a.start.localeCompare(b.start));
   let h0=7;dayB.forEach(b=>{if(b.start.slice(0,10)===D&&+b.start.slice(11)>0)h0=Math.min(h0,+b.start.slice(11))});
@@ -936,7 +946,7 @@ function renderBook(v){
     grid+=`<button type="button" class="blk" data-b="${esc(b.id)}" style="grid-row:${s-h0+1}/${e-h0+1}"><b>${esc(b.purpose)}</b><span>${esc(b.who)} · ${esc(fRange(b))}</span></button>`;
     for(let h=s;h<e;h++)grid+=`<div class="slot${h===h0?" first":""}" style="grid-row:${h-h0+1}"></div>`});
   const up=mine.filter(b=>b.end>nk).sort((a,b)=>a.start.localeCompare(b.start)).slice(0,20);
-  v.innerHTML=`<div class="chips bkres" id="bkRes">${RES.map(r=>`<button type="button" class="chip" data-r="${r}" aria-pressed="${bk.res===r}">${esc(t("res_"+r))}</button>`).join("")}</div>
+  v.innerHTML=`<div class="chips bkres" id="bkRes"><button type="button" class="chip" data-r="all" aria-pressed="false">${esc(t("calAll"))}</button>${RES.map(r=>`<button type="button" class="chip" data-r="${r}" aria-pressed="${bk.res===r}">${esc(t("res_"+r))}</button>`).join("")}</div>
   <div class="bkdate"><button type="button" id="bkPrev" aria-label="prev">‹</button><label class="dlabel" for="bkPick">${esc(dayLabel(D))}<input type="date" id="bkPick" value="${D}"></label>${D!==today()?`<button type="button" class="today" id="bkToday">${esc(t("bookToday"))}</button>`:""}<button type="button" id="bkNext" aria-label="next">›</button></div>
   <div class="tl" id="bkTl">${grid}</div>
   <button class="btn primary block" id="bkNew" type="button" style="margin-top:12px">${esc(t("bookNew"))}</button>
@@ -951,6 +961,37 @@ function renderBook(v){
   v.querySelectorAll("[data-h]").forEach(b=>b.addEventListener("click",()=>openBooking({res:bk.res,date:D,h:+b.dataset.h})));
   v.querySelectorAll("[data-b]").forEach(b=>b.addEventListener("click",()=>openBookingDetail(b.dataset.b)));
   v.querySelector("#bkNew").addEventListener("click",()=>{const n=new Date();const h=D===today()?Math.min(23,n.getHours()+1):9;openBooking({res:bk.res,date:D,h})});
+}
+function bkHead(D){return `<div class="bkdate"><button type="button" id="bkPrev" aria-label="prev">‹</button><label class="dlabel" for="bkPick">${esc(dayLabel(D))}<input type="date" id="bkPick" value="${D}"></label>${D!==today()?`<button type="button" class="today" id="bkToday">${esc(t("bookToday"))}</button>`:""}<button type="button" id="bkNext" aria-label="next">›</button></div>`}
+function bkWire(v){
+  v.querySelectorAll("#bkRes [data-r]").forEach(c=>c.addEventListener("click",()=>{bk.res=c.dataset.r;LS.set("bkres",bk.res);render()}));
+  v.querySelector("#bkPrev").addEventListener("click",()=>{bk.date=addDays(bk.date,-1);render()});
+  v.querySelector("#bkNext").addEventListener("click",()=>{bk.date=addDays(bk.date,1);render()});
+  const tb=v.querySelector("#bkToday");tb&&tb.addEventListener("click",()=>{bk.date=today();render()});
+  const pk=v.querySelector("#bkPick");v.querySelector(".dlabel").addEventListener("click",ev=>{ev.preventDefault();try{pk.showPicker()}catch(e){pk.click()}});
+  pk.addEventListener("change",()=>{if(pk.value){bk.date=pk.value;render()}});
+  v.querySelectorAll("[data-b]").forEach(b=>b.addEventListener("click",()=>openBookingDetail(b.dataset.b)));
+}
+function renderBookAll(v){
+  const D=bk.date,D1=addDays(D,1),nk=nowKey();
+  const dayB=bookings.filter(b=>b.start<hk(D1,0)&&b.end>hk(D,0));
+  let h0=7;dayB.forEach(b=>{if(b.start.slice(0,10)===D&&+b.start.slice(11)>0)h0=Math.min(h0,+b.start.slice(11))});
+  let grid=`<div class="hh" style="grid-row:1;grid-column:1"></div>`+RES.map((r,i)=>`<div class="hh rc-${r}" style="grid-row:1;grid-column:${i+2}"><i class="dot"></i>${esc(t("res_"+r))}</div>`).join("");
+  for(let h=h0;h<24;h++){const row=h-h0+2;grid+=`<div class="hr" style="grid-row:${row}">${pad(h)}:00</div>`;
+    RES.forEach((r,i)=>{const busy=dayB.some(b=>b.res===r&&b.start<=hk(D,h)&&b.end>hk(D,h));const past=hk(D,h)<nk;
+      grid+=busy||past?`<div class="slot${past&&!busy?" past":""}" style="grid-row:${row};grid-column:${i+2}"></div>`:`<button type="button" class="slot" style="grid-row:${row};grid-column:${i+2}" data-h="${h}" data-res="${r}" aria-label="${esc(t("res_"+r))} ${pad(h)}:00 · ${esc(t("bookFree"))}"></button>`})}
+  dayB.forEach(b=>{const s=b.start<hk(D,h0)?h0:+b.start.slice(11);const e=b.end>=hk(D1,0)?24:+b.end.slice(11);
+    grid+=`<button type="button" class="blk rc-${b.res}" data-b="${esc(b.id)}" style="grid-column:${RES.indexOf(b.res)+2};grid-row:${s-h0+2}/${e-h0+2}"><b>${esc(b.purpose)}</b><span>${esc(b.who)}</span></button>`});
+  const up=bookings.filter(b=>b.end>nk).sort((a,b)=>a.start.localeCompare(b.start)||RES.indexOf(a.res)-RES.indexOf(b.res)).slice(0,30);
+  v.innerHTML=`<div class="chips bkres" id="bkRes"><button type="button" class="chip" data-r="all" aria-pressed="true">${esc(t("calAll"))}</button>${RES.map(r=>`<button type="button" class="chip" data-r="${r}" aria-pressed="false">${esc(t("res_"+r))}</button>`).join("")}</div>
+  ${bkHead(D)}
+  <div class="tl all" id="bkTl">${grid}</div>
+  <button class="btn primary block" id="bkNew" type="button" style="margin-top:12px">${esc(t("bookNew"))}</button>
+  <div class="bkup"><div class="sec">${esc(t("bookUpcoming"))} · ${esc(t("calAll"))}</div>
+  <div class="card" style="padding:0">${up.length?up.map(b=>`<div class="item" data-b="${esc(b.id)}"><div class="grow"><b>${esc(b.purpose)}</b><div class="sub"><span class="rn"><i class="dot rc-${b.res}"></i>${esc(t("res_"+b.res))}</span><span>${esc(b.who)}</span></div></div><span class="when">${esc(fRange(b))}</span></div>`).join(""):`<div class="empty">${esc(t("bookNone"))}</div>`}</div></div>`;
+  bkWire(v);
+  v.querySelectorAll("[data-h]").forEach(b=>b.addEventListener("click",()=>openBooking({res:b.dataset.res,date:D,h:+b.dataset.h})));
+  v.querySelector("#bkNew").addEventListener("click",()=>{const n=new Date();const h=D===today()?Math.min(23,n.getHours()+1):9;openBooking({res:"studio",date:D,h})});
 }
 function hourOpts(sel,from,to){let o="";for(let h=from;h<=to;h++)o+=`<option value="${h}"${h===sel?" selected":""}>${pad(h===24?24:h)}:00</option>`;return o}
 function openBooking({res,date,h}){
@@ -982,7 +1023,7 @@ function openBooking({res,date,h}){
       const btn=ev.target;btn.disabled=true;btn.textContent=t("saving");LS.set("me",who);
       try{const res2=await fbBook({res:r,start,end,who,purpose,note,hrs});
         if(res2.conflict){const c=bookings.find(b=>b.id===res2.conflict);toast(t("bookConflict",c?fRange(c):"",c?c.who:""));btn.disabled=false;btn.textContent=t("bookSave");return}
-        bk.res=r;LS.set("bkres",r);bk.date=sd;closeSheet();render();toast(t("bookDone"))}
+        if(bk.res!=="all"){bk.res=r;LS.set("bkres",r)}bk.date=sd;closeSheet();render();toast(t("bookDone"))}
       catch(e){toast(t("failed"));btn.disabled=false;btn.textContent=t("bookSave")}})});
 }
 async function fbBook({res,start,end,who,purpose,note,hrs}){
@@ -1038,7 +1079,7 @@ function renderCal(v){
   const ct=v.querySelector("#cToday");ct&&ct.addEventListener("click",()=>{bkc.sel=td;bkc.month=td.slice(0,7);render()});
   v.querySelector("#cDays").addEventListener("click",ev=>{const c=ev.target.closest("[data-d]");if(!c)return;bkc.sel=c.dataset.d;bkc.month=bkc.sel.slice(0,7);render()});
   v.querySelectorAll(".item[data-b]").forEach(b=>b.addEventListener("click",()=>openBookingDetail(b.dataset.b)));
-  const cb=v.querySelector("#cBook");cb&&cb.addEventListener("click",()=>{bk.date=bkc.sel;if(bkc.res!=="all"){bk.res=bkc.res;LS.set("bkres",bk.res)}ui.tab="book";LS.set("tab","book");render();window.scrollTo(0,0)});
+  const cb=v.querySelector("#cBook");cb&&cb.addEventListener("click",()=>{bk.date=bkc.sel;bk.res=bkc.res;LS.set("bkres",bk.res);ui.tab="book";LS.set("tab","book");render();window.scrollTo(0,0)});
 }
 function renderHist(v){
   const key="hist-"+lang;
