@@ -177,8 +177,54 @@ button{cursor:pointer}
 
 
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px)}
-.nav-in{display:grid;grid-template-columns:repeat(3,1fr);width:100%;max-width:760px}
+.nav-in{display:grid;grid-template-columns:repeat(3,1fr) 1px repeat(2,1fr);width:100%;max-width:760px}
+.nav-sep{align-self:center;height:30px;background:var(--line)}
 .nav button{background:none;border:0;padding:10px 4px 12px;font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;position:relative}
+.rc-studio{--rc:#2A4FA3}.rc-recording{--rc:#C2410C}.rc-meeting{--rc:#15803D}.rc-car1{--rc:#7C3AED}.rc-car2{--rc:#BE185D}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .rc-studio{--rc:#86A3EC}:root:not([data-theme="light"]) .rc-recording{--rc:#FB923C}:root:not([data-theme="light"]) .rc-meeting{--rc:#4ADE80}:root:not([data-theme="light"]) .rc-car1{--rc:#C4B5FD}:root:not([data-theme="light"]) .rc-car2{--rc:#F472B6}}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--rc,var(--accent));flex:none}
+.cal{border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
+.cal .wk,.cal .days{display:grid;grid-template-columns:repeat(7,1fr)}
+.cal .wk div{font-size:11.5px;color:var(--muted);text-align:center;padding:7px 0 5px}
+.cal .wk div:first-child{color:#C2410C}
+.cal .d{border:0;border-top:1px solid var(--line);background:none;min-height:58px;padding:5px 2px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ink);font-size:13.5px;border-radius:0}
+.cal .d.o{color:var(--muted);opacity:.45}
+.cal .d .n{width:26px;height:26px;line-height:26px;border-radius:50%;text-align:center;font-variant-numeric:tabular-nums}
+.cal .d.td .n{background:var(--accent-soft);color:var(--accent);font-weight:700}
+.cal .d[aria-pressed="true"] .n{background:var(--accent);color:var(--accent-ink);font-weight:700}
+.cal .d .ds{display:flex;gap:3px;flex-wrap:wrap;justify-content:center;max-width:44px}
+.cal .d .ds .dot{width:6px;height:6px}
+.cal .d .c{font-size:11px;font-weight:700;color:var(--accent)}
+:root[data-theme="dark"] .rc-studio{--rc:#86A3EC}:root[data-theme="dark"] .rc-recording{--rc:#FB923C}:root[data-theme="dark"] .rc-meeting{--rc:#4ADE80}:root[data-theme="dark"] .rc-car1{--rc:#C4B5FD}:root[data-theme="dark"] .rc-car2{--rc:#F472B6}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted);margin:10px 2px 0}
+.legend span{display:flex;align-items:center;gap:5px}
+.bkup .item .rn{display:flex;align-items:center;gap:6px}
+.bkres{margin-top:14px}
+.bkdate{display:flex;align-items:center;gap:8px;margin:12px 0 10px}
+.bkdate .dlabel{flex:1;text-align:center;font-weight:700;font-size:16px}
+.bkdate button{border:1px solid var(--line);background:var(--surface);border-radius:10px;min-width:40px;height:38px;font-size:18px;color:var(--ink)}
+.bkdate .today{font-size:13px;font-weight:600;padding:0 10px}
+.bkdate input[type=date]{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px}
+.tl{border:1px solid var(--line);border-radius:12px;background:var(--surface);display:grid;grid-template-columns:52px 1fr;overflow:hidden}
+.tl .hr{grid-column:1;font-size:12px;color:var(--muted);padding:6px 8px;border-top:1px solid var(--line);font-variant-numeric:tabular-nums;height:44px;box-sizing:border-box}
+.tl .slot{grid-column:2;border:0;border-top:1px solid var(--line);border-left:1px solid var(--line);border-radius:0;background:none;text-align:left;padding:0 12px;font-size:12.5px;color:var(--muted);height:44px;box-sizing:border-box}
+.tl button.slot::before{content:"+";font-size:17px;opacity:.45;margin-right:8px}
+.tl .slot span{opacity:0}
+.tl button.slot:hover,.tl button.slot:focus-visible{background:var(--accent-soft)}
+.tl button.slot:hover span{opacity:1}
+.tl .slot.past::before{content:none}
+.tl .hr.first,.tl .slot.first{border-top:0}
+.tl .slot.past{background:repeating-linear-gradient(-45deg,transparent 0 6px,var(--sunk) 6px 7px);cursor:default}
+.tl .blk{grid-column:2;margin:3px 4px 3px 6px;border-radius:9px;background:var(--accent);color:var(--accent-ink);padding:6px 10px;text-align:left;border:0;display:flex;flex-direction:column;gap:2px;overflow:hidden;z-index:1}
+.tl .blk b{font-size:13.5px}
+.tl .blk span{font-size:12px;opacity:.9}
+.bkup{margin-top:18px}
+.adrow{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:11px 12px;margin-bottom:12px;font-weight:600;cursor:pointer}
+.field .adrow input{width:20px;height:20px;padding:0;margin:0;accent-color:var(--accent)}
+.adrow:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+.bkup .item{display:flex;gap:10px;align-items:center;padding:10px 12px;border-top:1px solid var(--line);cursor:pointer}
+.bkup .item:first-child{border-top:0}
+.bkup .when{font-size:12.5px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
 .nav button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .nav button[aria-current="page"]{color:var(--accent);font-weight:600}
 .badge{position:absolute;top:6px;left:calc(50% + 6px);background:var(--bad);color:#fff;font-size:10.5px;font-weight:700;border-radius:999px;padding:0 5px;min-width:17px;line-height:17px}
@@ -259,6 +305,9 @@ body:has(.wrap.withbar) .toast{bottom:calc(150px + env(safe-area-inset-bottom,0p
   <button type="button" data-tab="equip"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="14" height="11" rx="2"/><path d="M17 10l4-2v9l-4-2"/><circle cx="10" cy="12.5" r="2.5"/></svg><span data-t="tabEquip"></span></button>
   <button type="button" data-tab="out"><svg viewBox="0 0 24 24"><path d="M4 7h16v13H4z"/><path d="M9 7V4h6v3"/><path d="M4 12h16"/></svg><span data-t="tabOut"></span><i class="badge" id="outBadge" hidden></i></button>
   <button type="button" data-tab="hist"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span data-t="tabHist"></span></button>
+  <i class="nav-sep" aria-hidden="true"></i>
+  <button type="button" data-tab="book"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M12 12.5v5M9.5 15h5"/></svg><span data-t="tabBook"></span></button>
+  <button type="button" data-tab="bookcal"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M7.5 13.5h1M11.5 13.5h1M15.5 13.5h1M7.5 17h1M11.5 17h1"/></svg><span data-t="tabCal"></span></button>
 </div></nav>
 
 <div class="sheet" id="sheet" hidden><div class="scrim" id="scrim"></div><div class="panel" role="dialog" aria-modal="true"><div class="grab"></div><div id="sheetBody"></div></div></div>
@@ -269,7 +318,7 @@ body:has(.wrap.withbar) .toast{bottom:calc(150px + env(safe-area-inset-bottom,0p
 (function(){
 const T={
 ko:{title:"CGN 장비 대여",sub:"태국 CGN · 카메라·렌즈·조명·마이크·배터리",switchTo:"ไทย",
- tabEquip:"장비",tabOut:"대여 중",tabHist:"이력",
+ tabEquip:"장비",tabOut:"대여 중",tabHist:"이력",tabBook:"예약",tabCal:"예약 확인",calAll:"전체",calBookThis:"이 날짜로 예약하기",calDayNone:"이 날은 예약이 없어요.",res_studio:"스튜디오",res_recording:"녹음실",res_meeting:"회의실",res_car1:"Freed",res_car2:"Van",allDay:"하루 종일",bookNew:"예약하기",bookTitle:"예약",bookRes:"장소·차량",bookDate:"날짜",bookStart:"시작",bookEnd:"종료",bookWho:"예약자",bookPurpose:"용도 (프로그램명 등)",bookNote:"메모",bookSave:"예약 확정",bookNeed:"예약자와 용도를 입력해 주세요.",bookBadTime:"종료 시간이 시작 시간보다 늦어야 해요.",bookTooLong:"한 번에 7일까지만 예약할 수 있어요.",bookPast:"이미 지난 시간은 예약할 수 없어요.",bookConflict:(t,w)=>`이미 예약된 시간이 있어요 (${t} · ${w})`,bookDone:"예약했어요.",bookCancel:"예약 취소",bookCancelConfirm:"한 번 더 누르면 취소돼요",bookCanceled:"예약을 취소했어요.",bookFree:"비어 있음 · 눌러서 예약",bookToday:"오늘",bookUpcoming:"다가오는 예약",bookNone:"예정된 예약이 없어요.",bookNextDay:"다음 날",
  all:"전체",available:"대여 가능",out:"대여 중",overdue:"연체",repair:"수리 중",retired:"불용",
  search:"장비명, 모델, 관리번호 검색",addEq:"장비 추가",
  type_camera:"카메라",type_lens:"렌즈",type_filter:"필터",type_light:"조명",type_stand:"다리",type_mic:"마이크",type_battery:"배터리",type_ob:"중계",toTop:"맨 위로",type_monitor:"모니터",type_etc:"기타",kind:"분류",
@@ -299,7 +348,7 @@ ko:{title:"CGN 장비 대여",sub:"태국 CGN · 카메라·렌즈·조명·마�
  photoFail:"사진을 처리하지 못했어요. 다른 사진으로 시도해 주세요.",
  saving:"저장 중…",noteLbl:"비고",admin:"관리자",adminLogin:"관리자 로그인",adminLead:"관리자는 대여 기록을 수정하거나 삭제할 수 있어요.",email:"이메일",password:"비밀번호",login:"로그인",logout:"로그아웃",loginFail:"이메일 또는 비밀번호가 맞지 않아요.",adminOn:u=>`${u} 계정으로 관리자 모드가 켜져 있어요.`,loggedOut:"로그아웃했어요.",editLoan:"대여 정보 수정",delBatch:"이 대여 건 전체 삭제",delOne:"삭제",confirmDel:"한 번 더 누르면 삭제돼요",deleted:n=>`기록 ${n}개를 삭제했어요.`,delFail:"삭제하지 못했어요. 관리자 로그인 상태를 확인해 주세요.",delWarn:"삭제한 기록은 되돌릴 수 없어요. 아직 반납 안 된 장비는 대여 가능 상태로 돌아가요.",bulkTitle:"장비 상태 일괄 관리",bulkLead:"여러 장비의 상태를 한 번에 바꿀 수 있어요. 적용 버튼은 두 번 눌러야 적용돼요.",bulkBar:(r,f)=>`장비 상태 일괄 관리 · 수리 중 ${r} · 증상 ${f}`,secRepair:n=>`수리 중 · ${n}개`,secFlag:n=>`증상 있음 · ${n}개`,selAll:"전체 선택",selNone:"전체 해제",toAvail:n=>`선택한 ${n}개 대여 가능으로`,clrFlags:n=>`선택한 ${n}개 증상 해제`,noRepair:"수리 중인 장비가 없어요.",noFlag:"증상이 표시된 장비가 없어요.",pickSome:"장비를 먼저 선택해 주세요.",confirmApply:"한 번 더 누르면 적용돼요",bulkDone:n=>`${n}개 장비를 대여 가능으로 바꿨어요.`,undoOne:"반납 취소",undoAll:n=>`반납 취소 (${n}개)`,undoDone:n=>`${n}개 장비를 다시 대여 중으로 되돌렸어요.`,undoBlocked:n=>`${n}개는 이미 다른 사람이 빌렸거나 불용 처리돼서 되돌리지 못했어요.`,undoWarn:"반납 취소하면 그 장비는 다시 이 대여 건의 '대여 중'으로 돌아가고, 반납할 때 남긴 증상·수리 표시도 지워져요.",flagsDone:n=>`${n}개 장비의 증상을 해제했어요.`},
 th:{title:"ยืม-คืนอุปกรณ์ CGN",sub:"CGN ประเทศไทย · กล้อง·เลนส์·ไฟ·ไมค์·แบตเตอรี่",switchTo:"한국어",
- tabEquip:"อุปกรณ์",tabOut:"กำลังยืม",tabHist:"ประวัติ",
+ tabEquip:"อุปกรณ์",tabOut:"กำลังยืม",tabHist:"ประวัติ",tabBook:"จอง",tabCal:"ตารางจอง",calAll:"ทั้งหมด",calBookThis:"จองวันที่เลือก",calDayNone:"วันนี้ยังไม่มีการจองครับ",res_studio:"สตูดิโอ",res_recording:"ห้องอัดเสียง",res_meeting:"ห้องประชุม",res_car1:"Freed",res_car2:"Van",allDay:"ทั้งวัน",bookNew:"จอง",bookTitle:"การจอง",bookRes:"สถานที่·รถ",bookDate:"วันที่",bookStart:"เริ่ม",bookEnd:"สิ้นสุด",bookWho:"ผู้จอง",bookPurpose:"วัตถุประสงค์ (ชื่อรายการ ฯลฯ)",bookNote:"หมายเหตุ",bookSave:"ยืนยันการจอง",bookNeed:"กรุณากรอกผู้จองและวัตถุประสงค์ครับ",bookBadTime:"เวลาสิ้นสุดต้องหลังเวลาเริ่มครับ",bookTooLong:"จองได้ครั้งละไม่เกิน 7 วันครับ",bookPast:"ไม่สามารถจองเวลาที่ผ่านไปแล้วครับ",bookConflict:(t,w)=>`ช่วงเวลานี้มีการจองแล้วครับ (${t} · ${w})`,bookDone:"จองเรียบร้อยแล้วครับ",bookCancel:"ยกเลิกการจอง",bookCancelConfirm:"แตะอีกครั้งเพื่อยกเลิกครับ",bookCanceled:"ยกเลิกการจองแล้วครับ",bookFree:"ว่าง · แตะเพื่อจอง",bookToday:"วันนี้",bookUpcoming:"การจองที่กำลังจะมาถึง",bookNone:"ยังไม่มีการจองครับ",bookNextDay:"วันถัดไป",
  all:"ทั้งหมด",available:"ว่าง",out:"กำลังยืม",overdue:"เกินกำหนด",repair:"ซ่อม",retired:"เลิกใช้",
  search:"ค้นหาชื่อ รุ่น หรือรหัสอุปกรณ์",addEq:"เพิ่มอุปกรณ์",
  type_camera:"กล้อง",type_lens:"เลนส์",type_filter:"ฟิลเตอร์",type_light:"ไฟ",type_stand:"ขาตั้ง",type_mic:"ไมค์",type_ob:"OB",type_battery:"แบตเตอรี่",toTop:"กลับขึ้นด้านบน",type_monitor:"จอมอนิเตอร์",type_etc:"อื่นๆ",kind:"ชนิด",
@@ -345,6 +394,7 @@ const FB_CONFIG={apiKey:"AIzaSyDQc14PHuYCxUjoI0-8PLYGuTrQOMVvNeQ",authDomain:"cg
 const FBV="10.14.1";
 const HIST_DAYS=60;
 let fa=null, auth=null, adminUser=null;
+let bookings=[], bkReady=false;
 let fs=null, db=null, eqReady=false, loansSnap=false, recentLoans=[], range=null;
 function normEq(r){return {...r,_id:r.id,no:Number(r.no)||0,loan:r.status==="out"&&r.loanId?{id:r.loanId,batch:r.batch,borrower:r.borrower,program:r.program,outAt:r.outAt,due:r.due}:null}}
 function normLoan(r){return {...r,_id:r.id,returnedAt:r.returnedAt||null,condition:r.condition||null}}
@@ -358,6 +408,7 @@ async function boot(){
     import(`https://www.gstatic.com/firebasejs/${FBV}/firebase-auth.js`).then(m=>{fa=m;auth=fa.getAuth(app);fa.onAuthStateChanged(auth,u=>{adminUser=u||null;if($("#sheet").hidden)render();else paintChrome()})}).catch(()=>{});
     try{db=fs.initializeFirestore(app,{localCache:fs.persistentLocalCache({tabManager:fs.persistentMultipleTabManager()})})}catch(e){db=fs.getFirestore(app)}
     fs.onSnapshot(fs.collection(db,"equipment"),snap=>{eq.clear();snap.forEach(d=>eq.set(d.id,normEq({...d.data(),id:d.id})));eqReady=true;if(loansSnap)onData()},err=>{dbFailed=true;ready=true;render()});
+    fs.onSnapshot(fs.query(fs.collection(db,"bookings"),fs.where("end",">=",bkCutoff())),snap=>{bookings=snap.docs.map(d=>({...d.data(),id:d.id})).filter(b=>!b.canceled);bkReady=true;if((ui.tab==="book"||ui.tab==="bookcal")&&$("#sheet").hidden)render()},err=>{bkReady=true});
     fs.onSnapshot(fs.query(fs.collection(db,"loans"),fs.where("outAt",">=",cutoff()),fs.orderBy("outAt","desc")),snap=>{recentLoans=snap.docs.map(d=>normLoan({...d.data(),id:d.id}));loansSnap=true;if(!range)loans=recentLoans;if(eqReady)onData()},err=>{loansSnap=true;if(eqReady)onData()});
   }catch(e){dbFailed=true;ready=true;render()}
 }
@@ -588,7 +639,7 @@ $("#selGo").addEventListener("click",()=>{if(!ui.pick){ui.pick=true;selected.cle
 
 function render(){paintChrome();const v=$("#view");
   if(!ready&&!dbFailed){v.dataset.shell="";v.dataset.hshell="";v.innerHTML=`<div class="empty">${esc(t("loading"))}</div>`;return}
-  if(ui.tab==="equip"){v.dataset.hshell="";renderEquip(v)}else{v.dataset.shell="";if(ui.tab!=="hist")v.dataset.hshell="";if(ui.tab==="out")renderOut(v);else renderHist(v)}
+  if(ui.tab==="equip"){v.dataset.hshell="";renderEquip(v)}else{v.dataset.shell="";if(ui.tab!=="hist")v.dataset.hshell="";if(ui.tab==="out")renderOut(v);else if(ui.tab==="book")renderBook(v);else if(ui.tab==="bookcal")renderCal(v);else renderHist(v)}
 }
 
 
@@ -857,6 +908,138 @@ function renderOut(v){
 }
 
 
+/* ---------- bookings (studio / rooms / cars) ---------- */
+const RES=["studio","recording","meeting","car1","car2"];
+const bk={res:LS.get("bkres")||"studio",date:null};
+const hk=(d,h)=>d+" "+pad(h);                       // "YYYY-MM-DD HH"
+const addDays=(d,n)=>{const x=parseYmd(d);x.setDate(x.getDate()+n);return ymd(x)};
+function bkCutoff(){return hk(addDays(today(),-62),0)}
+function nowKey(){const d=new Date();return hk(ymd(d),d.getHours())}
+function hoursBetween(s,e){const out=[];let d=s.slice(0,10),h=+s.slice(11);while(hk(d,h)<e&&out.length<200){out.push(hk(d,h));h++;if(h>23){h=0;d=addDays(d,1)}}return out}
+function endLabel(e){return e.slice(11)==="00"?"24:00":e.slice(11)+":00"}
+function fRange(b){const sd=b.start.slice(0,10),ed=b.end.slice(0,10),eh=b.end.slice(11);
+  if(b.start.slice(11)==="00"&&eh==="00"){const last=addDays(ed,-1);return (last===sd?fD(sd):`${fD(sd)} – ${fD(last)}`)+" · "+t("allDay")}
+  const sameDay=sd===ed||(eh==="00"&&addDays(sd,1)===ed);
+  return sameDay?`${fD(sd)} ${b.start.slice(11)}:00–${endLabel(b.end)}`:`${fD(sd)} ${b.start.slice(11)}:00 – ${fD(eh==="00"?addDays(ed,-1):ed)} ${endLabel(b.end)}`}
+function dayLabel(d){return parseYmd(d).toLocaleDateString(loc(),{month:"long",day:"numeric",weekday:"short"})}
+function renderBook(v){
+  if(!bk.date)bk.date=today();const D=bk.date,D1=addDays(D,1);
+  const mine=bookings.filter(b=>b.res===bk.res);
+  const dayB=mine.filter(b=>b.start<hk(D1,0)&&b.end>hk(D,0)).sort((a,b)=>a.start.localeCompare(b.start));
+  let h0=7;dayB.forEach(b=>{if(b.start.slice(0,10)===D&&+b.start.slice(11)>0)h0=Math.min(h0,+b.start.slice(11))});
+  const rows=[];for(let h=h0;h<24;h++)rows.push(h);
+  const nk=nowKey();let grid="";
+  rows.forEach((h,i)=>{const r=i+1;grid+=`<div class="hr${i?"":" first"}" style="grid-row:${r}">${pad(h)}:00</div>`;
+    const busy=dayB.some(b=>b.start<=hk(D,h)&&b.end>hk(D,h));
+    if(!busy){const past=hk(D,h)<nk;grid+=`<button type="button" class="slot${i?"":" first"}${past?" past":""}" style="grid-row:${r}" ${past?"disabled":`data-h="${h}" aria-label="${esc(t("bookFree"))}"`}>${past?"":`<span>${esc(t("bookFree"))}</span>`}</button>`}});
+  dayB.forEach(b=>{const s=b.start<hk(D,h0)?h0:+b.start.slice(11);const e=b.end>=hk(D1,0)?24:+b.end.slice(11);
+    grid+=`<button type="button" class="blk" data-b="${esc(b.id)}" style="grid-row:${s-h0+1}/${e-h0+1}"><b>${esc(b.purpose)}</b><span>${esc(b.who)} · ${esc(fRange(b))}</span></button>`;
+    for(let h=s;h<e;h++)grid+=`<div class="slot${h===h0?" first":""}" style="grid-row:${h-h0+1}"></div>`});
+  const up=mine.filter(b=>b.end>nk).sort((a,b)=>a.start.localeCompare(b.start)).slice(0,20);
+  v.innerHTML=`<div class="chips bkres" id="bkRes">${RES.map(r=>`<button type="button" class="chip" data-r="${r}" aria-pressed="${bk.res===r}">${esc(t("res_"+r))}</button>`).join("")}</div>
+  <div class="bkdate"><button type="button" id="bkPrev" aria-label="prev">‹</button><label class="dlabel" for="bkPick">${esc(dayLabel(D))}<input type="date" id="bkPick" value="${D}"></label>${D!==today()?`<button type="button" class="today" id="bkToday">${esc(t("bookToday"))}</button>`:""}<button type="button" id="bkNext" aria-label="next">›</button></div>
+  <div class="tl" id="bkTl">${grid}</div>
+  <button class="btn primary block" id="bkNew" type="button" style="margin-top:12px">${esc(t("bookNew"))}</button>
+  <div class="bkup"><div class="sec">${esc(t("bookUpcoming"))} · ${esc(t("res_"+bk.res))}</div>
+  <div class="card" style="padding:0">${up.length?up.map(b=>`<div class="item" data-b="${esc(b.id)}"><div class="grow"><b>${esc(b.purpose)}</b><div class="sub"><span>${esc(b.who)}</span></div></div><span class="when">${esc(fRange(b))}</span></div>`).join(""):`<div class="empty">${esc(t("bookNone"))}</div>`}</div></div>`;
+  v.querySelectorAll("[data-r]").forEach(c=>c.addEventListener("click",()=>{bk.res=c.dataset.r;LS.set("bkres",bk.res);render()}));
+  v.querySelector("#bkPrev").addEventListener("click",()=>{bk.date=addDays(bk.date,-1);render()});
+  v.querySelector("#bkNext").addEventListener("click",()=>{bk.date=addDays(bk.date,1);render()});
+  const tb=v.querySelector("#bkToday");tb&&tb.addEventListener("click",()=>{bk.date=today();render()});
+  const pk=v.querySelector("#bkPick");v.querySelector(".dlabel").addEventListener("click",ev=>{ev.preventDefault();try{pk.showPicker()}catch(e){pk.click()}});
+  pk.addEventListener("change",()=>{if(pk.value){bk.date=pk.value;render()}});
+  v.querySelectorAll("[data-h]").forEach(b=>b.addEventListener("click",()=>openBooking({res:bk.res,date:D,h:+b.dataset.h})));
+  v.querySelectorAll("[data-b]").forEach(b=>b.addEventListener("click",()=>openBookingDetail(b.dataset.b)));
+  v.querySelector("#bkNew").addEventListener("click",()=>{const n=new Date();const h=D===today()?Math.min(23,n.getHours()+1):9;openBooking({res:bk.res,date:D,h})});
+}
+function hourOpts(sel,from,to){let o="";for(let h=from;h<=to;h++)o+=`<option value="${h}"${h===sel?" selected":""}>${pad(h===24?24:h)}:00</option>`;return o}
+function openBooking({res,date,h}){
+  const h1=Math.min(24,h+1);
+  const html=`<h2>${esc(t("bookTitle"))}</h2><p class="lead"></p>
+  <div class="field"><label for="bR">${esc(t("bookRes"))}</label><select id="bR">${RES.map(r=>`<option value="${r}"${r===res?" selected":""}>${esc(t("res_"+r))}</option>`).join("")}</select></div>
+  <div class="field"><label class="adrow"><input type="checkbox" id="bAD"><span>${esc(t("allDay"))}</span></label></div>
+  <div class="two"><div class="field"><label for="bSD">${esc(t("bookStart"))}</label><input id="bSD" type="date" value="${date}"></div><div class="field bhr"><label for="bSH">&nbsp;</label><select id="bSH">${hourOpts(h,0,23)}</select></div></div>
+  <div class="two"><div class="field"><label for="bED">${esc(t("bookEnd"))}</label><input id="bED" type="date" value="${date}"></div><div class="field bhr"><label for="bEH">&nbsp;</label><select id="bEH">${hourOpts(h1,1,24)}</select></div></div>
+  <div class="field"><label for="bW">${esc(t("bookWho"))}</label><input id="bW" maxlength="80" list="dlBk" autocomplete="off" value="${esc(LS.get("me")||"")}"></div>
+  <datalist id="dlBk">${uniq(loans.map(l=>l.borrower).concat(bookings.map(b=>b.who))).map(p=>`<option value="${esc(p)}">`).join("")}</datalist>
+  <div class="field"><label for="bP">${esc(t("bookPurpose"))}</label><input id="bP" maxlength="120"></div>
+  <div class="field"><label for="bN">${esc(t("bookNote"))}</label><textarea id="bN" maxlength="500"></textarea></div>
+  <div class="actions-row"><button class="btn" id="bC" type="button">${esc(t("cancel"))}</button><button class="btn primary" id="bS" type="button">${esc(t("bookSave"))}</button></div>`;
+  openSheet(html,root=>{const q=x=>root.querySelector(x);
+    q("#bSD").addEventListener("change",()=>{if(q("#bED").value<q("#bSD").value)q("#bED").value=q("#bSD").value});
+    q("#bAD").addEventListener("change",()=>{root.querySelectorAll(".bhr").forEach(x=>x.style.visibility=q("#bAD").checked?"hidden":"")});
+    q("#bC").addEventListener("click",closeSheet);
+    q("#bS").addEventListener("click",async ev=>{
+      const r=q("#bR").value,sd=q("#bSD").value,sh=+q("#bSH").value,ed=q("#bED").value,eh=+q("#bEH").value;
+      const who=q("#bW").value.trim(),purpose=q("#bP").value.trim(),note=q("#bN").value.trim();
+      if(!who||!purpose){toast(t("bookNeed"));return}
+      if(!sd||!ed){toast(t("bookBadTime"));return}
+      const ad=q("#bAD").checked;
+      const start=ad?hk(sd,0):hk(sd,sh),end=ad?hk(addDays(ed,1),0):(eh===24?hk(addDays(ed,1),0):hk(ed,eh));
+      if(end<=start){toast(t("bookBadTime"));return}
+      if(ad?sd<today():start<nowKey()){toast(t("bookPast"));return}
+      const hrs=hoursBetween(start,end);if(hrs.length>168){toast(t("bookTooLong"));return}
+      const btn=ev.target;btn.disabled=true;btn.textContent=t("saving");LS.set("me",who);
+      try{const res2=await fbBook({res:r,start,end,who,purpose,note,hrs});
+        if(res2.conflict){const c=bookings.find(b=>b.id===res2.conflict);toast(t("bookConflict",c?fRange(c):"",c?c.who:""));btn.disabled=false;btn.textContent=t("bookSave");return}
+        bk.res=r;LS.set("bkres",r);bk.date=sd;closeSheet();render();toast(t("bookDone"))}
+      catch(e){toast(t("failed"));btn.disabled=false;btn.textContent=t("bookSave")}})});
+}
+async function fbBook({res,start,end,who,purpose,note,hrs}){
+  return fs.runTransaction(db,async tx=>{
+    const refs=hrs.map(k=>fs.doc(db,"slots",res+"_"+k.replace(/[- ]/g,"")));
+    const snaps=await Promise.all(refs.map(r=>tx.get(r)));
+    const hit=snaps.find(sn=>sn.exists()&&sn.data().bookingId);
+    if(hit)return {conflict:hit.data().bookingId};
+    const bref=fs.doc(fs.collection(db,"bookings"));
+    tx.set(bref,{res,start,end,who,purpose,note:note||"",canceled:false,createdAt:stamp(),canceledAt:""});
+    refs.forEach((r,i)=>tx.set(r,{bookingId:bref.id,res,at:hrs[i]}));
+    return {id:bref.id}});
+}
+async function fbCancelBooking(b){
+  const hrs=hoursBetween(b.start,b.end);
+  return fs.runTransaction(db,async tx=>{
+    const refs=hrs.map(k=>fs.doc(db,"slots",b.res+"_"+k.replace(/[- ]/g,"")));
+    const snaps=await Promise.all(refs.map(r=>tx.get(r)));
+    tx.update(fs.doc(db,"bookings",b.id),{canceled:true,canceledAt:stamp()});
+    snaps.forEach((sn,i)=>{if(sn.exists()&&sn.data().bookingId===b.id)tx.update(refs[i],{bookingId:""})})});
+}
+function openBookingDetail(id){const b=bookings.find(x=>x.id===id);if(!b)return;
+  openSheet(`<h2>${esc(b.purpose)}</h2><p class="lead">${esc(t("res_"+b.res))}</p>
+  <dl class="kv"><dt>${esc(t("bookWho"))}</dt><dd>${esc(b.who)}</dd><dt>${esc(t("bookDate"))}</dt><dd>${esc(fRange(b))}</dd>${b.note?`<dt>${esc(t("bookNote"))}</dt><dd>${esc(b.note)}</dd>`:""}</dl>
+  <div class="actions-row"><button class="btn danger" id="bX" type="button">${esc(t("bookCancel"))}</button><button class="btn" id="bClose" type="button">${esc(t("close"))}</button></div>`,root=>{
+    root.querySelector("#bClose").addEventListener("click",closeSheet);
+    armBtn(root.querySelector("#bX"),async()=>{try{await fbCancelBooking(b);bookings=bookings.filter(x=>x.id!==b.id);closeSheet();render();toast(t("bookCanceled"))}catch(e){closeSheet();toast(t("failed"))}},t("bookCancelConfirm"))});
+}
+const bkc={res:LS.get("bkcres")||"all",month:null,sel:null};
+function renderCal(v){
+  const td=today();if(!bkc.sel)bkc.sel=td;if(!bkc.month)bkc.month=bkc.sel.slice(0,7);
+  const [Y,M]=bkc.month.split("-").map(Number);const first=new Date(Y,M-1,1);
+  const start=addDays(ymd(first),-first.getDay());
+  const pool=bookings.filter(b=>bkc.res==="all"||b.res===bkc.res);
+  const onDay=d=>pool.filter(b=>b.start<hk(addDays(d,1),0)&&b.end>hk(d,0));
+  const wk=[];for(let i=0;i<7;i++)wk.push(parseYmd(addDays("2026-10-25",i)).toLocaleDateString(loc(),{weekday:"narrow"}));
+  let cells="";const last=new Date(Y,M,0).getDate();const n=Math.ceil((first.getDay()+last)/7)*7;
+  for(let i=0;i<n;i++){const d=addDays(start,i);const bs=onDay(d);const other=d.slice(0,7)!==bkc.month;
+    let mk="";if(bs.length){mk=bkc.res==="all"?`<span class="ds">${RES.filter(r=>bs.some(b=>b.res===r)).map(r=>`<i class="dot rc-${r}"></i>`).join("")}</span>`:`<span class="c">${bs.length}</span>`}
+    cells+=`<button type="button" class="d${other?" o":""}${d===td?" td":""}" data-d="${d}" aria-pressed="${d===bkc.sel}" aria-label="${esc(dayLabel(d))}${bs.length?" · "+bs.length:""}"><span class="n">${+d.slice(8)}</span>${mk}</button>`}
+  const list=onDay(bkc.sel).sort((a,b)=>a.start.localeCompare(b.start)||RES.indexOf(a.res)-RES.indexOf(b.res));
+  const mLabel=first.toLocaleDateString(loc(),{year:"numeric",month:"long"});
+  v.innerHTML=`<div class="chips bkres" id="cRes"><button type="button" class="chip" data-r="all" aria-pressed="${bkc.res==="all"}">${esc(t("calAll"))}</button>${RES.map(r=>`<button type="button" class="chip" data-r="${r}" aria-pressed="${bkc.res===r}">${esc(t("res_"+r))}</button>`).join("")}</div>
+  <div class="bkdate"><button type="button" id="cPrev" aria-label="prev">‹</button><div class="dlabel">${esc(mLabel)}</div>${bkc.month!==td.slice(0,7)?`<button type="button" class="today" id="cToday">${esc(t("bookToday"))}</button>`:""}<button type="button" id="cNext" aria-label="next">›</button></div>
+  <div class="cal"><div class="wk">${wk.map(w=>`<div>${esc(w)}</div>`).join("")}</div><div class="days" id="cDays">${cells}</div></div>
+  ${bkc.res==="all"?`<div class="legend">${RES.map(r=>`<span><i class="dot rc-${r}"></i>${esc(t("res_"+r))}</span>`).join("")}</div>`:""}
+  <div class="bkup"><div class="sec">${esc(dayLabel(bkc.sel))}</div>
+  <div class="card" style="padding:0">${list.length?list.map(b=>`<div class="item" data-b="${esc(b.id)}"><div class="grow"><b>${esc(b.purpose)}</b><div class="sub"><span class="rn"><i class="dot rc-${b.res}"></i>${esc(t("res_"+b.res))}</span><span>${esc(b.who)}</span></div></div><span class="when">${esc(fRange(b))}</span></div>`).join(""):`<div class="empty">${esc(t("calDayNone"))}</div>`}</div></div>
+  ${bkc.sel>=td?`<button class="btn primary block" id="cBook" type="button" style="margin-top:12px">${esc(t("calBookThis"))}</button>`:""}`;
+  v.querySelectorAll("#cRes [data-r]").forEach(c=>c.addEventListener("click",()=>{bkc.res=c.dataset.r;LS.set("bkcres",bkc.res);render()}));
+  const mv=k=>{const d=new Date(Y,M-1+k,1);bkc.month=ymd(d).slice(0,7);render()};
+  v.querySelector("#cPrev").addEventListener("click",()=>mv(-1));v.querySelector("#cNext").addEventListener("click",()=>mv(1));
+  const ct=v.querySelector("#cToday");ct&&ct.addEventListener("click",()=>{bkc.sel=td;bkc.month=td.slice(0,7);render()});
+  v.querySelector("#cDays").addEventListener("click",ev=>{const c=ev.target.closest("[data-d]");if(!c)return;bkc.sel=c.dataset.d;bkc.month=bkc.sel.slice(0,7);render()});
+  v.querySelectorAll(".item[data-b]").forEach(b=>b.addEventListener("click",()=>openBookingDetail(b.dataset.b)));
+  const cb=v.querySelector("#cBook");cb&&cb.addEventListener("click",()=>{bk.date=bkc.sel;if(bkc.res!=="all"){bk.res=bkc.res;LS.set("bkres",bk.res)}ui.tab="book";LS.set("tab","book");render();window.scrollTo(0,0)});
+}
 function renderHist(v){
   const key="hist-"+lang;
   if(v.dataset.hshell!==key||!$("#hq")){
