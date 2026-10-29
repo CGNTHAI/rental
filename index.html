@@ -205,6 +205,7 @@ button{cursor:pointer}
 .tl.all .blk{margin:2px;padding:4px 5px;border-radius:7px;background:var(--rc);gap:1px}
 .tl.all .blk b{font-size:11.5px;line-height:1.25;word-break:keep-all;overflow-wrap:anywhere}
 .tl.all .blk span{font-size:10.5px}
+.bknote{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:8px 12px;font-size:13px;font-weight:600;margin-bottom:10px}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted);margin:10px 2px 0}
 .legend span{display:flex;align-items:center;gap:5px}
 .bkup .item .rn{display:flex;align-items:center;gap:6px}
@@ -327,7 +328,7 @@ body:has(.wrap.withbar) .toast{bottom:calc(150px + env(safe-area-inset-bottom,0p
 (function(){
 const T={
 ko:{title:"CGN 장비 대여",sub:"태국 CGN · 카메라·렌즈·조명·마이크·배터리",switchTo:"ไทย",
- tabEquip:"장비",tabOut:"대여 중",tabHist:"이력",tabBook:"예약",tabCal:"예약 확인",calAll:"전체",calBookThis:"이 날짜로 예약하기",calDayNone:"이 날은 예약이 없어요.",res_studio:"스튜디오",res_recording:"녹음실",res_meeting:"회의실",res_car1:"Freed",res_car2:"Van",allDay:"하루 종일",bookNew:"예약하기",bookTitle:"예약",bookRes:"장소·차량",bookDate:"날짜",bookStart:"시작",bookEnd:"종료",bookWho:"예약자",bookPurpose:"용도 (프로그램명 등)",bookNote:"메모",bookSave:"예약 확정",bookNeed:"예약자와 용도를 입력해 주세요.",bookBadTime:"종료 시간이 시작 시간보다 늦어야 해요.",bookTooLong:"한 번에 7일까지만 예약할 수 있어요.",bookPast:"이미 지난 시간은 예약할 수 없어요.",bookConflict:(t,w)=>`이미 예약된 시간이 있어요 (${t} · ${w})`,bookDone:"예약했어요.",bookCancel:"예약 취소",bookCancelConfirm:"한 번 더 누르면 취소돼요",bookCanceled:"예약을 취소했어요.",bookFree:"비어 있음 · 눌러서 예약",bookToday:"오늘",bookUpcoming:"다가오는 예약",bookNone:"예정된 예약이 없어요.",bookNextDay:"다음 날",
+ tabEquip:"장비",tabOut:"대여 중",tabHist:"이력",tabBook:"예약",tabCal:"예약 확인",calAll:"전체",calBookThis:"이 날짜로 예약하기",calDayNone:"이 날은 예약이 없어요.",carRule:"차량은 사용 전날 밤 12시까지 신청해 주세요.",carLate:"차량은 사용 전날 밤 12시까지만 신청할 수 있어요. 급한 경우 지사장님께 말씀해 주세요.",carToday:"오늘 차량 신청은 마감됐어요. (전날 밤 12시 마감)",res_studio:"스튜디오",res_recording:"녹음실",res_meeting:"회의실",res_car1:"Freed",res_car2:"Van",allDay:"하루 종일",bookNew:"예약하기",bookTitle:"예약",bookRes:"장소·차량",bookDate:"날짜",bookStart:"시작",bookEnd:"종료",bookWho:"예약자",bookPurpose:"용도 (프로그램명 등)",bookNote:"메모",bookSave:"예약 확정",bookNeed:"예약자와 용도를 입력해 주세요.",bookBadTime:"종료 시간이 시작 시간보다 늦어야 해요.",bookTooLong:"한 번에 7일까지만 예약할 수 있어요.",bookPast:"이미 지난 시간은 예약할 수 없어요.",bookConflict:(t,w)=>`이미 예약된 시간이 있어요 (${t} · ${w})`,bookDone:"예약했어요.",bookCancel:"예약 취소",bookCancelConfirm:"한 번 더 누르면 취소돼요",bookCanceled:"예약을 취소했어요.",bookFree:"비어 있음 · 눌러서 예약",bookToday:"오늘",bookUpcoming:"다가오는 예약",bookNone:"예정된 예약이 없어요.",bookNextDay:"다음 날",
  all:"전체",available:"대여 가능",out:"대여 중",overdue:"연체",repair:"수리 중",retired:"불용",
  search:"장비명, 모델, 관리번호 검색",addEq:"장비 추가",
  type_camera:"카메라",type_lens:"렌즈",type_filter:"필터",type_light:"조명",type_stand:"다리",type_mic:"마이크",type_battery:"배터리",type_ob:"중계",toTop:"맨 위로",type_monitor:"모니터",type_etc:"기타",kind:"분류",
@@ -357,7 +358,7 @@ ko:{title:"CGN 장비 대여",sub:"태국 CGN · 카메라·렌즈·조명·마�
  photoFail:"사진을 처리하지 못했어요. 다른 사진으로 시도해 주세요.",
  saving:"저장 중…",noteLbl:"비고",admin:"관리자",adminLogin:"관리자 로그인",adminLead:"관리자는 대여 기록을 수정하거나 삭제할 수 있어요.",email:"이메일",password:"비밀번호",login:"로그인",logout:"로그아웃",loginFail:"이메일 또는 비밀번호가 맞지 않아요.",adminOn:u=>`${u} 계정으로 관리자 모드가 켜져 있어요.`,loggedOut:"로그아웃했어요.",editLoan:"대여 정보 수정",delBatch:"이 대여 건 전체 삭제",delOne:"삭제",confirmDel:"한 번 더 누르면 삭제돼요",deleted:n=>`기록 ${n}개를 삭제했어요.`,delFail:"삭제하지 못했어요. 관리자 로그인 상태를 확인해 주세요.",delWarn:"삭제한 기록은 되돌릴 수 없어요. 아직 반납 안 된 장비는 대여 가능 상태로 돌아가요.",bulkTitle:"장비 상태 일괄 관리",bulkLead:"여러 장비의 상태를 한 번에 바꿀 수 있어요. 적용 버튼은 두 번 눌러야 적용돼요.",bulkBar:(r,f)=>`장비 상태 일괄 관리 · 수리 중 ${r} · 증상 ${f}`,secRepair:n=>`수리 중 · ${n}개`,secFlag:n=>`증상 있음 · ${n}개`,selAll:"전체 선택",selNone:"전체 해제",toAvail:n=>`선택한 ${n}개 대여 가능으로`,clrFlags:n=>`선택한 ${n}개 증상 해제`,noRepair:"수리 중인 장비가 없어요.",noFlag:"증상이 표시된 장비가 없어요.",pickSome:"장비를 먼저 선택해 주세요.",confirmApply:"한 번 더 누르면 적용돼요",bulkDone:n=>`${n}개 장비를 대여 가능으로 바꿨어요.`,undoOne:"반납 취소",undoAll:n=>`반납 취소 (${n}개)`,undoDone:n=>`${n}개 장비를 다시 대여 중으로 되돌렸어요.`,undoBlocked:n=>`${n}개는 이미 다른 사람이 빌렸거나 불용 처리돼서 되돌리지 못했어요.`,undoWarn:"반납 취소하면 그 장비는 다시 이 대여 건의 '대여 중'으로 돌아가고, 반납할 때 남긴 증상·수리 표시도 지워져요.",flagsDone:n=>`${n}개 장비의 증상을 해제했어요.`},
 th:{title:"ยืม-คืนอุปกรณ์ CGN",sub:"CGN ประเทศไทย · กล้อง·เลนส์·ไฟ·ไมค์·แบตเตอรี่",switchTo:"한국어",
- tabEquip:"อุปกรณ์",tabOut:"กำลังยืม",tabHist:"ประวัติ",tabBook:"จอง",tabCal:"ตารางจอง",calAll:"ทั้งหมด",calBookThis:"จองวันที่เลือก",calDayNone:"วันนี้ยังไม่มีการจองครับ",res_studio:"สตูดิโอ",res_recording:"ห้องอัดเสียง",res_meeting:"ห้องประชุม",res_car1:"Freed",res_car2:"Van",allDay:"ทั้งวัน",bookNew:"จอง",bookTitle:"การจอง",bookRes:"สถานที่·รถ",bookDate:"วันที่",bookStart:"เริ่ม",bookEnd:"สิ้นสุด",bookWho:"ผู้จอง",bookPurpose:"วัตถุประสงค์ (ชื่อรายการ ฯลฯ)",bookNote:"หมายเหตุ",bookSave:"ยืนยันการจอง",bookNeed:"กรุณากรอกผู้จองและวัตถุประสงค์ครับ",bookBadTime:"เวลาสิ้นสุดต้องหลังเวลาเริ่มครับ",bookTooLong:"จองได้ครั้งละไม่เกิน 7 วันครับ",bookPast:"ไม่สามารถจองเวลาที่ผ่านไปแล้วครับ",bookConflict:(t,w)=>`ช่วงเวลานี้มีการจองแล้วครับ (${t} · ${w})`,bookDone:"จองเรียบร้อยแล้วครับ",bookCancel:"ยกเลิกการจอง",bookCancelConfirm:"แตะอีกครั้งเพื่อยกเลิกครับ",bookCanceled:"ยกเลิกการจองแล้วครับ",bookFree:"ว่าง · แตะเพื่อจอง",bookToday:"วันนี้",bookUpcoming:"การจองที่กำลังจะมาถึง",bookNone:"ยังไม่มีการจองครับ",bookNextDay:"วันถัดไป",
+ tabEquip:"อุปกรณ์",tabOut:"กำลังยืม",tabHist:"ประวัติ",tabBook:"จอง",tabCal:"ตารางจอง",calAll:"ทั้งหมด",calBookThis:"จองวันที่เลือก",calDayNone:"วันนี้ยังไม่มีการจองครับ",carRule:"กรุณาจองรถก่อนเที่ยงคืนของวันก่อนใช้งานครับ",carLate:"จองรถได้ถึงเที่ยงคืนของวันก่อนใช้งานเท่านั้นครับ หากเร่งด่วนกรุณาติดต่อผู้อำนวยการสาขาครับ",carToday:"ปิดรับจองรถสำหรับวันนี้แล้วครับ (ปิดรับเที่ยงคืนของวันก่อน)",res_studio:"สตูดิโอ",res_recording:"ห้องอัดเสียง",res_meeting:"ห้องประชุม",res_car1:"Freed",res_car2:"Van",allDay:"ทั้งวัน",bookNew:"จอง",bookTitle:"การจอง",bookRes:"สถานที่·รถ",bookDate:"วันที่",bookStart:"เริ่ม",bookEnd:"สิ้นสุด",bookWho:"ผู้จอง",bookPurpose:"วัตถุประสงค์ (ชื่อรายการ ฯลฯ)",bookNote:"หมายเหตุ",bookSave:"ยืนยันการจอง",bookNeed:"กรุณากรอกผู้จองและวัตถุประสงค์ครับ",bookBadTime:"เวลาสิ้นสุดต้องหลังเวลาเริ่มครับ",bookTooLong:"จองได้ครั้งละไม่เกิน 7 วันครับ",bookPast:"ไม่สามารถจองเวลาที่ผ่านไปแล้วครับ",bookConflict:(t,w)=>`ช่วงเวลานี้มีการจองแล้วครับ (${t} · ${w})`,bookDone:"จองเรียบร้อยแล้วครับ",bookCancel:"ยกเลิกการจอง",bookCancelConfirm:"แตะอีกครั้งเพื่อยกเลิกครับ",bookCanceled:"ยกเลิกการจองแล้วครับ",bookFree:"ว่าง · แตะเพื่อจอง",bookToday:"วันนี้",bookUpcoming:"การจองที่กำลังจะมาถึง",bookNone:"ยังไม่มีการจองครับ",bookNextDay:"วันถัดไป",
  all:"ทั้งหมด",available:"ว่าง",out:"กำลังยืม",overdue:"เกินกำหนด",repair:"ซ่อม",retired:"เลิกใช้",
  search:"ค้นหาชื่อ รุ่น หรือรหัสอุปกรณ์",addEq:"เพิ่มอุปกรณ์",
  type_camera:"กล้อง",type_lens:"เลนส์",type_filter:"ฟิลเตอร์",type_light:"ไฟ",type_stand:"ขาตั้ง",type_mic:"ไมค์",type_ob:"OB",type_battery:"แบตเตอรี่",toTop:"กลับขึ้นด้านบน",type_monitor:"จอมอนิเตอร์",type_etc:"อื่นๆ",kind:"ชนิด",
@@ -920,6 +921,8 @@ function renderOut(v){
 /* ---------- bookings (studio / rooms / cars) ---------- */
 const RES=["studio","recording","meeting","car1","car2"];
 const bk={res:LS.get("bkres")||"all",date:null};
+const CARS=["car1","car2"];
+function carLocked(r,d){return CARS.includes(r)&&d<=today()&&!isAdmin()}
 const hk=(d,h)=>d+" "+pad(h);                       // "YYYY-MM-DD HH"
 const addDays=(d,n)=>{const x=parseYmd(d);x.setDate(x.getDate()+n);return ymd(x)};
 function bkCutoff(){return hk(addDays(today(),-62),0)}
@@ -941,13 +944,14 @@ function renderBook(v){
   const nk=nowKey();let grid="";
   rows.forEach((h,i)=>{const r=i+1;grid+=`<div class="hr${i?"":" first"}" style="grid-row:${r}">${pad(h)}:00</div>`;
     const busy=dayB.some(b=>b.start<=hk(D,h)&&b.end>hk(D,h));
-    if(!busy){const past=hk(D,h)<nk;grid+=`<button type="button" class="slot${i?"":" first"}${past?" past":""}" style="grid-row:${r}" ${past?"disabled":`data-h="${h}" aria-label="${esc(t("bookFree"))}"`}>${past?"":`<span>${esc(t("bookFree"))}</span>`}</button>`}});
+    if(!busy){const past=hk(D,h)<nk||carLocked(bk.res,D);grid+=`<button type="button" class="slot${i?"":" first"}${past?" past":""}" style="grid-row:${r}" ${past?"disabled":`data-h="${h}" aria-label="${esc(t("bookFree"))}"`}>${past?"":`<span>${esc(t("bookFree"))}</span>`}</button>`}});
   dayB.forEach(b=>{const s=b.start<hk(D,h0)?h0:+b.start.slice(11);const e=b.end>=hk(D1,0)?24:+b.end.slice(11);
     grid+=`<button type="button" class="blk" data-b="${esc(b.id)}" style="grid-row:${s-h0+1}/${e-h0+1}"><b>${esc(b.purpose)}</b><span>${esc(b.who)} · ${esc(fRange(b))}</span></button>`;
     for(let h=s;h<e;h++)grid+=`<div class="slot${h===h0?" first":""}" style="grid-row:${h-h0+1}"></div>`});
   const up=mine.filter(b=>b.end>nk).sort((a,b)=>a.start.localeCompare(b.start)).slice(0,20);
   v.innerHTML=`<div class="chips bkres" id="bkRes"><button type="button" class="chip" data-r="all" aria-pressed="false">${esc(t("calAll"))}</button>${RES.map(r=>`<button type="button" class="chip" data-r="${r}" aria-pressed="${bk.res===r}">${esc(t("res_"+r))}</button>`).join("")}</div>
   <div class="bkdate"><button type="button" id="bkPrev" aria-label="prev">‹</button><label class="dlabel" for="bkPick">${esc(dayLabel(D))}<input type="date" id="bkPick" value="${D}"></label>${D!==today()?`<button type="button" class="today" id="bkToday">${esc(t("bookToday"))}</button>`:""}<button type="button" id="bkNext" aria-label="next">›</button></div>
+  ${CARS.includes(bk.res)&&D===today()&&!isAdmin()?`<div class="bknote">${esc(t("carToday"))}</div>`:""}
   <div class="tl" id="bkTl">${grid}</div>
   <button class="btn primary block" id="bkNew" type="button" style="margin-top:12px">${esc(t("bookNew"))}</button>
   <div class="bkup"><div class="sec">${esc(t("bookUpcoming"))} · ${esc(t("res_"+bk.res))}</div>
@@ -960,7 +964,7 @@ function renderBook(v){
   pk.addEventListener("change",()=>{if(pk.value){bk.date=pk.value;render()}});
   v.querySelectorAll("[data-h]").forEach(b=>b.addEventListener("click",()=>openBooking({res:bk.res,date:D,h:+b.dataset.h})));
   v.querySelectorAll("[data-b]").forEach(b=>b.addEventListener("click",()=>openBookingDetail(b.dataset.b)));
-  v.querySelector("#bkNew").addEventListener("click",()=>{const n=new Date();const h=D===today()?Math.min(23,n.getHours()+1):9;openBooking({res:bk.res,date:D,h})});
+  v.querySelector("#bkNew").addEventListener("click",()=>{const n=new Date();if(carLocked(bk.res,D)){openBooking({res:bk.res,date:addDays(today(),1),h:9});return}const h=D===today()?Math.min(23,n.getHours()+1):9;openBooking({res:bk.res,date:D,h})});
 }
 function bkHead(D){return `<div class="bkdate"><button type="button" id="bkPrev" aria-label="prev">‹</button><label class="dlabel" for="bkPick">${esc(dayLabel(D))}<input type="date" id="bkPick" value="${D}"></label>${D!==today()?`<button type="button" class="today" id="bkToday">${esc(t("bookToday"))}</button>`:""}<button type="button" id="bkNext" aria-label="next">›</button></div>`}
 function bkWire(v){
@@ -978,13 +982,14 @@ function renderBookAll(v){
   let h0=7;dayB.forEach(b=>{if(b.start.slice(0,10)===D&&+b.start.slice(11)>0)h0=Math.min(h0,+b.start.slice(11))});
   let grid=`<div class="hh" style="grid-row:1;grid-column:1"></div>`+RES.map((r,i)=>`<div class="hh rc-${r}" style="grid-row:1;grid-column:${i+2}"><i class="dot"></i>${esc(t("res_"+r))}</div>`).join("");
   for(let h=h0;h<24;h++){const row=h-h0+2;grid+=`<div class="hr" style="grid-row:${row}">${pad(h)}:00</div>`;
-    RES.forEach((r,i)=>{const busy=dayB.some(b=>b.res===r&&b.start<=hk(D,h)&&b.end>hk(D,h));const past=hk(D,h)<nk;
+    RES.forEach((r,i)=>{const busy=dayB.some(b=>b.res===r&&b.start<=hk(D,h)&&b.end>hk(D,h));const past=hk(D,h)<nk||carLocked(r,D);
       grid+=busy||past?`<div class="slot${past&&!busy?" past":""}" style="grid-row:${row};grid-column:${i+2}"></div>`:`<button type="button" class="slot" style="grid-row:${row};grid-column:${i+2}" data-h="${h}" data-res="${r}" aria-label="${esc(t("res_"+r))} ${pad(h)}:00 · ${esc(t("bookFree"))}"></button>`})}
   dayB.forEach(b=>{const s=b.start<hk(D,h0)?h0:+b.start.slice(11);const e=b.end>=hk(D1,0)?24:+b.end.slice(11);
     grid+=`<button type="button" class="blk rc-${b.res}" data-b="${esc(b.id)}" style="grid-column:${RES.indexOf(b.res)+2};grid-row:${s-h0+2}/${e-h0+2}"><b>${esc(b.purpose)}</b><span>${esc(b.who)}</span></button>`});
   const up=bookings.filter(b=>b.end>nk).sort((a,b)=>a.start.localeCompare(b.start)||RES.indexOf(a.res)-RES.indexOf(b.res)).slice(0,30);
   v.innerHTML=`<div class="chips bkres" id="bkRes"><button type="button" class="chip" data-r="all" aria-pressed="true">${esc(t("calAll"))}</button>${RES.map(r=>`<button type="button" class="chip" data-r="${r}" aria-pressed="false">${esc(t("res_"+r))}</button>`).join("")}</div>
   ${bkHead(D)}
+  ${D===today()&&!isAdmin()?`<div class="bknote">${esc(t("carToday"))}</div>`:""}
   <div class="tl all" id="bkTl">${grid}</div>
   <button class="btn primary block" id="bkNew" type="button" style="margin-top:12px">${esc(t("bookNew"))}</button>
   <div class="bkup"><div class="sec">${esc(t("bookUpcoming"))} · ${esc(t("calAll"))}</div>
@@ -996,7 +1001,7 @@ function renderBookAll(v){
 function hourOpts(sel,from,to){let o="";for(let h=from;h<=to;h++)o+=`<option value="${h}"${h===sel?" selected":""}>${pad(h===24?24:h)}:00</option>`;return o}
 function openBooking({res,date,h}){
   const h1=Math.min(24,h+1);
-  const html=`<h2>${esc(t("bookTitle"))}</h2><p class="lead"></p>
+  const html=`<h2>${esc(t("bookTitle"))}</h2><p class="lead" id="bHint"></p>
   <div class="field"><label for="bR">${esc(t("bookRes"))}</label><select id="bR">${RES.map(r=>`<option value="${r}"${r===res?" selected":""}>${esc(t("res_"+r))}</option>`).join("")}</select></div>
   <div class="field"><label class="adrow"><input type="checkbox" id="bAD"><span>${esc(t("allDay"))}</span></label></div>
   <div class="two"><div class="field"><label for="bSD">${esc(t("bookStart"))}</label><input id="bSD" type="date" value="${date}"></div><div class="field bhr"><label for="bSH">&nbsp;</label><select id="bSH">${hourOpts(h,0,23)}</select></div></div>
@@ -1007,6 +1012,7 @@ function openBooking({res,date,h}){
   <div class="field"><label for="bN">${esc(t("bookNote"))}</label><textarea id="bN" maxlength="500"></textarea></div>
   <div class="actions-row"><button class="btn" id="bC" type="button">${esc(t("cancel"))}</button><button class="btn primary" id="bS" type="button">${esc(t("bookSave"))}</button></div>`;
   openSheet(html,root=>{const q=x=>root.querySelector(x);
+    const hint=()=>{q("#bHint").textContent=CARS.includes(q("#bR").value)?t("carRule"):""};hint();q("#bR").addEventListener("change",hint);
     q("#bSD").addEventListener("change",()=>{if(q("#bED").value<q("#bSD").value)q("#bED").value=q("#bSD").value});
     q("#bAD").addEventListener("change",()=>{root.querySelectorAll(".bhr").forEach(x=>x.style.visibility=q("#bAD").checked?"hidden":"")});
     q("#bC").addEventListener("click",closeSheet);
@@ -1019,6 +1025,7 @@ function openBooking({res,date,h}){
       const start=ad?hk(sd,0):hk(sd,sh),end=ad?hk(addDays(ed,1),0):(eh===24?hk(addDays(ed,1),0):hk(ed,eh));
       if(end<=start){toast(t("bookBadTime"));return}
       if(ad?sd<today():start<nowKey()){toast(t("bookPast"));return}
+      if(carLocked(r,sd)){toast(t("carLate"));return}
       const hrs=hoursBetween(start,end);if(hrs.length>168){toast(t("bookTooLong"));return}
       const btn=ev.target;btn.disabled=true;btn.textContent=t("saving");LS.set("me",who);
       try{const res2=await fbBook({res:r,start,end,who,purpose,note,hrs});
