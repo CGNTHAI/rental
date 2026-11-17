@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CGN Thai 오피스</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Mali:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* layout: header card → office (wall strip + wooden floor with three team rugs) → slide-in staff drawer */
+  --wall:#bfe3dc; --wall-deep:#8ccabf; --floor:#e8cfa8; --floor-line:#d8b98c;
+  --ink:#2b2833; --ink-soft:#6a6475; --paper:#fffdf7; --accent:#ff7657;
+  --rug-production:#d4e3ff; --rug-support:#fff0c2; --rug-planning:#ffdbe7;
+  --s-done:#1f9d63; --s-doing:#2f74e8; --s-plan:#8a8496; --s-blocked:#dc3d33; --s-moved:#d98a06;
+  --display:"Jua","Gowun Dodum",system-ui,sans-serif;
+  --body:"Gowun Dodum","Noto Sans KR",system-ui,sans-serif;
+  --thai:"Mali","Noto Sans Thai",system-ui,sans-serif;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--wall);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:10px}
+
+/* ---------- header ---------- */
+.top{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;padding:16px clamp(16px,3vw,32px) 12px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-badge{width:44px;height:44px;border-radius:14px;background:var(--ink);color:#fff;display:grid;place-items:center;font-family:var(--display);font-size:15px;letter-spacing:.5px;box-shadow:0 3px 0 #0003}
+.brand h1{font-family:var(--display);font-weight:400;font-size:26px;margin:0;line-height:1.1}
+.brand small{display:block;color:var(--ink-soft);font-size:13px}
+.langsw{display:flex;background:var(--paper);border-radius:999px;padding:3px;box-shadow:0 2px 0 #0002;margin-left:auto}
+.langsw button{border:0;background:transparent;border-radius:999px;padding:5px 12px;cursor:pointer;font-size:13.5px}
+.langsw button.on{background:var(--ink);color:#fff}
+body.staff .alerts,body.staff .chip.alert,body.staff .nameplate .q,body.staff .ownerlink{display:none!important}
+html[lang=th] .kname,html[lang=th] .walker .tag em{display:none}
+html[lang=th] body{font-family:"Mali","Noto Sans Thai",var(--body)}
+.datenav{display:flex;align-items:center;gap:6px;background:var(--paper);border-radius:999px;padding:4px;box-shadow:0 2px 0 #0002}
+.datenav button{border:0;background:transparent;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px}
+.datenav button:hover:not(:disabled){background:#0000000d}
+.datenav button:disabled{opacity:.3;cursor:default}
+.datenav .d{font-family:var(--display);font-size:18px;min-width:132px;text-align:center}
+.summary{display:flex;flex-wrap:wrap;gap:8px;padding:0 clamp(16px,3vw,32px) 12px}
+.chip{background:var(--paper);border-radius:12px;padding:6px 12px;box-shadow:0 2px 0 #0002;font-size:14px;display:flex;gap:6px;align-items:baseline}
+.chip b{font-family:var(--display);font-weight:400;font-size:19px;font-variant-numeric:tabular-nums}
+.chip.alert{background:#fff1e6;border:1.5px solid #f3b27a}
+.alerts{display:flex;flex-direction:column;gap:6px;padding:0 clamp(16px,3vw,32px) 12px}
+.alerts .row{background:#fff6ec;border-left:5px solid var(--s-moved);border-radius:10px;padding:7px 12px;font-size:14px;cursor:pointer;text-align:left;border-top:0;border-right:0;border-bottom:0}
+.alerts .row.info{border-left-color:#3f9b6a;background:#eef8f2}
+.alerts .row.blocked{border-left-color:var(--s-blocked);background:#fff0ef}
+.alerts .row:hover{filter:brightness(.98)}
+
+/* ---------- office ---------- */
+.office{position:relative;margin:0 clamp(8px,2vw,24px) 24px;border-radius:26px;overflow:hidden;box-shadow:0 6px 0 #0000001f}
+.wallstrip{position:relative;height:118px;background:linear-gradient(var(--wall-deep),var(--wall-deep)) bottom/100% 12px no-repeat, #d7efe9;display:flex;align-items:flex-end;gap:28px;padding:0 28px 12px;overflow:hidden}
+.window{width:220px;height:84px;border-radius:10px;background:linear-gradient(var(--skyTop),var(--skyBot));transition:background 1s;border:6px solid #fff;position:relative;flex:none;overflow:hidden}
+.window::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 48%,#fff 48% 52%,transparent 52%)}
+.window svg{position:absolute;bottom:0;left:0;width:100%}
+.cloud{animation:drift 28s linear infinite}
+@keyframes drift{from{transform:translateX(-60px)}to{transform:translateX(170px)}}
+/* time of day */
+body{--skyTop:#7cc7ff;--skyBot:#dff2ff}
+body[data-sky=dawn]{--skyTop:#ffa47a;--skyBot:#ffe3b3}
+body[data-sky=sunset]{--skyTop:#ff7e6b;--skyBot:#ffc58a}
+body[data-sky=night]{--skyTop:#18203f;--skyBot:#3a3f70}
+.window .stars,.window .moon,.window .lights{display:none}
+body[data-sky=night] .window .stars,body[data-sky=night] .window .moon,body[data-sky=night] .window .lights,body[data-sky=sunset] .window .lights{display:inline}
+body[data-sky=night] .window .sun,body[data-sky=night] .window .cloud{display:none}
+body[data-sky=dawn] .window .sun{transform:translateY(34px)}
+body[data-sky=sunset] .window .sun{transform:translateY(30px);fill:#ff9a3c}
+body[data-sky=night] .window .city{fill:#2b3157}
+.window .sun{transition:transform 1s}
+.office{transition:filter 1s}
+.room,.annex>div,.desk svg{transition:background-color 1s, filter 1s}
+body[data-sky=dawn] .room{background-color:#fdeee0 !important}
+body[data-sky=sunset] .room{background-color:#fbe1cf !important}
+body[data-sky=sunset] .desk svg{filter:sepia(.2) saturate(1.1)}
+body[data-sky=night] .room,body[data-sky=night] .annex>div{background-color:#c3c6dc !important}
+body[data-sky=night] .desk svg{filter:brightness(.78) saturate(.9)}
+body[data-sky=night] .floor{background:#2c2a3a}
+body[data-sky=night] .wallstrip{background-color:#9fb8b4}
+.stars circle{animation:glow 2.2s infinite}.stars circle:nth-child(2n){animation-delay:1s}
+.sign{background:var(--ink);color:#fff;font-family:var(--display);padding:8px 16px;border-radius:12px;font-size:20px;align-self:center;box-shadow:0 3px 0 #0004;flex:none}
+.sign span{color:#ffd166}
+.wallclock{width:62px;height:62px;flex:none;align-self:center}
+.workstate{align-self:center;background:#fff;border-radius:12px;padding:6px 12px;box-shadow:0 2px 0 #0002;font-size:13px;line-height:1.35}
+.workstate b{font-family:var(--display);font-weight:400;font-size:17px;display:block}
+.plant{width:54px;flex:none;margin-left:auto}
+.plant .leaf{transform-origin:27px 60px;animation:sway 5s ease-in-out infinite}
+@keyframes sway{50%{transform:rotate(3deg)}}
+/* floor plan: walls are thick dark lines, rooms tiled */
+.floor{--wl:#4d4a57;background:var(--wl);display:grid;gap:7px;padding:7px;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+@media (max-width:860px){.floor{grid-template-columns:minmax(0,1fr)}}
+.room,.annex>div{background-color:#f1eee8;background-image:linear-gradient(#e4dfd6 1px,transparent 1px),linear-gradient(90deg,#e4dfd6 1px,transparent 1px);background-size:44px 44px}
+.room{padding:62px 12px 22px;position:relative}
+.room[data-team=production]{background-color:#eef2fb}
+.room[data-team=management]{background-color:#fbf1f4}
+.plaque{position:absolute;top:14px;left:50%;transform:translateX(-50%);text-align:center;white-space:nowrap}
+.plaque b{font-family:var(--display);font-weight:400;font-size:19px}
+.plaque small{display:block;color:var(--ink-soft);font-size:11px;letter-spacing:1.2px}
+.mgmt{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start}
+.side{display:flex;flex-direction:column;align-items:center;gap:10px;padding-top:4px}
+.shelf{width:30px;height:96px;border-radius:4px;background:repeating-linear-gradient(#b27c4c 0 30px,#8f5f37 30px 32px)}
+.printer{width:46px;height:34px;border-radius:6px;background:#c9cfd8;position:relative}
+.printer::after{content:"";position:absolute;right:6px;top:8px;width:6px;height:6px;border-radius:50%;background:#45d483;animation:glow 1.6s infinite}
+.pods{display:grid;grid-template-columns:repeat(2,minmax(140px,1fr));gap:22px 12px}
+.pod{position:relative;display:flex;flex-direction:column;gap:18px;padding:4px 0 10px;border-radius:22px;background:#c48d5b14;border:2px dashed #c48d5b55}
+.annex{display:grid;grid-column:1/-1;grid-template-columns:1fr 1.6fr 1fr;gap:7px}
+.annex>div{min-height:150px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px 8px}
+.annex .lbl{font-size:12px;color:var(--ink-soft);margin-top:4px}
+.dr{background-color:#fff7e3 !important}
+.rack{width:44px;height:64px;border-radius:5px;background:#3b3846;display:flex;flex-direction:column;gap:5px;padding:7px 6px}
+.rack i{height:8px;border-radius:2px;background:#58556a;position:relative}
+.rack i::after{content:"";position:absolute;right:3px;top:2px;width:4px;height:4px;border-radius:50%;background:#45d483;animation:glow 1.1s infinite}
+.rack i:nth-child(2)::after{animation-delay:.4s;background:#ffc531}.rack i:nth-child(3)::after{animation-delay:.8s}
+.door{font-family:var(--display);font-size:16px;color:var(--ink-soft)}
+.seat{font-size:10px;color:#fff;background:#4d4a57;border-radius:5px;padding:0 4px;margin-right:2px}
+.kname{font-family:var(--body);font-size:12px;color:var(--ink-soft)}
+.empty-seat{opacity:.55;cursor:default}
+.desk.trip svg{opacity:.75}
+.empty-seat:hover{transform:none}
+@media (max-width:420px){.mgmt{grid-template-columns:1fr}.side{flex-direction:row;justify-content:center}.shelf{width:96px;height:24px;background:repeating-linear-gradient(90deg,#b27c4c 0 30px,#8f5f37 30px 32px)}.annex{grid-template-columns:1fr}}
+
+/* ---------- desk ---------- */
+.desk{position:relative;border:0;background:transparent;padding:58px 0 0;cursor:pointer;display:flex;flex-direction:column;align-items:center;border-radius:16px;transition:transform .15s}
+.desk:hover{transform:translateY(-3px)}
+.desk svg{width:140px;height:138px;display:block;overflow:visible}
+.nameplate{margin-top:-6px;background:var(--paper);border-radius:8px;padding:1px 10px 2px;box-shadow:0 2px 0 #0002;display:flex;gap:5px;align-items:center;font-family:var(--display);font-size:16px;white-space:nowrap}
+.nameplate .q{font-family:var(--body);font-size:11px;background:#ffe2b8;color:#8a5200;border-radius:6px;padding:0 5px}
+.role{font-size:11.5px;color:var(--ink-soft);margin-top:3px;max-width:140px;text-align:center;line-height:1.3}
+.bubble{position:absolute;top:0;left:50%;transform:translateX(-50%);width:150px;min-height:48px;background:#fff;border-radius:14px;padding:6px 9px 7px;font-size:12.5px;line-height:1.35;box-shadow:0 2px 0 #0002;text-align:left;z-index:2;transition:opacity .35s}
+.bubble::after{content:"";position:absolute;bottom:-7px;left:50%;margin-left:-7px;border:7px solid transparent;border-top-color:#fff;border-bottom:0}
+.bubble .tag{display:inline-block;font-size:10.5px;color:#fff;border-radius:6px;padding:0 6px;margin-bottom:2px}
+.bubble .txt{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.bubble .cnt{position:absolute;right:8px;top:6px;font-size:10px;color:var(--ink-soft)}
+.bubble.idle{background:#f1eff4;color:var(--ink-soft)}
+.bubble.idle::after{border-top-color:#f1eff4}
+.bubble.fade{opacity:0}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px;vertical-align:1px}
+
+/* character animation */
+.bob{animation:bob 2.6s ease-in-out infinite;transform-box:fill-box}
+@keyframes bob{50%{transform:translateY(-1.6px)}}
+.eyes{animation:blink 4.2s infinite;transform-origin:0 2px;transform-box:view-box}
+@keyframes blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+.handL{animation:type .32s ease-in-out infinite alternate}
+.handR{animation:type .32s ease-in-out infinite alternate-reverse}
+@keyframes type{to{transform:translateY(-2.5px)}}
+.away .handL,.away .handR,.done .handL,.done .handR{animation:none}
+.runner{animation:runb .3s ease-in-out infinite alternate}
+@keyframes runb{to{transform:translateY(-4px)}}
+.stroller{animation:runb .6s ease-in-out infinite alternate}
+.legL,.legR{transform-box:fill-box;transform-origin:50% 0}
+.runner .legL{animation:leg .3s ease-in-out infinite alternate}.runner .legR{animation:leg .3s ease-in-out infinite alternate-reverse}
+.stroller .legL{animation:leg .6s ease-in-out infinite alternate}.stroller .legR{animation:leg .6s ease-in-out infinite alternate-reverse}
+@keyframes leg{from{transform:rotate(28deg)}to{transform:rotate(-28deg)}}
+.speed path{animation:spd .5s linear infinite}.speed path:nth-child(2){animation-delay:.15s}.speed path:nth-child(3){animation-delay:.3s}
+@keyframes spd{0%{opacity:0;transform:translateX(8px)}50%{opacity:1}100%{opacity:0;transform:translateX(-8px)}}
+.wave{transform-box:view-box;transform-origin:18px -28px;animation:wv .5s ease-in-out infinite alternate}
+@keyframes wv{from{transform:rotate(-18deg)}to{transform:rotate(18deg)}}
+.zzz text{animation:zz 2.8s ease-in infinite;opacity:0}
+.zzz text:nth-child(2){animation-delay:.9s}.zzz text:nth-child(3){animation-delay:1.8s}
+@keyframes zz{0%{opacity:0;transform:translate(0,0)}30%{opacity:1}100%{opacity:0;transform:translate(10px,-18px)}}
+.steam path{animation:steam 3s ease-in-out infinite;opacity:0}
+.steam path:nth-child(2){animation-delay:1.4s}
+@keyframes steam{0%{opacity:0;transform:translateY(4px)}40%{opacity:.7}100%{opacity:0;transform:translateY(-8px)}}
+.glow{animation:glow 2.4s ease-in-out infinite}
+@keyframes glow{50%{opacity:.45}}
+.sparkle{animation:tw 1.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes tw{50%{transform:scale(.6) rotate(20deg);opacity:.6}}
+.sweat{animation:sw 1.8s ease-in infinite}
+@keyframes sw{0%{transform:translateY(-2px);opacity:0}30%{opacity:1}100%{transform:translateY(6px);opacity:0}}
+
+/* ---------- drawer ---------- */
+.scrim{position:fixed;inset:0;background:#2b283340;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(440px,100%);background:var(--paper);z-index:21;transform:translateX(105%);transition:transform .25s ease;overflow-y:auto;padding:20px 22px 40px;box-shadow:-6px 0 0 #0000001a}
+.drawer.on{transform:none}
+.dhead{display:flex;gap:14px;align-items:center;margin-bottom:6px}
+.dhead svg{width:74px;height:74px;flex:none;background:#f3eee6;border-radius:20px}
+.dhead h2{font-family:var(--display);font-weight:400;font-size:28px;margin:0;line-height:1.1}
+.dhead .meta{color:var(--ink-soft);font-size:13.5px}
+.close{position:absolute;top:14px;right:14px;border:0;background:#0000000d;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px}
+.warn{background:#fff3df;border-radius:10px;padding:8px 12px;font-size:13px;color:#7a4a00;margin:10px 0}
+.drawer h3{font-family:var(--display);font-weight:400;font-size:18px;margin:20px 0 8px;display:flex;justify-content:space-between;align-items:baseline}
+.drawer h3 small{font-family:var(--body);font-size:12.5px;color:var(--ink-soft)}
+.tasks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.tasks li{background:#fff;border-radius:12px;padding:9px 12px;box-shadow:0 1.5px 0 #0000001a;display:grid;grid-template-columns:auto 1fr;gap:2px 10px;align-items:start}
+.tasks .note{font-size:12.5px;color:#2f6f9a}
+.pill{grid-row:span 4;font-size:11.5px;color:#fff;border-radius:999px;padding:2px 9px;white-space:nowrap;margin-top:2px}
+.tasks .ko{font-size:14.5px}
+.tasks .th{font-family:var(--thai);font-size:12.5px;color:var(--ink-soft)}
+.tasks .pt{font-size:11px}
+.empty{color:var(--ink-soft);font-size:14px;background:#f4f1ec;border-radius:12px;padding:12px}
+.routine{display:flex;flex-wrap:wrap;gap:6px}
+.routine span{background:#eef3f2;border-radius:8px;padding:2px 9px;font-size:12.5px}
+.custom{margin-top:22px;background:#f6f2ea;border-radius:14px;padding:4px 14px 12px}
+.custom summary{font-family:var(--display);font-size:18px;cursor:pointer;padding:8px 0}
+.picker{display:flex;flex-direction:column;gap:4px}
+.plabel{font-size:12.5px;color:var(--ink-soft);margin-top:8px}
+.chips,.sw{display:flex;flex-wrap:wrap;gap:6px}
+.cb{border:1.5px solid #d9d2c6;background:#fff;border-radius:999px;padding:3px 11px;font-size:13px;cursor:pointer}
+.cb.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.swb{width:28px;height:28px;border-radius:50%;border:2px solid #0000001f;cursor:pointer;padding:0}
+.swb.on{box-shadow:0 0 0 3px #fff,0 0 0 5px var(--ink)}
+.pact{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px}
+.savebtn{border:0;background:var(--accent);color:#fff;border-radius:10px;padding:8px 16px;cursor:pointer;font-family:var(--display);font-size:16px}
+.savebtn:disabled{background:#cfc8bd;cursor:default}
+.resetbtn{border:1.5px solid #d9d2c6;background:#fff;border-radius:10px;padding:7px 12px;cursor:pointer;font-size:13px}
+.savenote{font-size:12.5px;color:var(--ink-soft)}
+/* ---------- street scene (commute / going home) ---------- */
+.street{position:relative;margin:0 clamp(8px,2vw,24px) 16px;height:300px;border-radius:26px;overflow:hidden;box-shadow:0 6px 0 #0000001f}
+.street[hidden]{display:none}
+.street svg.bg{position:absolute;inset:0;width:100%;height:100%}
+.street .title{position:absolute;left:16px;top:14px;z-index:3;background:#fffffff0;border-radius:14px;padding:6px 14px;box-shadow:0 2px 0 #0002}
+.street .title b{font-family:var(--display);font-weight:400;font-size:20px}
+.street .title small{display:block;color:var(--ink-soft);font-size:12.5px}
+.walker{position:absolute;bottom:var(--lane);left:-10%;width:auto;height:118px;border:0;background:none;padding:0;cursor:pointer;z-index:2;animation:var(--anim) var(--dur) linear var(--delay) infinite}
+.walker .body{height:100%;animation:runb .3s ease-in-out infinite alternate}
+.walker.stroll .body{animation-duration:.6s}
+.walker img{height:100%;display:block}
+.walker.flip img{transform:scaleX(-1)}
+.walker .tag{position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);background:#fff;border-radius:8px;padding:0 7px;font-family:var(--display);font-size:13px;white-space:nowrap;box-shadow:0 1px 0 #0002}
+.walker .tag em{font-style:normal;font-family:var(--body);font-size:10.5px;color:var(--ink-soft);margin-left:3px}
+@keyframes goRight{0%{left:-12%;opacity:0}5%{opacity:1}90%{opacity:1}100%{left:80%;opacity:0}}
+@keyframes goLeft{0%{left:82%;opacity:0}6%{opacity:1}92%{opacity:1}100%{left:-14%;opacity:0}}
+.street .bus{animation:bus 16s linear infinite}
+@keyframes bus{from{transform:translateX(1300px)}to{transform:translateX(-360px)}}
+.street .lampglow{display:none}
+body[data-sky=night] .street .lampglow,body[data-sky=dawn] .street .lampglow,body[data-sky=sunset] .street .lampglow{display:inline}
+.street .bwin{fill:#cfe6f5}
+body[data-sky=night] .street .bwin,body[data-sky=sunset] .street .bwin{fill:#ffe08a}
+body[data-sky=night] .street .far{fill:#2b3157}
+body[data-sky=night] .street .walk{fill:#8d8aa3}
+.street .stars,.street .moon{display:none}
+body[data-sky=night] .street .stars,body[data-sky=night] .street .moon{display:inline}
+body[data-sky=night] .street .sun{display:none}
+body[data-sky=dawn] .street .sun{transform:translateY(40px)}
+body[data-sky=sunset] .street .sun{transform:translateY(40px);fill:#ff9a3c}
+@media (max-width:620px){.street{height:260px}.walker{height:96px}}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12.5px;color:var(--ink-soft);padding:0 clamp(16px,3vw,32px) 22px}
+.foot{font-size:12px;color:var(--ink-soft);padding:0 clamp(16px,3vw,32px) 28px}
+.err{margin:40px auto;max-width:420px;background:var(--paper);padding:20px;border-radius:16px}
+
+@media (max-width:520px){
+  .drawer{top:auto;bottom:0;height:86%;width:100%;border-radius:22px 22px 0 0;transform:translateY(105%)}
+  .window{width:110px}
+  .wallclock,.plant{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .walker{left:var(--x)!important;opacity:1!important}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <div class="brand-badge">CGN</div>
+    <div><h1>CGN Thai 오피스</h1><small>오늘 누가 무엇을 하고 있나요?</small></div>
+  </div>
+  <div class="langsw" role="group" aria-label="언어 · ภาษา"><button data-lang="ko">한국어</button><button data-lang="th">ไทย</button></div>
+  <div class="datenav" role="group" aria-label="날짜 이동">
+    <button id="prev" aria-label="이전 날짜">◀</button>
+    <div class="d" id="dateLabel">—</div>
+    <button id="next" aria-label="다음 날짜">▶</button>
+  </div>
+</header>
+<div class="summary" id="summary"></div>
+<div class="alerts" id="alerts"></div>
+
+<section class="street" id="street" hidden></section>
+<main class="office">
+  <div class="wallstrip" aria-hidden="true">
+    <div class="window">
+      <svg viewBox="0 0 150 84" preserveAspectRatio="none">
+        <g class="stars" fill="#fff"><circle cx="18" cy="12" r="1.2"/><circle cx="44" cy="22" r="1"/><circle cx="70" cy="9" r="1.3"/><circle cx="104" cy="18" r="1"/><circle cx="128" cy="8" r="1.2"/><circle cx="138" cy="28" r="0.9"/></g>
+        <circle class="sun" cx="112" cy="24" r="11" fill="#ffd34d"/>
+        <g class="moon"><circle cx="112" cy="22" r="9" fill="#fff6c8"/><circle cx="116" cy="19" r="8" fill="var(--skyTop)"/></g>
+        <g class="cloud"><ellipse cx="20" cy="22" rx="16" ry="7" fill="#fff"/><ellipse cx="32" cy="18" rx="10" ry="7" fill="#fff"/></g>
+        <path class="city" d="M0 84V58h14V44h10v14h12V36h14v22h10V50h16v34z M86 84V40h16v12h10V30h16v24h10v-8h12v38z" fill="#8fb3c9"/>
+        <g class="lights" fill="#ffe08a"><rect x="17" y="48" width="3" height="3"/><rect x="40" y="42" width="3" height="3"/><rect x="44" y="52" width="3" height="3"/><rect x="90" y="46" width="3" height="3"/><rect x="118" y="36" width="3" height="3"/><rect x="122" y="48" width="3" height="3"/><rect x="66" y="58" width="3" height="3"/></g>
+      </svg>
+    </div>
+    <div class="sign">CGN <span>Thai</span></div>
+    <svg class="wallclock" viewBox="0 0 62 62">
+      <circle cx="31" cy="31" r="28" fill="#fff" stroke="#2b2833" stroke-width="4"/>
+      <g fill="#2b2833"><circle cx="31" cy="8" r="2"/><circle cx="54" cy="31" r="2"/><circle cx="31" cy="54" r="2"/><circle cx="8" cy="31" r="2"/></g>
+      <line id="hh" x1="31" y1="31" x2="31" y2="18" stroke="#2b2833" stroke-width="4" stroke-linecap="round"/>
+      <line id="mh" x1="31" y1="31" x2="31" y2="11" stroke="#2b2833" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="31" cy="31" r="3" fill="#ff7657"/>
+    </svg>
+    <div class="workstate" id="workstate"></div>
+    <svg class="plant" viewBox="0 0 54 96">
+      <g class="leaf" fill="#3f9b6a"><ellipse cx="17" cy="38" rx="9" ry="20" transform="rotate(-28 17 38)"/><ellipse cx="37" cy="36" rx="9" ry="21" transform="rotate(26 37 36)"/><ellipse cx="27" cy="28" rx="8" ry="22" fill="#4fb07a"/></g>
+      <path d="M10 62h34l-5 32H15z" fill="#e07a52"/><rect x="8" y="58" width="38" height="8" rx="3" fill="#c8623d"/>
+    </svg>
+  </div>
+  <div class="floor" id="floor"></div>
+</main>
+
+<div class="legend" id="legend"></div>
+<div class="foot" id="foot"></div>
+<div class="foot ownerlink" style="padding-top:0">직원용 화면: 링크 끝에 <b>#staff</b>를 붙이면 관리 알림이 숨겨지고 태국어로 열려요 · 캐릭터: Higgsfield로 제작</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="직원 상세">
+  <button class="close" id="closeBtn" aria-label="닫기">✕</button>
+  <div id="dbody"></div>
+</aside>
+
+<script src="avatars.js"></script>
+<script>
+const STATUS = {
+  plan:    {ko:"예정",     c:"var(--s-plan)"},
+  doing:   {ko:"진행중",   c:"var(--s-doing)"},
+  done:    {ko:"완료",     c:"var(--s-done)"},
+  blocked: {ko:"막힘",     c:"var(--s-blocked)"},
+  moved:   {ko:"미완·이월", c:"var(--s-moved)"},
+  none:    {ko:"결과 미보고", c:"#b3adbd"}
+};
+const WD = ["일","월","화","수","목","금","토"];
+const WD_TH = ["อา.","จ.","อ.","พ.","พฤ.","ศ.","ส."], MON_TH = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+const STAFF = location.hash === "#staff";
+let LANG = (()=>{ try { return localStorage.getItem("cgnLang") || (STAFF ? "th" : "ko"); } catch(e){ return STAFF ? "th" : "ko"; } })();
+const T = (ko, th) => LANG === "th" ? th : ko;
+const STATUS_TH = {plan:"วางแผน", doing:"กำลังทำ", done:"เสร็จแล้ว", blocked:"ติดปัญหา", moved:"ยกไปวันถัดไป", none:"ยังไม่รายงานผล"};
+const stLabel = k => LANG==="th" ? STATUS_TH[k] : (STATUS[k]||STATUS.plan).ko;
+const tText = t => LANG==="th" ? (t.th || t.ko) : t.ko;
+const roleOf = st => LANG==="th" ? (st.role_th || st.role) : st.role;
+const absKo = a => LANG==="th" ? (a.th || a.ko) : a.ko;
+const absWhere = a => LANG==="th" ? (a.where_th || a.where || "") : (a.where || "");
+let D, dates = [], idx = 0, cycleTimer = null;
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const parse = s => { const [y,m,d] = s.split("-").map(Number); return new Date(Date.UTC(y,m-1,d)); };
+const fmt = dt => dt.toISOString().slice(0,10);
+const monday = s => { const d = parse(s); const wd = (d.getUTCDay()+6)%7; d.setUTCDate(d.getUTCDate()-wd); return fmt(d); };
+const addDays = (s,n) => { const d = parse(s); d.setUTCDate(d.getUTCDate()+n); return fmt(d); };
+const label = s => { const d = parse(s); return LANG==="th" ? `${WD_TH[d.getUTCDay()]} ${d.getUTCDate()} ${MON_TH[d.getUTCMonth()]}` : `${d.getUTCMonth()+1}월 ${d.getUTCDate()}일 (${WD[d.getUTCDay()]})`; };
+const proj = p => { const x = D.projects[p] || {ko:p||"기타", color:"#777"}; return LANG==="th" ? Object.assign({}, x, {ko: x.th || x.ko}) : x; };
+
+/* ---------- character drawing ---------- */
+function hairParts(style, c, acc="#ff7aa8"){
+  const back = {
+    long:`<path d="M-21,-2 C-23,-22 23,-22 21,-2 L23,30 C10,34 -10,34 -23,30Z" fill="${c}"/>`,
+    bob:`<path d="M-22,14 C-24,-16 24,-16 22,14 C14,17 -14,17 -22,14Z" fill="${c}"/>`,
+    headband:`<path d="M-21,-2 C-23,-22 23,-22 21,-2 L23,30 C10,34 -10,34 -23,30Z" fill="${c}"/>`,
+    pigtails:`<circle cx="-23" cy="6" r="7.5" fill="${c}"/><circle cx="23" cy="6" r="7.5" fill="${c}"/><circle cx="-18" cy="2" r="2.5" fill="${acc}"/><circle cx="18" cy="2" r="2.5" fill="${acc}"/>`,
+    ponytail:`<ellipse cx="21" cy="8" rx="6" ry="13" transform="rotate(-18 21 8)" fill="${c}"/><circle cx="17" cy="-4" r="3" fill="${acc}"/>`
+  }[style] || "";
+  const front = {
+    short:`<path d="M-19.5,1 C-21,-19 -8,-24 1,-23 C12,-23 21,-16 19.5,1 C17,-7 10,-12 2,-12 C-6,-12 -10,-6 -12,-4 C-15,-6 -18,-3 -19.5,1Z" fill="${c}"/>`,
+    long:`<path d="M-20,2 C-21,-20 21,-20 20,2 C16,-6 8,-11 -2,-10 C-10,-10 -16,-5 -20,2Z" fill="${c}"/>`,
+    bob:`<path d="M-20,4 C-21,-20 21,-20 20,4 C18,-4 14,-9 6,-10 C2,-6 -8,-6 -12,-9 C-16,-6 -19,-2 -20,4Z" fill="${c}"/>`,
+    bun:`<circle cx="0" cy="-24" r="8" fill="${c}"/><path d="M-19.5,1 C-21,-20 21,-20 19.5,1 C16,-8 8,-12 0,-11 C-8,-12 -16,-8 -19.5,1Z" fill="${c}"/>`,
+    spiky:`<path d="M-19,0 L-20,-12 L-14,-14 L-13,-23 L-6,-18 L0,-26 L6,-18 L13,-23 L14,-14 L20,-12 L19,0 C15,-8 8,-11 0,-11 C-8,-11 -15,-8 -19,0Z" fill="${c}"/>`,
+    curtain:`<path d="M-20,6 C-22,-21 22,-21 20,6 C18,-4 10,-10 1,-12 L0,-6 L-1,-12 C-10,-10 -18,-4 -20,6Z" fill="${c}"/>`,
+    beanie:`<path d="M-17,2 C-19,-6 -18,-8 -14,-9 L14,-9 C18,-8 19,-6 17,2 C14,-4 -14,-4 -17,2Z" fill="${c}"/><path d="M-20,-4 C-20,-28 20,-28 20,-4Z" fill="${acc}"/><rect x="-21" y="-8" width="42" height="7" rx="3.5" fill="${acc}" style="filter:brightness(.85)"/><circle cx="0" cy="-26" r="5" fill="#fff"/>`,
+    headband:`<path d="M-20,2 C-21,-20 21,-20 20,2 C16,-6 8,-11 -2,-10 C-10,-10 -16,-5 -20,2Z" fill="${c}"/><path d="M-18,-8 C-9,-19 9,-19 18,-8" fill="none" stroke="${acc}" stroke-width="4" stroke-linecap="round"/>`,
+    pigtails:`<path d="M-20,3 C-21,-20 21,-20 20,3 C17,-5 10,-9 0,-9 C-10,-9 -17,-5 -20,3Z" fill="${c}"/>`,
+    ponytail:`<path d="M-20,1 C-21,-21 21,-21 20,1 C15,-9 6,-12 -6,-11 C-12,-9 -17,-5 -20,1Z" fill="${c}"/>`,
+    curly:`<g fill="${c}"><circle cx="-16" cy="-5" r="7"/><circle cx="-11" cy="-14" r="7.5"/><circle cx="-2" cy="-19" r="7.5"/><circle cx="8" cy="-18" r="7.5"/><circle cx="15" cy="-11" r="7"/><circle cx="18" cy="-3" r="5.5"/></g>`,
+    swoop:`<path d="M-20,4 C-22,-20 20,-24 20,0 C15,-6 6,-9 -5,-15 C-9,-8 -15,-3 -20,4Z" fill="${c}"/>`,
+    buzz:`<path d="M-19.5,-1 C-19,-21 19,-21 19.5,-1 C15,-9 8,-11 0,-11 C-8,-11 -15,-9 -19.5,-1Z" fill="${c}"/>`,
+    cap:`<path d="M-19.5,-2 C-19,-24 19,-24 19.5,-2Z" fill="#e2563f"/><rect x="-4" y="-6" width="28" height="5" rx="2.5" fill="#c4422e"/><path d="M-19.5,-1 L-19,4 C-18,1 -16,-1 -14,-1Z" fill="${c}"/>`
+  }[style] || "";
+  return {back, front};
+}
+const KINDS = [["human","사람"],["cat","고양이"],["bear","곰"],["rabbit","토끼"],["dog","강아지"],["panda","판다"],["chick","병아리"]];
+const KIND_FUR = {cat:"#f2a65a", bear:"#a8754f", rabbit:"#ffffff", dog:"#e8c39e", panda:"#ffffff", chick:"#ffd84d"};
+const STYLES = [["short","짧은 머리"],["swoop","넘긴 머리"],["curtain","가르마"],["buzz","짧게 깎음"],["spiky","삐죽 머리"],["curly","곱슬"],["bob","단발"],["long","긴 머리"],["ponytail","포니테일"],["pigtails","양갈래"],["bun","똥머리"],["headband","머리띠"],["beanie","털모자"],["cap","야구모자"]];
+const PAL = {
+  hair:["#1c1717","#3a2a24","#6b4a2e","#8a4b2f","#c98b4a","#e8c07a","#9aa0a8","#d9637a"],
+  skin:["#f7dcc4","#f3cdaa","#e6b993","#d8a77d","#b9825b"],
+  fur:["#f2a65a","#e8c39e","#a8754f","#6b4a2e","#ffffff","#9aa0a8","#2b2833","#ffd84d","#f7c6d0"],
+  shirt:["#ef6f6c","#e8a33d","#ffd166","#7ccfb0","#5aa36f","#4c9fb8","#3f7fd6","#3b4a6b","#8d6cc4","#b98ad9","#f2b8c6","#ffffff"],
+  acc:["#ff7aa8","#ff6f91","#4c7bd6","#ffd166","#e2563f","#5aa36f"]
+};
+let OVR = {};          // saved character choices (from the page's database)
+let DBX = null, dbState = "loading", dirty = false;
+const baseLook = id => id==="dr" ? D.director.look : (D.staff.find(s=>s.id===id)||{}).look;
+const lookOf = id => Object.assign({kind:"human"}, baseLook(id)||{}, OVR[id]||{});
+
+function animalParts(kind, fur, acc){
+  const pink="#ffb3c1", mouthC=`stroke="#7a3b3b" stroke-width="1.3" fill="none" stroke-linecap="round"`;
+  switch(kind){
+    case "cat": return {
+      back:`<path d="M-18,-5 L-15,-28 L-3,-17Z" fill="${fur}"/><path d="M18,-5 L15,-28 L3,-17Z" fill="${fur}"/><path d="M-14,-11 L-13.5,-22 L-7,-16Z" fill="${pink}"/><path d="M14,-11 L13.5,-22 L7,-16Z" fill="${pink}"/>`,
+      pre:"", front:`<g stroke="#2b283355" stroke-width="1" stroke-linecap="round"><path d="M-12,8 H-23 M-12,10.5 L-22,13.5 M12,8 H23 M12,10.5 L22,13.5"/></g><path d="M-1.8,6.4 h3.6 l-1.8,2z" fill="#ff8fa3"/><path d="M-3.2,9.6 q1.6,2 3.2,0 q1.6,2 3.2,0" ${mouthC}/>`};
+    case "bear": return {
+      back:`<circle cx="-14" cy="-15" r="7.5" fill="${fur}"/><circle cx="14" cy="-15" r="7.5" fill="${fur}"/><circle cx="-14" cy="-15" r="3.8" fill="#f3d9c0"/><circle cx="14" cy="-15" r="3.8" fill="#f3d9c0"/>`,
+      pre:"", front:`<ellipse cx="0" cy="10" rx="7.5" ry="5.5" fill="#f6e6d3"/><ellipse cx="0" cy="7.6" rx="2.7" ry="1.9" fill="#3a2a24"/><path d="M-2.4,10.8 q2.4,2.4 4.8,0" ${mouthC}/>`};
+    case "rabbit": return {
+      back:`<ellipse cx="-8" cy="-27" rx="5.5" ry="14" transform="rotate(-10 -8 -27)" fill="${fur}"/><ellipse cx="8" cy="-27" rx="5.5" ry="14" transform="rotate(10 8 -27)" fill="${fur}"/><ellipse cx="-8" cy="-27" rx="2.6" ry="9.5" transform="rotate(-10 -8 -27)" fill="${pink}"/><ellipse cx="8" cy="-27" rx="2.6" ry="9.5" transform="rotate(10 8 -27)" fill="${pink}"/>`,
+      pre:"", front:`<ellipse cx="0" cy="7.4" rx="2" ry="1.4" fill="#ff8fa3"/><path d="M0,8.6 v1.6 M-2.6,10.2 q1.3,1.6 2.6,0 q1.3,1.6 2.6,0" ${mouthC}/>`};
+    case "dog": return {
+      back:"", pre:"",
+      front:`<ellipse cx="-18" cy="-1" rx="6.5" ry="12.5" transform="rotate(18 -18 -1)" fill="${acc||'#8a5a3c'}"/><ellipse cx="18" cy="-1" rx="6.5" ry="12.5" transform="rotate(-18 18 -1)" fill="${acc||'#8a5a3c'}"/><ellipse cx="0" cy="10" rx="7" ry="5" fill="#fff6ea"/><ellipse cx="0" cy="7.4" rx="2.9" ry="2.1" fill="#2b2220"/><path d="M-2.4,10.6 q2.4,2.4 4.8,0" ${mouthC}/><path d="M-1.4,12.2 q1.4,3 2.8,0z" fill="#ff8fa3"/>`};
+    case "panda": return {
+      back:`<circle cx="-14" cy="-15" r="7" fill="#2b2833"/><circle cx="14" cy="-15" r="7" fill="#2b2833"/>`,
+      pre:`<ellipse cx="-7.5" cy="3" rx="5" ry="6.4" transform="rotate(28 -7.5 3)" fill="#3a3642"/><ellipse cx="7.5" cy="3" rx="5" ry="6.4" transform="rotate(-28 7.5 3)" fill="#3a3642"/>`,
+      front:`<ellipse cx="0" cy="8.4" rx="2.6" ry="1.8" fill="#2b2833"/><path d="M-2.2,10.6 q2.2,2.2 4.4,0" ${mouthC}/>`};
+    case "chick": return {
+      back:`<path d="M-1,-18 q-5,-9 1,-11 q-1,5 4,5 q-3,2 -5,6z" fill="${fur}"/>`,
+      pre:"", front:`<path d="M-3.8,7 L3.8,7 L0,11.4Z" fill="#ff9f43"/>`};
+  }
+  return {back:"",pre:"",front:""};
+}
+
+function face(state, isAnimal){
+  const cheeks = `<ellipse cx="-11.5" cy="8.5" rx="3.4" ry="2.4" fill="#ff8f98" opacity=".55"/><ellipse cx="11.5" cy="8.5" rx="3.4" ry="2.4" fill="#ff8f98" opacity=".55"/>`;
+  if (state==="away") return `<path d="M-10,3.5 Q-7,6.5 -4,3.5 M4,3.5 Q7,6.5 10,3.5" stroke="#1d1b22" stroke-width="1.8" fill="none" stroke-linecap="round"/>${cheeks}
+    ${isAnimal?"":`<ellipse cx="0" cy="11" rx="2" ry="1.5" fill="#8a4a4a"/>`}`;
+  const mouth = isAnimal ? "" : state==="blocked" ? `<path d="M-3.5,12 Q0,8.5 3.5,12" stroke="#7a3b3b" stroke-width="1.6" fill="none" stroke-linecap="round"/>`
+    : state==="done" ? `<path d="M-4.5,8.5 Q0,14 4.5,8.5Z" fill="#7a3b3b"/>`
+    : `<path d="M-3,9 Q0,12 3,9" stroke="#7a3b3b" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
+  return `<g class="eyes"><ellipse cx="-7" cy="2.5" rx="2.8" ry="3.4" fill="#1d1b22"/><ellipse cx="7" cy="2.5" rx="2.8" ry="3.4" fill="#1d1b22"/>
+    <circle cx="-6" cy="1.2" r="1.2" fill="#fff"/><circle cx="8" cy="1.2" r="1.2" fill="#fff"/><circle cx="-7.8" cy="4" r=".55" fill="#fff"/><circle cx="6.2" cy="4" r=".55" fill="#fff"/></g>
+    ${cheeks}${mouth}`;
+}
+function avatarDrawn(st, state, withDesk=true){
+  const L = lookOf(st.id), kind = L.kind||"human", isAnimal = kind!=="human";
+  const skin = isAnimal ? (L.skin && !PAL.skin.includes(L.skin) ? L.skin : KIND_FUR[kind]) : L.skin;
+  const h = isAnimal ? Object.assign({front:""}, animalParts(kind, skin, L.acc)) : Object.assign({pre:""}, hairParts(L.style, L.hair, L.acc));
+  const glasses = L.glasses ? `<g fill="none" stroke="#2b2833" stroke-width="1.3"><circle cx="-7" cy="2.5" r="5.2"/><circle cx="7" cy="2.5" r="5.2"/><path d="M-1.8,2.5 H1.8"/></g>` : "";
+  const tilt = state==="away" ? `rotate(-12)` : "";
+  const extras =
+    state==="away" ? `<g class="zzz" font-family="Jua" fill="#6a6475"><text x="18" y="-14" font-size="10">z</text><text x="22" y="-20" font-size="12">z</text><text x="27" y="-27" font-size="14">Z</text></g>` :
+    state==="done" ? `<path class="sparkle" d="M24,-20 l2,5 5,2 -5,2 -2,5 -2,-5 -5,-2 5,-2z" fill="#ffc531"/>` :
+    state==="blocked" ? `<path class="sweat" d="M19,-8 q3,5 0,7 q-3,-2 0,-7z" fill="#7cc6ff"/>` : "";
+  const person = `
+    <g class="bob">
+      <g transform="${tilt}">${h.back}</g>
+      <path d="M-15,42 C-16,26 -12,17 0,17 C12,17 16,26 15,42Z" fill="${L.shirt}" stroke="#00000014"/>
+      <path d="M-5,17.5 Q0,22.5 5,17.5" fill="none" stroke="#ffffffb0" stroke-width="1.8" stroke-linecap="round"/>
+      <g transform="${tilt}"><circle r="19.5" fill="${skin}" stroke="#00000012"/>${h.pre}${face(state,isAnimal)}${h.front}${glasses}</g>
+      ${extras}
+    </g>`;
+  if (!withDesk) return `<svg viewBox="-36 -44 72 76" aria-hidden="true"><g>${person}</g></svg>`;
+  return `<svg viewBox="0 0 140 118" aria-hidden="true">
+    <ellipse cx="70" cy="113" rx="58" ry="5" fill="#00000014"/>
+    <rect x="40" y="50" width="40" height="40" rx="11" fill="#55506a"/>
+    <g transform="translate(60,46)">${person}</g>
+    <circle class="handL" cx="49" cy="82" r="4.5" fill="${skin}"/>
+    <circle class="handR" cx="71" cy="82" r="4.5" fill="${skin}"/>
+    <rect x="10" y="79" width="120" height="8" rx="3" fill="#a8744a"/>
+    <rect x="16" y="87" width="108" height="24" rx="3" fill="#c48d5b"/>
+    <rect x="20" y="91" width="45" height="16" rx="2" fill="#b98250"/><circle cx="42" cy="99" r="1.8" fill="#8a5d36"/>
+    <g transform="translate(86,58)"><path d="M0,22 L2,0 H30 L32,22Z" fill="#d5dae2"/><circle class="glow" cx="16" cy="11" r="4" fill="${state==='away'?'#b8bec8':'#7fd3ff'}"/><rect x="-3" y="21" width="38" height="3" rx="1.5" fill="#aab1bc"/></g>
+    <g transform="translate(20,66)"><rect x="0" y="2" width="12" height="12" rx="2" fill="#fff" stroke="#2b2833" stroke-width="1.2"/><path d="M12,5 q5,0 5,4 q0,4 -5,4" fill="none" stroke="#2b2833" stroke-width="1.2"/>
+      ${state==="away"?"":`<g class="steam" stroke="#ffffffcc" stroke-width="1.5" fill="none" stroke-linecap="round"><path d="M4,-1 q-2,-3 0,-6 q2,-3 0,-6"/><path d="M8,-1 q-2,-3 0,-6 q2,-3 0,-6"/></g>`}</g>
+  </svg>`;
+}
+
+/* ---------- Personas avatars (DiceBear, Personas by Draftbit, CC BY 4.0) ---------- */
+const P_HAIR = [["shortCombover","짧은 가르마"],["shortComboverChops","가르마+구레나룻"],["buzzcut","버즈컷"],["fade","페이드"],["sideShave","옆머리 밀기"],["mohawk","모히칸"],["curly","곱슬"],["curlyHighTop","하이탑 곱슬"],["bobCut","단발"],["bobBangs","앞머리 단발"],["long","긴 머리"],["extraLong","아주 긴 머리"],["pigtails","양갈래"],["straightBun","똥머리"],["curlyBun","곱슬 똥머리"],["bunUndercut","언더컷 똥머리"],["cap","야구모자"],["beanie","비니"],["balding","이마 넓은"],["bald","민머리"]];
+const P_BODY = [["rounded","둥근 티"],["squared","셔츠"],["small","슬림"],["checkered","체크 셔츠"]];
+const P_GLASS = [["none","없음"],["glasses","안경"],["sunglasses","선글라스"]];
+const P_BEARD = [["","없음"],["shadow","까슬"],["goatee","염소"],["soulPatch","턱 밑"],["beardMustache","턱수염"],["walrus","콧수염"],["pyramid","팔자 콧수염"]];
+const P_PAL = {
+  hairColor:["362c47","6c4545","e15c66","e16381","f27d65","f29c65","dee1f5"],
+  skinColor:["eeb4a4","e7a391","e5a07e","d78774","b16a5b","92594b","623d36"],
+  clothingColor:["456dff","54d7c7","7555ca","6dbb58","e24553","f3b63a","f55d81"]
+};
+const baseP = id => id==="dr" ? D.director.p : (D.staff.find(s=>s.id===id)||{}).p;
+const lookP = id => Object.assign({body:"rounded", glasses:"none", facialHair:"", nose:"smallRound"}, baseP(id)||{}, OVR[id]||{});
+const _avCache = new Map();
+function avatarURI(L, state){
+  const eyes = L.glasses!=="none" ? L.glasses : state==="done" ? "happy" : "open";
+  const mouth = state==="blocked" ? "surprise" : state==="done" ? "bigSmile" : "smile";
+  const key = JSON.stringify([L,eyes,mouth]);
+  if (_avCache.has(key)) return _avCache.get(key);
+  const uri = AV.createAvatar(AV.personas, {
+    seed: "cgn", hair:[L.hair], hairColor:[L.hairColor], skinColor:[L.skinColor], clothingColor:[L.clothingColor],
+    body:[L.body], eyes:[eyes], mouth:[mouth], nose:[L.nose],
+    facialHair: L.facialHair ? [L.facialHair] : undefined, facialHairProbability: L.facialHair ? 100 : 0
+  }).toDataUri();
+  _avCache.set(key, uri); return uri;
+}
+/* desk furniture; `on` = monitor lit + coffee steaming */
+function deskParts(on, extraFront=""){
+  return {
+    back:`<ellipse cx="70" cy="113" rx="58" ry="5" fill="#00000014"/><rect x="38" y="44" width="44" height="40" rx="12" fill="#55506a"/>`,
+    front:`<rect x="10" y="79" width="120" height="8" rx="3" fill="#a8744a"/>
+    <rect x="16" y="87" width="108" height="24" rx="3" fill="#c48d5b"/>
+    <rect x="20" y="91" width="45" height="16" rx="2" fill="#b98250"/><circle cx="42" cy="99" r="1.8" fill="#8a5d36"/>
+    <g transform="translate(88,58)"><path d="M0,22 L2,0 H30 L32,22Z" fill="#d5dae2"/><circle class="${on?'glow':''}" cx="16" cy="11" r="4" fill="${on?'#7fd3ff':'#b8bec8'}"/><rect x="-3" y="21" width="38" height="3" rx="1.5" fill="#aab1bc"/></g>
+    <g transform="translate(18,66)"><rect x="0" y="2" width="12" height="12" rx="2" fill="#fff" stroke="#2b2833" stroke-width="1.2"/><path d="M12,5 q5,0 5,4 q0,4 -5,4" fill="none" stroke="#2b2833" stroke-width="1.2"/>
+      ${on?`<g class="steam" stroke="#ffffffcc" stroke-width="1.5" fill="none" stroke-linecap="round"><path d="M4,-1 q-2,-3 0,-6 q2,-3 0,-6"/><path d="M8,-1 q-2,-3 0,-6 q2,-3 0,-6"/></g>`:""}</g>${extraFront}`
+  };
+}
+/* a standing figure (bust + legs) for arriving / leaving */
+function walker(uri, kind){
+  const legs = `<g fill="#3b3846"><rect class="legL" x="-8" y="-4" width="6" height="17" rx="3"/><rect class="legR" x="2" y="-4" width="6" height="17" rx="3"/></g>`;
+  const fx = kind==="run"
+    ? `<g class="speed" stroke="#8a8496" stroke-width="2" stroke-linecap="round"><path d="M-38,-40 h-10"/><path d="M-36,-26 h-12"/><path d="M-38,-12 h-8"/></g>`
+    : `<g class="wave"><circle cx="28" cy="-40" r="5.5" fill="#ffd9b8" stroke="#00000020"/></g><text x="32" y="-50" font-size="13">👋</text>`;
+  return `<g class="${kind==='run'?'runner':'stroller'}">${fx}${legs}<image href="${uri}" x="-36" y="-68" width="72" height="72"/></g>`;
+}
+const imgOf = id => id==="dr" ? D.director.img : (D.staff.find(s=>s.id===id)||{}).img;
+const spriteOf = id => id==="dr" ? D.director.sprite : (D.staff.find(s=>s.id===id)||{}).sprite;
+let _clipN = 0;
+const DESK_W = 112, DESK_LINE = 84;
+function deskImg(type){
+  const m = (D.deskMeta||{})[type] || (D.deskMeta||{}).plain; if (!m) return "";
+  const sc = DESK_W/m.w;
+  return `<ellipse cx="70" cy="${DESK_LINE + (m.h-m.top)*sc - 2}" rx="60" ry="5" fill="#00000018"/><image href="desks/${type}.png" x="${70-DESK_W/2}" y="${DESK_LINE - m.top*sc}" width="${DESK_W}" height="${m.h*sc}"/>`;
+}
+const deskTypeOf = id => id==="dr" ? (D.director.desk||"director") : ((D.staff.find(s=>s.id===id)||{}).desk || "plain");
+function spriteAvatar(sp, state, withDesk, mode){
+  const extras =
+    state==="done" ? `<path class="sparkle" d="M0,0 l2,5 5,2 -5,2 -2,5 -2,-5 -5,-2 5,-2z" fill="#ffc531"/>` :
+    state==="blocked" ? `<path class="sweat" d="M0,0 q3,5 0,7 q-3,-2 0,-7z" fill="#7cc6ff"/>` : "";
+  if (!withDesk){
+    const s = sp.sit || sp.leave; const w = s.w, h = s.h * 0.52;
+    return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMin meet" aria-hidden="true"><image href="${s.src}" width="${s.w}" height="${s.h}"/></svg>`;
+  }
+  if ((mode==="run" || mode==="leave") && sp[mode]){
+    const s = sp[mode], H = 112, W = s.w*H/s.h, cx = mode==="run" ? 40 : 102;
+    return `<svg viewBox="0 0 140 138" aria-hidden="true">${deskImg(sp._desk)}
+      <g class="${mode==='run'?'runner':'stroller'}"><image href="${s.src}" x="${cx-W/2}" y="${137-H}" width="${W}" height="${H}"/></g></svg>`;
+  }
+  const wk = sp.work, s = wk ? wk.frames.sit : sp.sit, H = 132, W = s.w*H/s.h, top = DESK_LINE - H*(wk ? wk.hy : 0.6);
+  const cid = "clip" + (++_clipN);
+  return `<svg viewBox="0 0 140 138" aria-hidden="true"><defs><clipPath id="${cid}"><rect x="0" y="-40" width="140" height="${118+40}"/></clipPath></defs>
+    <g clip-path="url(#${cid})"><g class="bob"><image ${wk?`class="anim" data-frames='${esc(JSON.stringify(Object.fromEntries(Object.entries(wk.frames).map(([k,v])=>[k,v.src]))))}'`:""} href="${s.src}" x="${70-W/2}" y="${top}" width="${W}" height="${H}"/></g></g>
+    ${deskImg(sp._desk)}
+    ${extras?`<g transform="translate(${70+W/2-4},${top+6})">${extras}</g>`:""}</svg>`;
+}
+function avatar(st, state, withDesk=true, mode="desk"){
+  const sp0 = spriteOf(st.id);
+  if (sp0 && sp0.sit) return spriteAvatar(Object.assign({_desk: deskTypeOf(st.id)}, sp0), state, withDesk, mode);
+  const photo = imgOf(st.id);
+  if (!photo && (!window.AV || !baseP(st.id))) return avatarDrawn(st, state==="idle"?"working":state, withDesk);
+  const L = photo ? null : lookP(st.id), uri = photo || avatarURI(L, state), skin = photo ? "#f1c6a3" : "#"+L.skinColor;
+  const extras =
+    state==="done" ? `<path class="sparkle" d="M28,-40 l2,5 5,2 -5,2 -2,5 -2,-5 -5,-2 5,-2z" fill="#ffc531"/>` :
+    state==="blocked" ? `<path class="sweat" d="M24,-30 q3,5 0,7 q-3,-2 0,-7z" fill="#7cc6ff"/>` : "";
+  const person = `<g class="bob"><image href="${uri}" x="-44" y="-58" width="88" height="88"/>${extras}</g>`;
+  if (!withDesk) return `<svg viewBox="-44 -58 88 88" aria-hidden="true">${person}</svg>`;
+  if (mode==="run" || mode==="leave"){
+    const d = deskParts(false);
+    const x = mode==="run" ? 46 : 96;
+    return `<svg viewBox="0 0 140 118" aria-hidden="true">${d.back}${d.front}<g transform="translate(${x},101)">${walker(uri, mode)}</g></svg>`;
+  }
+  const d = deskParts(true);
+  return `<svg viewBox="0 0 140 118" aria-hidden="true">${d.back}
+    <g transform="translate(60,54)">${person}</g>
+    ${photo?"":`<circle class="handL" cx="49" cy="82" r="4.5" fill="${skin}"/><circle class="handR" cx="71" cy="82" r="4.5" fill="${skin}"/>`}
+    ${d.front}</svg>`;
+}
+
+/* ---------- character picker ---------- */
+let editId = null;
+function swatches(field, list, cur){
+  return `<div class="sw">${list.map(c=>`<button class="swb${c===cur?' on':''}" data-f="${field}" data-v="${c}" style="background:#${c}" aria-label="색 ${c}"></button>`).join("")}</div>`;
+}
+function chips(field, list, cur){
+  return `<div class="chips">${list.map(([v,k])=>`<button class="cb${v===cur?' on':''}" data-f="${field}" data-v="${v}">${k}</button>`).join("")}</div>`;
+}
+function pickerHTML(id){
+  if (!window.AV) return `<div class="savenote">캐릭터 꾸미기를 불러오지 못했어요. 새로고침해 주세요.</div>`;
+  const L = lookP(id);
+  const save = dbState==="ready" ? `<button class="savebtn" id="saveLook"${dirty?"":" disabled"}>${dirty?"저장하기":"저장됨"}</button>`
+    : `<span class="savenote">${dbState==="loading"?"저장소 연결 중…":"이 화면에서는 저장할 수 없어요. 바꾼 모습은 새로고침하면 돌아가요."}</span>`;
+  return `<div class="picker">
+    <div class="plabel">머리 모양</div>${chips("hair",P_HAIR,L.hair)}
+    <div class="plabel">머리 색</div>${swatches("hairColor",P_PAL.hairColor,L.hairColor)}
+    <div class="plabel">피부 색</div>${swatches("skinColor",P_PAL.skinColor,L.skinColor)}
+    <div class="plabel">옷</div>${chips("body",P_BODY,L.body)}
+    <div class="plabel">옷 색</div>${swatches("clothingColor",P_PAL.clothingColor,L.clothingColor)}
+    <div class="plabel">안경</div>${chips("glasses",P_GLASS,L.glasses)}
+    <div class="plabel">수염</div>${chips("facialHair",P_BEARD,L.facialHair)}
+    <div class="pact">${save}<button class="resetbtn" id="resetLook">처음 모습으로</button></div>
+  </div>`;
+}
+function setLook(id, field, v){
+  const o = Object.assign({}, OVR[id]||{}); o[field] = v; OVR[id] = o; dirty = true;
+  refreshEditor(id);
+}
+
+function refreshEditor(id){
+  const st = id==="dr" ? {id:"dr"} : D.staff.find(s=>s.id===id);
+  const head = document.querySelector("#dbody .dhead svg");
+  if (head) head.outerHTML = avatar(st, "working", false);
+  const pk = document.getElementById("pickerWrap");
+  if (pk) pk.innerHTML = pickerHTML(id);
+  render();
+}
+async function saveLooks(){
+  if (!DBX) return;
+  const btn = document.getElementById("saveLook"); if (btn){ btn.disabled = true; btn.textContent = "저장 중…"; }
+  try { await DBX.doc("settings/avatars").set({looks: OVR, savedAt: new Date().toISOString()}); dirty = false; }
+  catch(e){ const n=document.getElementById("saveLook"); if(n){ n.textContent="저장 실패 · 다시 시도"; n.disabled=false; } return; }
+  if (editId) { const pk=document.getElementById("pickerWrap"); if(pk) pk.innerHTML = pickerHTML(editId); }
+}
+async function initDB(){
+  try{
+    if (!window.claude || !window.claude.use){ dbState="none"; return; }
+    DBX = await window.claude.use("db");
+    if (!DBX){ dbState="none"; return; }
+    const snap = await DBX.doc("settings/avatars").get();
+    if (snap.exists){ const d = snap.data(); OVR = JSON.parse(JSON.stringify(d.looks||{})); }
+    dbState="ready";
+  }catch(e){ dbState="none"; }
+  render();
+  if (editId){ const pk=document.getElementById("pickerWrap"); if(pk) pk.innerHTML = pickerHTML(editId); }
+}
+
+function emptyDesk(trip, type){
+  if (D.deskMeta){
+    const prop = trip==="leave" ? `<g transform="translate(104,${DESK_LINE-34})"><rect x="12" y="6" width="3" height="28" fill="#9a6b3f"/><path d="M13.5,7 q-12,-4 -14,4 q8,-6 14,-4z M13.5,7 q12,-4 14,4 q-8,-6 -14,-4z M13.5,7 q-4,-10 -12,-8 q9,1 12,8z M13.5,7 q4,-10 12,-8 q-9,1 -12,8z" fill="#3f9b6a"/></g>`
+      : trip==="trip" ? `<g transform="translate(108,104)"><rect x="0" y="0" width="24" height="22" rx="4" fill="#ff8a5c" stroke="#7a3b22" stroke-width="1.2"/><rect x="8" y="-5" width="8" height="6" rx="2" fill="none" stroke="#7a3b22" stroke-width="2"/><rect x="0" y="9" width="24" height="3" fill="#c45a33"/><circle cx="5" cy="24" r="2" fill="#4d4a57"/><circle cx="19" cy="24" r="2" fill="#4d4a57"/></g>` : "";
+    return `<svg viewBox="0 0 140 138" aria-hidden="true">${deskImg(type||"plain")}${prop}</svg>`;
+  }
+  return `<svg viewBox="0 0 140 118" aria-hidden="true">
+    <ellipse cx="70" cy="113" rx="58" ry="5" fill="#00000010"/>
+    <rect x="40" y="50" width="40" height="40" rx="11" fill="#8f8a9c"/>
+    <rect x="10" y="79" width="120" height="8" rx="3" fill="#a8744a"/>
+    <rect x="16" y="87" width="108" height="24" rx="3" fill="#c48d5b"/>
+    <rect x="20" y="91" width="45" height="16" rx="2" fill="#b98250"/><circle cx="42" cy="99" r="1.8" fill="#8a5d36"/>
+    <rect x="84" y="74" width="34" height="5" rx="2" fill="#aab1bc"/>
+    ${trip==="leave"?`<g transform="translate(92,62)"><rect x="12" y="6" width="3" height="20" fill="#9a6b3f"/><path d="M13.5,7 q-12,-4 -14,4 q8,-6 14,-4z M13.5,7 q12,-4 14,4 q-8,-6 -14,-4z M13.5,7 q-4,-10 -12,-8 q9,1 12,8z M13.5,7 q4,-10 12,-8 q-9,1 -12,8z" fill="#3f9b6a"/></g>`:""}
+    ${trip==="trip"?`<g transform="translate(96,88)"><rect x="0" y="0" width="26" height="22" rx="4" fill="#ff8a5c"/><rect x="9" y="-5" width="8" height="6" rx="2" fill="none" stroke="#c45a33" stroke-width="2"/><rect x="0" y="9" width="26" height="3" fill="#c45a33"/><circle cx="5" cy="24" r="2" fill="#4d4a57"/><circle cx="21" cy="24" r="2" fill="#4d4a57"/></g>`:""}</svg>`;
+}
+/* ---------- data helpers ---------- */
+function absence(id, date){ return (D.absences||[]).find(a=>a.id===id && date>=a.from && date<=a.to); }
+const md = s => { const d=parse(s); return `${d.getUTCMonth()+1}/${d.getUTCDate()}`; };
+function report(id, date){ return (D.days[date]||{})[id]; }
+function weekGoals(id, date){ return (D.weeks[monday(date)]||{})[id]; }
+function lastWeek(id, date){ return (D.weeks[addDays(monday(date),-7)]||{})[id]; }
+function stateOf(r){
+  if (!r || !r.tasks || !r.tasks.length) return "away";
+  const s = r.tasks.map(t=>t.s);
+  if (s.includes("blocked")) return "blocked";
+  if (s.every(x=>x==="done")) return "done";
+  return "working";
+}
+function nowBKK(){ return new Date(Date.now() + 7*3600e3); }
+function phaseOf(date){
+  if (date < D.current) return "past";
+  if (date > D.current) return "future";
+  const n = nowBKK(), wd = n.getUTCDay();
+  if (wd===0 || wd===6) return "weekend";
+  const toMin = t => { const [a,b]=t.split(":").map(Number); return a*60+b; };
+  const cur = n.getUTCHours()*60 + n.getUTCMinutes();
+  return cur < toMin(D.hours.start) ? "before" : cur < toMin(D.hours.end) ? "work" : "after";
+}
+let lastPhase = null;
+function bubbleOrder(r){
+  const rank = {doing:0, blocked:1, plan:2, moved:3, done:4};
+  return [...r.tasks].sort((a,b)=>(rank[a.s]??5)-(rank[b.s]??5));
+}
+
+/* ---------- render ---------- */
+function render(){
+  const date = dates[idx];
+  document.getElementById("dateLabel").textContent = label(date) + (date===D.current?T(" · 오늘"," · วันนี้"):"");
+  document.getElementById("prev").disabled = idx===0;
+  document.getElementById("next").disabled = idx===dates.length-1;
+
+  // summary
+  let reported=0, total=0, done=0, blocked=0;
+  const away = D.staff.filter(st=>absence(st.id,date)).length;
+  D.staff.forEach(st=>{ const r=report(st.id,date); if(r&&r.tasks?.length){reported++; r.tasks.forEach(t=>{total++; if(t.s==="done")done++; if(t.s==="blocked")blocked++;});} });
+  const alerts=[];
+  D.staff.forEach(st=>{
+    (lastWeek(st.id,date)||[]).forEach(t=>{ if(t.s==="moved"||t.s==="blocked") alerts.push({st,t,why:"지난주 "+STATUS[t.s].ko}); });
+    (report(st.id,date)?.tasks||[]).forEach(t=>{ if(t.s==="blocked") alerts.push({st,t,why:"막힘"}); if(t.s==="moved") alerts.push({st,t,why:"미완·이월"}); });
+  });
+  document.getElementById("summary").innerHTML = `
+    <div class="chip">${T("보고","ส่งรายงาน")} <b>${reported}</b> / ${D.staff.length-away}${T("명"," คน")}</div>
+    ${away?`<div class="chip">${T("출장·휴가","ไม่อยู่ออฟฟิศ")} <b>${away}</b>${T("명"," คน")}</div>`:""}
+    ${(D.checkin||{})[date]?`<div class="chip">${T("출근","เข้างานแล้ว")} <b>${Object.keys(D.checkin[date]).length}</b> / ${D.staff.length-away}${T("명"," คน")}</div>`:""}
+    ${date<D.current && D.staff.length-away-reported>0?`<div class="chip alert">미제출 <b>${D.staff.length-away-reported}</b>명</div>`:""}
+    <div class="chip">${T("할 일","งานทั้งหมด")} <b>${total}</b>${T("개","")}</div>
+    <div class="chip">${T("완료","เสร็จแล้ว")} <b>${done}</b></div>
+    <div class="chip">${T("막힘","ติดปัญหา")} <b>${blocked}</b></div>
+    ${alerts.length?`<div class="chip alert">살펴볼 일 <b>${alerts.length}</b></div>`:""}`;
+  const soon = (D.absences||[]).filter(a=>a.from>date && a.from<=addDays(date,7));
+  document.getElementById("alerts").innerHTML = soon.map(a=>{const st=D.staff.find(s=>s.id===a.id);
+    return `<button class="row info" data-id="${a.id}">${a.type==="trip"?"✈️":"🌴"} <b>${esc(st?.name||a.id)}</b> · ${a.from===a.to?md(a.from):md(a.from)+"–"+md(a.to)} ${esc(absKo(a))}${T(" 예정","")}${absWhere(a)?` (${esc(absWhere(a))})`:""}</button>`;}).join("") + alerts.map((a,i)=>`
+    <button class="row ${a.t.s==='blocked'?'blocked':''}" data-id="${a.st.id}"><b>${esc(a.st.name)}</b> · ${esc(a.why)} — ${esc(a.t.ko)}</button>`).join("");
+
+  renderStreet(date);
+  // floor (follows the real seating plan)
+  const floor = document.getElementById("floor");
+  const seatHTML = code => {
+    const st = D.staff.find(s=>s.seat===code);
+    if (!st) return `<div class="desk empty-seat" aria-label="${code} 빈자리">
+      <div style="height:0"></div>${emptyDesk()}
+      <div class="nameplate">${T("빈자리","ที่ว่าง")}</div><div class="role">&nbsp;</div></div>`;
+    const ab = absence(st.id,date);
+    if (ab) return `<button class="desk trip" data-id="${st.id}" aria-label="${esc(st.name)} ${esc(ab.ko)} 중">
+      <div class="bubble idle"><div>${ab.type==="trip"?"✈️":"🌴"} ${esc(absKo(ab))}${T(" 중","")} · <b>${T(md(ab.back)+" 복귀","กลับ "+md(ab.back))}</b></div>${absWhere(ab)?`<div style="font-size:11.5px">${esc(absWhere(ab))}</div>`:""}</div>
+      ${emptyDesk(ab.type, deskTypeOf(st.id))}
+      <div class="nameplate">${esc(st.name)} <span class="kname">${esc(st.kname||"")}</span></div></button>`;
+    const r = report(st.id,date), ph = phaseOf(date);
+    let state = stateOf(r); if (state==="away") state = "idle";
+    const arrived = ((D.checkin||{})[date]||{})[st.id];
+    const mode = ph==="before" ? (arrived ? "desk" : "run") : ph==="after" ? "leave" : "desk";
+    const q = D.assumed?.includes(st.id) ? `<span class="q" title="보고자 이름 확인 필요">?</span>` : "";
+    if ((ph==="before" && !arrived) || ph==="after"){
+      const rr = report(st.id,date), has = rr && rr.tasks?.length;
+      const res = has ? rr.tasks.filter(t=>!["plan","none"].includes(t.s)).length : 0, dn = has ? rr.tasks.filter(t=>t.s==="done").length : 0;
+      const msg = ph==="before" ? T("🏃 출근길에 있어요","🏃 กำลังเดินทางมา") : !has ? T("👋 퇴근 · 보고 없음","👋 เลิกงาน · ไม่มีรายงาน") : res ? `${T("👋 퇴근 · 완료","👋 เลิกงาน · เสร็จ")} <b>${dn}</b>/${rr.tasks.length}` : T("👋 퇴근 · 결과 보고 전","👋 เลิกงาน · ยังไม่รายงานผล");
+      return `<button class="desk" data-id="${st.id}" aria-label="${esc(st.name)} 상세 보기">
+        <div class="bubble idle"><div class="txt">${msg}</div></div>${emptyDesk(null, deskTypeOf(st.id))}
+        <div class="nameplate">${esc(st.name)} <span class="kname">${esc(st.kname||"")}</span></div></button>`;
+    }
+    if (ph==="weekend") return `<button class="desk trip" data-id="${st.id}" aria-label="${esc(st.name)} 주말">
+      <div class="bubble idle"><div class="txt">${T("🙌 주말이에요","🙌 วันหยุดสุดสัปดาห์")}</div></div>${emptyDesk(null, deskTypeOf(st.id))}
+      <div class="nameplate">${esc(st.name)} <span class="kname">${esc(st.kname||"")}</span></div></button>`;
+    return `<button class="desk ${state}" data-id="${st.id}" aria-label="${esc(st.name)} 상세 보기">
+      <div class="bubble ${state==='idle'||mode==='leave'?'idle':''}" data-id="${st.id}" data-mode="${mode}" data-in="${arrived||''}"></div>
+      ${avatar(st,state,true,mode)}
+      <div class="nameplate">${esc(st.name)} <span class="kname">${esc(st.kname||"")}</span>${q}</div>
+      ${r?.where?`<div class="role">${esc(r.where)}</div>`:""}
+    </button>`;
+  };
+  const pods = arr => `<div class="pods">${arr.map(p=>`<div class="pod">${p.map(seatHTML).join("")}</div>`).join("")}</div>`;
+  const roomHead = tm => {
+    const members = D.staff.filter(s=>s.team===tm.id);
+    const rep = members.filter(s=>report(s.id,date)?.tasks?.length).length;
+    return `<div class="plaque"><b>${esc(T(tm.ko, tm.th||tm.ko))}</b><small>${esc(tm.en)} · ${rep}/${members.length} ${T("보고","รายงาน")}</small></div>`;
+  };
+  const [tp, tm] = D.teams;
+  const lay = D.layout;
+  floor.innerHTML = `
+    <section class="room" data-team="production" aria-label="${esc(tp.ko)}">${roomHead(tp)}${pods(lay.production.pods)}</section>
+    <section class="room" data-team="management" aria-label="${esc(tm.ko)}">${roomHead(tm)}
+      ${pods(lay.management.pods)}
+    </section>
+    <div class="annex">
+      <div><div class="rack" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div><div class="lbl">${T("서버실","ห้องเซิร์ฟเวอร์")}</div></div>
+      <div class="dr"><button class="desk working" data-id="dr" aria-label="지사장 캐릭터 꾸미기">
+        <div class="bubble">${STAFF ? T("오늘도 화이팅! 💪","วันนี้สู้ๆ นะครับ! 💪") : `오늘 보고 <b>${reported}</b>/${D.staff.length-away} 확인 중`}</div>
+        ${avatar({id:"dr"},"working")}
+        <div class="nameplate">${esc(T(D.director.label, D.director.label_th||D.director.label))}</div><div class="role">${T("지사장실","ห้องผู้อำนวยการ")}</div></button></div>
+      <div><div class="door">${T("출입구","ทางเข้า")}</div></div>
+    </div>`;
+
+  // bubbles
+  const cyc = {};
+  floor.querySelectorAll(".bubble[data-id]").forEach(b=>{
+    const r = report(b.dataset.id,date), mode = b.dataset.mode;
+    const has = r && r.tasks?.length;
+    if (mode==="leave"){
+      if (!has){ b.innerHTML = `<div class="txt">${T("👋 퇴근 · 보고 없음","👋 เลิกงาน · ไม่มีรายงาน")}</div>`; return; }
+      const res = r.tasks.filter(t=>!["plan","none"].includes(t.s)).length, dn = r.tasks.filter(t=>t.s==="done").length;
+      b.innerHTML = res ? `<div class="txt">${T("👋 퇴근 · 완료","👋 เลิกงาน · เสร็จ")} <b>${dn}</b>/${r.tasks.length}</div>` : `<div class="txt">${T("👋 퇴근 · 결과 보고 전","👋 เลิกงาน · ยังไม่รายงานผล")}</div>`;
+      return;
+    }
+    if (!has){
+      b.innerHTML = mode==="run" ? `<div class="txt">${T("🏃 출근하는 중!","🏃 กำลังมาทำงาน!")}</div>`
+        : b.dataset.in && date===D.current ? `<div class="txt">✅ ${b.dataset.in} ${T("출근 · 할 일 보고 전","เข้างาน · ยังไม่ส่งงานวันนี้")}</div>`
+        : date<D.current ? `<div class="txt">${T("📭 이날 보고 없음","📭 วันนั้นไม่มีรายงาน")}</div>` : `<div class="txt">${T("📝 오늘 할 일 보고 전","📝 ยังไม่ส่งงานวันนี้")}</div>`;
+      return;
+    }
+    const list = bubbleOrder(r); cyc[b.dataset.id] = {b,list,i:0};
+    paintBubble(cyc[b.dataset.id]);
+  });
+  clearInterval(cycleTimer);
+  cycleTimer = setInterval(()=>{
+    Object.values(cyc).forEach(c=>{
+      if (c.list.length<2) return;
+      c.b.classList.add("fade");
+      setTimeout(()=>{ c.i=(c.i+1)%c.list.length; paintBubble(c); c.b.classList.remove("fade"); },350);
+    });
+  },4200);
+
+  const nDays = Object.keys(D.days).length;
+  document.getElementById("foot").textContent = T(`마지막 업데이트 ${D.updated} · 기록된 날 ${nDays}일 · 캐릭터를 누르면 자세히 볼 수 있어요`, `อัปเดตล่าสุด ${D.updated} · แตะที่ตัวละครเพื่อดูรายละเอียด`);
+  const h1 = document.querySelector(".brand h1"); if (h1) h1.textContent = T("CGN Thai 오피스","CGN Thai ออฟฟิศ");
+  const sub = document.querySelector(".brand small"); if (sub) sub.textContent = T("오늘 누가 무엇을 하고 있나요?","วันนี้ใครทำอะไรอยู่บ้าง?");
+  document.documentElement.lang = LANG; document.body.classList.toggle("staff", STAFF);
+  document.querySelectorAll(".langsw button").forEach(b=>b.classList.toggle("on", b.dataset.lang===LANG));
+}
+function streetSVG(){
+  const trees=[90,330,560,760].map(x=>`<g transform="translate(${x},150)"><rect x="-4" y="-10" width="8" height="40" fill="#8a5d36"/><circle cx="0" cy="-26" r="26" fill="#5fb07a"/><circle cx="-14" cy="-12" r="16" fill="#4f9f6a"/><circle cx="15" cy="-14" r="16" fill="#6cbd86"/></g>`).join("");
+  const lamps=[220,450,680,880].map(x=>`<g transform="translate(${x},178)"><ellipse class="lampglow" cx="0" cy="-92" rx="26" ry="26" fill="#ffe9a8" opacity=".45"/><rect x="-2.5" y="-90" width="5" height="92" fill="#4d4a57"/><rect x="-10" y="-96" width="20" height="8" rx="4" fill="#4d4a57"/><circle class="lampglow" cx="0" cy="-86" r="5" fill="#fff3b0"/></g>`).join("");
+  let wins=""; for(let r=0;r<4;r++) for(let c=0;c<5;c++) wins+=`<rect class="bwin" x="${1000+c*34}" y="${46+r*26}" width="22" height="16" rx="2"/>`;
+  return `<svg class="bg" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <defs><linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--skyTop)"/><stop offset="1" style="stop-color:var(--skyBot)"/></linearGradient></defs>
+    <rect width="1200" height="300" fill="url(#skyG)"/>
+    <g class="stars" fill="#fff"><circle cx="120" cy="30" r="1.6"/><circle cx="300" cy="60" r="1.2"/><circle cx="470" cy="24" r="1.5"/><circle cx="640" cy="50" r="1.2"/><circle cx="820" cy="22" r="1.6"/></g>
+    <circle class="sun" cx="760" cy="60" r="26" fill="#ffd34d"/>
+    <g class="moon"><circle cx="760" cy="56" r="20" fill="#fff6c8"/><circle cx="769" cy="50" r="18" fill="var(--skyTop)"/></g>
+    <path class="far" d="M0 180V110h40V80h36v30h30V70h44v110zM170 180V96h50v-20h40v104zM290 180V88h34V60h46v120zM420 180V100h60v80zM520 180V76h40v-16h36v120zM640 180V92h56v88zM730 180V70h44v110zM800 180V100h60v80zM880 180V84h50v96z" fill="#a9c3d6"/>
+    <g><rect x="980" y="24" width="200" height="160" rx="6" fill="#f26b3a"/><rect x="980" y="18" width="200" height="12" rx="4" fill="#d9542a"/>${wins}
+      <rect x="1050" y="150" width="60" height="34" fill="#cfe6f5" stroke="#7a3b22" stroke-width="3"/><line x1="1080" y1="150" x2="1080" y2="184" stroke="#7a3b22" stroke-width="3"/>
+      <rect x="1030" y="128" width="100" height="18" rx="4" fill="#fff"/><text x="1080" y="142" text-anchor="middle" font-family="Jua" font-size="15" fill="#f26b3a">CGN Thai</text></g>
+    ${trees}${lamps}
+    <rect class="walk" y="178" width="1200" height="62" fill="#ebe3d6"/>
+    <g stroke="#d8cdbd" stroke-width="2">${Array.from({length:25},(_,i)=>`<line x1="${i*50}" y1="178" x2="${i*50-12}" y2="240"/>`).join("")}</g>
+    <rect y="236" width="1200" height="6" fill="#c9bfae"/>
+    <rect y="242" width="1200" height="58" fill="#5a5666"/>
+    <g fill="#f4f1e8">${Array.from({length:14},(_,i)=>`<rect x="${i*90+10}" y="269" width="46" height="5" rx="2"/>`).join("")}</g>
+    <g class="bus"><rect x="0" y="236" width="230" height="56" rx="12" fill="#ffc531"/><rect x="0" y="262" width="230" height="8" fill="#e8a91a"/>${[0,1,2,3,4].map(i=>`<rect x="${14+i*40}" y="244" width="30" height="16" rx="3" fill="#cfe6f5"/>`).join("")}<circle cx="45" cy="292" r="11" fill="#2b2833"/><circle cx="185" cy="292" r="11" fill="#2b2833"/></g>
+  </svg>`;
+}
+function renderStreet(date){
+  const el = document.getElementById("street");
+  const ph = phaseOf(date);
+  if (!(ph==="before" || ph==="after")){ el.hidden = true; el.innerHTML = ""; return; }
+  const checkin = (D.checkin||{})[date]||{};
+  const people = D.staff.filter(st=>!absence(st.id,date) && (ph==="after" || !checkin[st.id]));
+  const mode = ph==="before" ? "run" : "leave";
+  el.hidden = false;
+  const n = people.length;
+  const title = ph==="before"
+    ? `<b>${T("🏃 출근길","🏃 ระหว่างทางมาทำงาน")}</b><small>${n ? T(`${n}명이 회사로 오는 중 · 08:30 출근`, `${n} คนกำลังมาที่ออฟฟิศ · เข้างาน 08:30`) : T("모두 출근 완료!","ทุกคนมาถึงแล้ว!")}</small>`
+    : `<b>${T("🌆 퇴근길","🌆 ทางกลับบ้าน")}</b><small>${T(`오늘도 수고했어요 · ${n}명 퇴근`, `วันนี้เหนื่อยแล้วนะครับ · เลิกงาน ${n} คน`)}</small>`;
+  const walkers = people.map((st,i)=>{
+    const sp = (st.sprite||{})[mode]; if (!sp) return "";
+    const dur = (mode==="run" ? 13 : 22) + (i*7)%6;
+    const delay = -((i*dur)/Math.max(n,1)).toFixed(1);
+    const lane = [74, 96, 84, 106][i%4];
+    return `<button class="walker ${mode==='leave'?'stroll':''} ${sp.flip?'flip':''}" data-id="${st.id}" aria-label="${esc(st.name)}"
+      style="--x:${(4 + i*72/Math.max(n,1)).toFixed(1)}%;--lane:${lane}px;--anim:${mode==='run'?'goRight':'goLeft'};--dur:${dur}s;--delay:${delay}s;z-index:${200-lane}">
+      <div class="body"><img src="${sp.src}" alt=""></div><span class="tag">${esc(st.name)}<em>${esc(st.kname||"")}</em></span></button>`;
+  }).join("");
+  el.innerHTML = streetSVG() + `<div class="title">${title}</div>` + walkers;
+}
+function paintBubble(c){
+  const t = c.list[c.i], p = proj(t.p);
+  c.b.innerHTML = `<span class="tag" style="background:${p.color}">${esc(p.ko)}</span>
+    ${c.list.length>1?`<span class="cnt">${c.i+1}/${c.list.length}</span>`:""}
+    <div class="txt"><span class="dot" style="background:${STATUS[t.s]?.c||'#999'}"></span>${esc(tText(t))}${LANG!=="th" && t.n?` · ${esc(t.n)}`:""}</div>`;
+}
+
+function taskList(arr){
+  if (!arr || !arr.length) return `<div class="empty">${T("기록이 없어요","ยังไม่มีข้อมูล")}</div>`;
+  return `<ul class="tasks">${arr.map(t=>{const p=proj(t.p), s=STATUS[t.s]||STATUS.plan; return `<li>
+    <span class="pill" style="background:${s.c}">${stLabel(t.s)}</span>
+    <span class="ko">${esc(tText(t))}</span>
+    ${LANG!=="th" && t.th && t.th!==t.ko?`<span class="th">${esc(t.th)}</span>`:""}
+    ${LANG!=="th" && t.n?`<span class="note">↳ ${esc(t.n)}</span>`:""}
+    <span class="pt" style="color:${p.color}">● ${esc(p.ko)}</span></li>`;}).join("")}</ul>`;
+}
+function openDrawer(id){
+  editId = id;
+  if (id==="dr"){
+    document.getElementById("dbody").innerHTML = `
+      <div class="dhead">${avatar({id:"dr"}, "working", false)}<div><h2>${esc(T(D.director.label, D.director.label_th||D.director.label))}</h2><div class="meta">${T("지사장실","ห้องผู้อำนวยการ")}</div></div></div>
+      ${imgOf(id)?"":`<h3>캐릭터 꾸미기</h3><div id="pickerWrap">${pickerHTML(id)}</div>`}`;
+    showDrawer(); return;
+  }
+  const st = D.staff.find(s=>s.id===id); if(!st) return;
+  const date = dates[idx], r = report(id,date);
+  const team = D.teams.find(t=>t.id===st.team);
+  // most recent earlier report if none today
+  let prevNote = "";
+  if (!r){
+    const earlier = Object.keys(D.days).filter(d=>d<date && D.days[d][id]).sort().pop();
+    if (earlier) prevNote = `<h3>${T("최근 보고","รายงานล่าสุด")} <small>${label(earlier)}</small></h3>${taskList(D.days[earlier][id].tasks)}`;
+  }
+  const wk = monday(date);
+  document.getElementById("dbody").innerHTML = `
+    <div class="dhead">${avatar(st, stateOf(r), false)}
+      <div><h2>${esc(st.name)}</h2><div class="meta">${esc(T(team?.ko||"", team?.th||team?.ko||""))}${r?.where && LANG!=="th"?` · ${esc(r.where)}`:""}</div></div></div>
+    ${absence(id,date)?(a=>`<div class="warn" style="background:#ffeede;color:#8a3d12">${a.type==="trip"?"✈️":"🌴"} ${esc(absWhere(a))} ${esc(absKo(a))}${T(" 중","")} · ${T(md(a.back)+" 복귀 예정","กลับ "+md(a.back))}</div>`)(absence(id,date)):""}
+    ${D.assumed?.includes(id)?`<div class="warn">이 보고가 ${esc(st.name)}의 것이 맞는지 아직 확인 전이에요.</div>`:""}
+    ${r?.note && LANG!=="th"?`<div class="warn" style="background:#eef3f2;color:var(--ink-soft)">${esc(r.note)}</div>`:""}
+    <h3>${T("오늘 할 일","งานวันนี้")} <small>${label(date)}</small></h3>
+    ${r?taskList(r.tasks):`<div class="empty">${T("💤 이날은 아직 보고가 없어요","💤 ยังไม่มีรายงาน")}</div>`}
+    ${r?.routine?.length && LANG!=="th"?`<h3>일상 업무</h3><div class="routine">${r.routine.map(x=>`<span>${esc(x)}</span>`).join("")}</div>`:""}
+    ${prevNote}
+    <h3>${T("이번 주 목표","เป้าหมายสัปดาห์นี้")} <small>${label(wk)}${T(" 주","")}</small></h3>${taskList(weekGoals(id,date))}
+    <h3>${T("지난주 결과","ผลงานสัปดาห์ที่แล้ว")} <small>${label(addDays(wk,-7))}${T(" 주","")}</small></h3>${taskList(lastWeek(id,date))}
+    ${imgOf(id)?"":`<details class="custom"><summary>캐릭터 꾸미기</summary><div id="pickerWrap">${pickerHTML(id)}</div></details>`}`;
+  showDrawer();
+}
+function showDrawer(){
+  document.getElementById("drawer").classList.add("on");
+  document.getElementById("drawer").setAttribute("aria-hidden","false");
+  document.getElementById("scrim").classList.add("on");
+  document.getElementById("closeBtn").focus();
+}
+function closeDrawer(){
+  editId = null;
+  document.getElementById("drawer").classList.remove("on");
+  document.getElementById("drawer").setAttribute("aria-hidden","true");
+  document.getElementById("scrim").classList.remove("on");
+}
+
+/* busy-at-desk animation: typing (2 frames) with occasional coffee / phone / thinking */
+const _animState = new WeakMap(), _preloaded = new Set();
+function animTick(){
+  const now = performance.now();
+  document.querySelectorAll("image.anim").forEach(el=>{
+    let st = _animState.get(el);
+    if (!st){
+      let f = {}; try { f = JSON.parse(el.dataset.frames); } catch(e){ return; }
+      Object.values(f).forEach(src=>{ if(!_preloaded.has(src)){ const i=new Image(); i.src=src; _preloaded.add(src);} });
+      st = {f, mode:"type", until: now + 3000 + Math.random()*5000, flip:false, last:0};
+      _animState.set(el, st);
+    }
+    if (now > st.until){
+      if (st.mode==="type"){
+        const acts = Object.keys(st.f).filter(k=>k!=="sit" && k!=="type");
+        st.mode = acts[Math.floor(Math.random()*acts.length)] || "type";
+        st.until = now + 2500 + Math.random()*2000;
+      } else { st.mode = "type"; st.until = now + 5000 + Math.random()*6000; }
+    }
+    let src;
+    if (st.mode==="type"){
+      if (now - st.last > 280){ st.flip = !st.flip; st.last = now; }
+      src = st.flip ? (st.f.type||st.f.sit) : st.f.sit;
+    } else src = st.f[st.mode];
+    if (el.getAttribute("href") !== src) el.setAttribute("href", src);
+  });
+}
+if (!window.matchMedia || !matchMedia("(prefers-reduced-motion: reduce)").matches) setInterval(animTick, 140);
+function tickClock(){
+  const now = new Date(Date.now() + 7*3600e3); // Bangkok
+  const h = now.getUTCHours()%12, m = now.getUTCMinutes();
+  document.getElementById("hh").setAttribute("transform",`rotate(${h*30+m/2} 31 31)`);
+  document.getElementById("mh").setAttribute("transform",`rotate(${m*6} 31 31)`);
+  if (!D || !D.hours) return;
+  const ph = phaseOf(D.current);
+  const hm = n2 => n2.getUTCHours()*60+n2.getUTCMinutes();
+  const cm = hm(now);
+  const live = dates[idx]===D.current;
+  document.body.dataset.sky = !live ? "day" : cm < 6*60 ? "night" : cm < 8*60+30 ? "dawn" : cm < 17*60+30 ? "day" : cm < 18*60+30 ? "sunset" : "night";
+  if (lastPhase && ph!==lastPhase && dates[idx]===D.current) render();
+  lastPhase = ph;
+  const toMin = t => { const [a,b]=t.split(":").map(Number); return a*60+b; };
+  const cur = now.getUTCHours()*60+m, st = toMin(D.hours.start), en = toMin(D.hours.end);
+  const wd = now.getUTCDay(), weekend = wd===0||wd===6;
+  const left = x => x>=60 ? T(`${Math.floor(x/60)}시간 ${x%60}분`, `${Math.floor(x/60)} ชม. ${x%60} นาที`) : T(`${x}분`, `${x} นาที`);
+  const [label, sub] = weekend ? [T("주말","วันหยุด"), `${T("근무","เวลางาน")} ${D.hours.start}–${D.hours.end}`]
+    : cur < st ? [T("출근 전","ก่อนเข้างาน"), T(`${D.hours.start} 출근까지 ${left(st-cur)}`, `อีก ${left(st-cur)} เข้างาน ${D.hours.start}`)]
+    : cur < en ? [T("근무 중","เวลางาน"), T(`${D.hours.end} 퇴근까지 ${left(en-cur)}`, `อีก ${left(en-cur)} เลิกงาน ${D.hours.end}`)]
+    : [T("퇴근 후","หลังเลิกงาน"), T("퇴근 보고 확인 시간","เวลาส่งรายงานผลงาน")];
+  document.getElementById("workstate").innerHTML = `<b>${label}</b>${sub}`;
+}
+
+document.addEventListener("click", e=>{
+  const pb = e.target.closest(".picker button");
+  if (pb && editId){
+    if (pb.id==="saveLook") saveLooks();
+    else if (pb.id==="resetLook"){ delete OVR[editId]; dirty = true; refreshEditor(editId); }
+    else if (pb.dataset.f) setLook(editId, pb.dataset.f, pb.dataset.v);
+    return;
+  }
+  const d = e.target.closest("[data-id]");
+  if (d && (d.classList.contains("desk")||d.classList.contains("row")||d.classList.contains("walker"))) openDrawer(d.dataset.id);
+});
+document.querySelectorAll(".langsw button").forEach(b=>b.onclick=()=>{ LANG=b.dataset.lang; try{localStorage.setItem("cgnLang",LANG);}catch(e){} closeDrawer(); render(); tickClock(); if(window.drawLegend) drawLegend(); });
+document.getElementById("scrim").onclick = closeDrawer;
+document.getElementById("closeBtn").onclick = closeDrawer;
+document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeDrawer(); });
+document.getElementById("prev").onclick = ()=>{ if(idx>0){idx--;render();tickClock();} };
+document.getElementById("next").onclick = ()=>{ if(idx<dates.length-1){idx++;render();tickClock();} };
+
+fetch("data.json",{cache:"no-store"}).then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); }).then(data=>{
+  D = data;
+  dates = [...new Set([...Object.keys(D.days), D.current])].sort();
+  idx = dates.indexOf(D.current);
+  window.drawLegend = () => { document.getElementById("legend").innerHTML = Object.entries(STATUS).map(([k,s])=>`<span><span class="dot" style="background:${s.c}"></span>${stLabel(k)}</span>`).join("")
+    + T(`<span>✨ 모두 완료</span><span>💧 막힘 있음</span>`, `<span>✨ เสร็จทั้งหมด</span><span>💧 มีงานติดปัญหา</span>`); };
+  drawLegend();
+  tickClock(); setInterval(tickClock, 30000);
+  render();
+  initDB();
+}).catch(err=>{
+  document.querySelector(".office").innerHTML = `<div class="err">업무 데이터를 불러오지 못했어요 (${esc(err.message)}). 잠시 후 새로고침해 주세요.</div>`;
+});
+</script>
+</body>
+</html>
