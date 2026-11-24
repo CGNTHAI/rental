@@ -194,6 +194,13 @@ button{cursor:pointer}
 .cal .d[aria-pressed="true"] .n{background:var(--accent);color:var(--accent-ink);font-weight:700}
 .cal .d .ds{display:flex;gap:3px;flex-wrap:wrap;justify-content:center;max-width:44px}
 .cal .d .ds .dot{width:6px;height:6px}
+.cal .d.co{min-height:96px;align-items:stretch;justify-content:flex-start;gap:2px;padding:4px 2px 3px;overflow:hidden}
+.cal .d.co .n{align-self:center;flex:none;width:24px;height:24px;line-height:24px;font-size:12.5px}
+.cal .d.co .ce{display:block;font-size:10.5px;line-height:1.3;border-radius:4px;padding:1px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left;color:var(--ink);background:var(--surface-2,#f3f2ef);border-left:3px solid #4f6bd8}
+.cal .d.co .ce.all{color:#fff;border-left:0;font-weight:600}
+.cal .d.co .ce em{font-style:normal;color:var(--muted);font-size:9.5px}
+.cal .d.co .cmore{font-size:10px;color:var(--muted);text-align:left;padding-left:3px}
+@media (max-width:520px){.cal .d.co{min-height:84px}.cal .d.co .ce{font-size:9.5px;padding:1px 2px}.cal .d.co .ce em{display:none}}
 .cal .d .c{font-size:11px;font-weight:700;color:var(--accent)}
 :root[data-theme="dark"] .rc-studio{--rc:#86A3EC}:root[data-theme="dark"] .rc-recording{--rc:#FB923C}:root[data-theme="dark"] .rc-meeting{--rc:#4ADE80}:root[data-theme="dark"] .rc-car1{--rc:#C4B5FD}:root[data-theme="dark"] .rc-car2{--rc:#F472B6}
 .tl.all{grid-template-columns:44px repeat(5,minmax(0,1fr))}
@@ -593,7 +600,8 @@ function exportCsv(list){
   const a=document.createElement("a");a.href=url;a.download="cgn-rental-"+(range?range.from+"_"+range.to:today())+".csv";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
 }
 const eq=new Map(); let loans=[]; let loansReady=false;
-const ui={tab:(location.hash==="#company"?"company":LS.get("tab"))||"equip",cat:"all",filter:"all",q:"",hq:"",pick:false};
+const TABS=["equip","out","hist","book","bookcal","company"];
+const ui={tab:(TABS.includes(location.hash.slice(1))?location.hash.slice(1):LS.get("tab"))||"equip",cat:"all",filter:"all",q:"",hq:"",pick:false};
 const selected=new Set();
 
 
@@ -1108,8 +1116,9 @@ function renderCo(v){
   const wk=[];for(let i=0;i<7;i++)wk.push(parseYmd(addDays("2026-10-25",i)).toLocaleDateString(loc(),{weekday:"narrow"}));
   let cells="";const last=new Date(Y,M,0).getDate();const n=Math.ceil((first.getDay()+last)/7)*7;
   for(let i=0;i<n;i++){const d=addDays(start,i);const es=onDay(d);const other=d.slice(0,7)!==coc.month;
-    const mk=es.length?`<span class="ds">${es.slice(0,4).map(e=>`<i class="dot" style="background:${GCOL[e.c]||"var(--accent)"}"></i>`).join("")}</span>`:"";
-    cells+=`<button type="button" class="d${other?" o":""}${d===td?" td":""}" data-d="${d}" aria-pressed="${d===coc.sel}" aria-label="${esc(dayLabel(d))}${es.length?" · "+es.length:""}"><span class="n">${+d.slice(8)}</span>${mk}</button>`}
+    const srt=es.slice().sort((a,b)=>(a.all?0:1)-(b.all?0:1)||(a.s||"").localeCompare(b.s||""));
+    const mk=srt.slice(0,3).map(e=>{const col=GCOL[e.c]||"#4f6bd8";return e.all?`<span class="ce all" style="background:${col}">${esc(e.t)}</span>`:`<span class="ce" style="border-left-color:${col}"><em>${esc(e.s)}</em> ${esc(e.t)}</span>`}).join("")+(srt.length>3?`<span class="cmore">+${srt.length-3}</span>`:"");
+    cells+=`<button type="button" class="d co${other?" o":""}${d===td?" td":""}" data-d="${d}" aria-pressed="${d===coc.sel}" aria-label="${esc(dayLabel(d))}${es.length?" · "+es.length:""}"><span class="n">${+d.slice(8)}</span>${mk}</button>`}
   const list=onDay(coc.sel).sort((a,b)=>(a.all?0:1)-(b.all?0:1)||(a.s||"").localeCompare(b.s||""));
   const when=e=>e.all?(e.d2&&e.d2!==e.d?`${+e.d.slice(5,7)}/${+e.d.slice(8)}–${+e.d2.slice(5,7)}/${+e.d2.slice(8)}`:t("coAllDay")):`${e.s}–${e.e}`;
   const mLabel=first.toLocaleDateString(loc(),{year:"numeric",month:"long"});
