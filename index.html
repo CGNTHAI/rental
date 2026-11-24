@@ -177,7 +177,7 @@ button{cursor:pointer}
 
 
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px)}
-.nav-in{display:grid;grid-template-columns:repeat(3,1fr) 1px repeat(2,1fr);width:100%;max-width:760px}
+.nav-in{display:grid;grid-template-columns:repeat(3,1fr) 1px repeat(2,1fr) 1px 1fr;width:100%;max-width:760px}
 .nav-sep{align-self:center;height:30px;background:var(--line)}
 .nav button{background:none;border:0;padding:10px 4px 12px;font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;position:relative}
 .rc-studio{--rc:#2A4FA3}.rc-recording{--rc:#C2410C}.rc-meeting{--rc:#15803D}.rc-car1{--rc:#7C3AED}.rc-car2{--rc:#BE185D}
@@ -318,6 +318,8 @@ body:has(.wrap.withbar) .toast{bottom:calc(150px + env(safe-area-inset-bottom,0p
   <i class="nav-sep" aria-hidden="true"></i>
   <button type="button" data-tab="book"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M12 12.5v5M9.5 15h5"/></svg><span data-t="tabBook"></span></button>
   <button type="button" data-tab="bookcal"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M7.5 13.5h1M11.5 13.5h1M15.5 13.5h1M7.5 17h1M11.5 17h1"/></svg><span data-t="tabCal"></span></button>
+  <i class="nav-sep" aria-hidden="true"></i>
+  <button type="button" data-tab="company"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h8M8 17h5"/></svg><span data-t="tabCo"></span></button>
 </div></nav>
 
 <div class="sheet" id="sheet" hidden><div class="scrim" id="scrim"></div><div class="panel" role="dialog" aria-modal="true"><div class="grab"></div><div id="sheetBody"></div></div></div>
@@ -328,7 +330,7 @@ body:has(.wrap.withbar) .toast{bottom:calc(150px + env(safe-area-inset-bottom,0p
 (function(){
 const T={
 ko:{title:"CGN 장비 대여",sub:"태국 CGN · 카메라·렌즈·조명·마이크·배터리",switchTo:"ไทย",
- tabEquip:"장비",tabOut:"대여 중",tabHist:"이력",tabBook:"예약",tabCal:"예약 확인",calAll:"전체",calBookThis:"이 날짜로 예약하기",calDayNone:"이 날은 예약이 없어요.",carRule:"차량은 사용 전날 밤 12시까지 신청해 주세요.",carLate:"차량은 사용 전날 밤 12시까지만 신청할 수 있어요. 급한 경우 지사장님께 말씀해 주세요.",carToday:"오늘 차량 신청은 마감됐어요. (전날 밤 12시 마감)",res_studio:"스튜디오",res_recording:"녹음실",res_meeting:"회의실",res_car1:"Freed",res_car2:"Van",allDay:"하루 종일",bookNew:"예약하기",bookTitle:"예약",bookRes:"장소·차량",bookDate:"날짜",bookStart:"시작",bookEnd:"종료",bookWho:"예약자",bookPurpose:"용도 (프로그램명 등)",bookNote:"메모",bookSave:"예약 확정",bookNeed:"예약자와 용도를 입력해 주세요.",bookBadTime:"종료 시간이 시작 시간보다 늦어야 해요.",bookTooLong:"한 번에 7일까지만 예약할 수 있어요.",bookPast:"이미 지난 시간은 예약할 수 없어요.",bookConflict:(t,w)=>`이미 예약된 시간이 있어요 (${t} · ${w})`,bookDone:"예약했어요.",bookCancel:"예약 취소",bookCancelConfirm:"한 번 더 누르면 취소돼요",bookCanceled:"예약을 취소했어요.",bookFree:"비어 있음 · 눌러서 예약",bookToday:"오늘",bookUpcoming:"다가오는 예약",bookNone:"예정된 예약이 없어요.",bookNextDay:"다음 날",
+ tabEquip:"장비",tabOut:"대여 중",tabHist:"이력",tabBook:"예약",tabCal:"예약 확인",tabCo:"회사 일정",coNone:"이 날은 회사 일정이 없어요.",coAllDay:"하루 종일",coUpd:"구글 캘린더 'CGN Thai'에서 가져옴 · 업데이트 ",coFail:"회사 일정을 불러오지 못했어요.",calAll:"전체",calBookThis:"이 날짜로 예약하기",calDayNone:"이 날은 예약이 없어요.",carRule:"차량은 사용 전날 밤 12시까지 신청해 주세요.",carLate:"차량은 사용 전날 밤 12시까지만 신청할 수 있어요. 급한 경우 지사장님께 말씀해 주세요.",carToday:"오늘 차량 신청은 마감됐어요. (전날 밤 12시 마감)",res_studio:"스튜디오",res_recording:"녹음실",res_meeting:"회의실",res_car1:"Freed",res_car2:"Van",allDay:"하루 종일",bookNew:"예약하기",bookTitle:"예약",bookRes:"장소·차량",bookDate:"날짜",bookStart:"시작",bookEnd:"종료",bookWho:"예약자",bookPurpose:"용도 (프로그램명 등)",bookNote:"메모",bookSave:"예약 확정",bookNeed:"예약자와 용도를 입력해 주세요.",bookBadTime:"종료 시간이 시작 시간보다 늦어야 해요.",bookTooLong:"한 번에 7일까지만 예약할 수 있어요.",bookPast:"이미 지난 시간은 예약할 수 없어요.",bookConflict:(t,w)=>`이미 예약된 시간이 있어요 (${t} · ${w})`,bookDone:"예약했어요.",bookCancel:"예약 취소",bookCancelConfirm:"한 번 더 누르면 취소돼요",bookCanceled:"예약을 취소했어요.",bookFree:"비어 있음 · 눌러서 예약",bookToday:"오늘",bookUpcoming:"다가오는 예약",bookNone:"예정된 예약이 없어요.",bookNextDay:"다음 날",
  all:"전체",available:"대여 가능",out:"대여 중",overdue:"연체",repair:"수리 중",retired:"불용",
  search:"장비명, 모델, 관리번호 검색",addEq:"장비 추가",
  type_camera:"카메라",type_lens:"렌즈",type_filter:"필터",type_light:"조명",type_stand:"다리",type_mic:"마이크",type_battery:"배터리",type_ob:"중계",toTop:"맨 위로",type_monitor:"모니터",type_etc:"기타",kind:"분류",
@@ -358,7 +360,7 @@ ko:{title:"CGN 장비 대여",sub:"태국 CGN · 카메라·렌즈·조명·마�
  photoFail:"사진을 처리하지 못했어요. 다른 사진으로 시도해 주세요.",
  saving:"저장 중…",noteLbl:"비고",admin:"관리자",adminLogin:"관리자 로그인",adminLead:"관리자는 대여 기록을 수정하거나 삭제할 수 있어요.",email:"이메일",password:"비밀번호",login:"로그인",logout:"로그아웃",loginFail:"이메일 또는 비밀번호가 맞지 않아요.",adminOn:u=>`${u} 계정으로 관리자 모드가 켜져 있어요.`,loggedOut:"로그아웃했어요.",editLoan:"대여 정보 수정",delBatch:"이 대여 건 전체 삭제",delOne:"삭제",confirmDel:"한 번 더 누르면 삭제돼요",deleted:n=>`기록 ${n}개를 삭제했어요.`,delFail:"삭제하지 못했어요. 관리자 로그인 상태를 확인해 주세요.",delWarn:"삭제한 기록은 되돌릴 수 없어요. 아직 반납 안 된 장비는 대여 가능 상태로 돌아가요.",bulkTitle:"장비 상태 일괄 관리",bulkLead:"여러 장비의 상태를 한 번에 바꿀 수 있어요. 적용 버튼은 두 번 눌러야 적용돼요.",bulkBar:(r,f)=>`장비 상태 일괄 관리 · 수리 중 ${r} · 증상 ${f}`,secRepair:n=>`수리 중 · ${n}개`,secFlag:n=>`증상 있음 · ${n}개`,selAll:"전체 선택",selNone:"전체 해제",toAvail:n=>`선택한 ${n}개 대여 가능으로`,clrFlags:n=>`선택한 ${n}개 증상 해제`,noRepair:"수리 중인 장비가 없어요.",noFlag:"증상이 표시된 장비가 없어요.",pickSome:"장비를 먼저 선택해 주세요.",confirmApply:"한 번 더 누르면 적용돼요",bulkDone:n=>`${n}개 장비를 대여 가능으로 바꿨어요.`,undoOne:"반납 취소",undoAll:n=>`반납 취소 (${n}개)`,undoDone:n=>`${n}개 장비를 다시 대여 중으로 되돌렸어요.`,undoBlocked:n=>`${n}개는 이미 다른 사람이 빌렸거나 불용 처리돼서 되돌리지 못했어요.`,undoWarn:"반납 취소하면 그 장비는 다시 이 대여 건의 '대여 중'으로 돌아가고, 반납할 때 남긴 증상·수리 표시도 지워져요.",flagsDone:n=>`${n}개 장비의 증상을 해제했어요.`},
 th:{title:"ยืม-คืนอุปกรณ์ CGN",sub:"CGN ประเทศไทย · กล้อง·เลนส์·ไฟ·ไมค์·แบตเตอรี่",switchTo:"한국어",
- tabEquip:"อุปกรณ์",tabOut:"กำลังยืม",tabHist:"ประวัติ",tabBook:"จอง",tabCal:"ตารางจอง",calAll:"ทั้งหมด",calBookThis:"จองวันที่เลือก",calDayNone:"วันนี้ยังไม่มีการจองครับ",carRule:"กรุณาจองรถก่อนเที่ยงคืนของวันก่อนใช้งานครับ",carLate:"จองรถได้ถึงเที่ยงคืนของวันก่อนใช้งานเท่านั้นครับ หากเร่งด่วนกรุณาติดต่อผู้อำนวยการสาขาครับ",carToday:"ปิดรับจองรถสำหรับวันนี้แล้วครับ (ปิดรับเที่ยงคืนของวันก่อน)",res_studio:"สตูดิโอ",res_recording:"ห้องอัดเสียง",res_meeting:"ห้องประชุม",res_car1:"Freed",res_car2:"Van",allDay:"ทั้งวัน",bookNew:"จอง",bookTitle:"การจอง",bookRes:"สถานที่·รถ",bookDate:"วันที่",bookStart:"เริ่ม",bookEnd:"สิ้นสุด",bookWho:"ผู้จอง",bookPurpose:"วัตถุประสงค์ (ชื่อรายการ ฯลฯ)",bookNote:"หมายเหตุ",bookSave:"ยืนยันการจอง",bookNeed:"กรุณากรอกผู้จองและวัตถุประสงค์ครับ",bookBadTime:"เวลาสิ้นสุดต้องหลังเวลาเริ่มครับ",bookTooLong:"จองได้ครั้งละไม่เกิน 7 วันครับ",bookPast:"ไม่สามารถจองเวลาที่ผ่านไปแล้วครับ",bookConflict:(t,w)=>`ช่วงเวลานี้มีการจองแล้วครับ (${t} · ${w})`,bookDone:"จองเรียบร้อยแล้วครับ",bookCancel:"ยกเลิกการจอง",bookCancelConfirm:"แตะอีกครั้งเพื่อยกเลิกครับ",bookCanceled:"ยกเลิกการจองแล้วครับ",bookFree:"ว่าง · แตะเพื่อจอง",bookToday:"วันนี้",bookUpcoming:"การจองที่กำลังจะมาถึง",bookNone:"ยังไม่มีการจองครับ",bookNextDay:"วันถัดไป",
+ tabEquip:"อุปกรณ์",tabOut:"กำลังยืม",tabHist:"ประวัติ",tabBook:"จอง",tabCal:"ตารางจอง",tabCo:"ปฏิทินบริษัท",coNone:"วันนี้ไม่มีกิจกรรมของบริษัท",coAllDay:"ทั้งวัน",coUpd:"จาก Google Calendar 'CGN Thai' · อัปเดต ",coFail:"โหลดปฏิทินบริษัทไม่สำเร็จ",calAll:"ทั้งหมด",calBookThis:"จองวันที่เลือก",calDayNone:"วันนี้ยังไม่มีการจองครับ",carRule:"กรุณาจองรถก่อนเที่ยงคืนของวันก่อนใช้งานครับ",carLate:"จองรถได้ถึงเที่ยงคืนของวันก่อนใช้งานเท่านั้นครับ หากเร่งด่วนกรุณาติดต่อผู้อำนวยการสาขาครับ",carToday:"ปิดรับจองรถสำหรับวันนี้แล้วครับ (ปิดรับเที่ยงคืนของวันก่อน)",res_studio:"สตูดิโอ",res_recording:"ห้องอัดเสียง",res_meeting:"ห้องประชุม",res_car1:"Freed",res_car2:"Van",allDay:"ทั้งวัน",bookNew:"จอง",bookTitle:"การจอง",bookRes:"สถานที่·รถ",bookDate:"วันที่",bookStart:"เริ่ม",bookEnd:"สิ้นสุด",bookWho:"ผู้จอง",bookPurpose:"วัตถุประสงค์ (ชื่อรายการ ฯลฯ)",bookNote:"หมายเหตุ",bookSave:"ยืนยันการจอง",bookNeed:"กรุณากรอกผู้จองและวัตถุประสงค์ครับ",bookBadTime:"เวลาสิ้นสุดต้องหลังเวลาเริ่มครับ",bookTooLong:"จองได้ครั้งละไม่เกิน 7 วันครับ",bookPast:"ไม่สามารถจองเวลาที่ผ่านไปแล้วครับ",bookConflict:(t,w)=>`ช่วงเวลานี้มีการจองแล้วครับ (${t} · ${w})`,bookDone:"จองเรียบร้อยแล้วครับ",bookCancel:"ยกเลิกการจอง",bookCancelConfirm:"แตะอีกครั้งเพื่อยกเลิกครับ",bookCanceled:"ยกเลิกการจองแล้วครับ",bookFree:"ว่าง · แตะเพื่อจอง",bookToday:"วันนี้",bookUpcoming:"การจองที่กำลังจะมาถึง",bookNone:"ยังไม่มีการจองครับ",bookNextDay:"วันถัดไป",
  all:"ทั้งหมด",available:"ว่าง",out:"กำลังยืม",overdue:"เกินกำหนด",repair:"ซ่อม",retired:"เลิกใช้",
  search:"ค้นหาชื่อ รุ่น หรือรหัสอุปกรณ์",addEq:"เพิ่มอุปกรณ์",
  type_camera:"กล้อง",type_lens:"เลนส์",type_filter:"ฟิลเตอร์",type_light:"ไฟ",type_stand:"ขาตั้ง",type_mic:"ไมค์",type_ob:"OB",type_battery:"แบตเตอรี่",toTop:"กลับขึ้นด้านบน",type_monitor:"จอมอนิเตอร์",type_etc:"อื่นๆ",kind:"ชนิด",
@@ -591,7 +593,7 @@ function exportCsv(list){
   const a=document.createElement("a");a.href=url;a.download="cgn-rental-"+(range?range.from+"_"+range.to:today())+".csv";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
 }
 const eq=new Map(); let loans=[]; let loansReady=false;
-const ui={tab:LS.get("tab")||"equip",cat:"all",filter:"all",q:"",hq:"",pick:false};
+const ui={tab:(location.hash==="#company"?"company":LS.get("tab"))||"equip",cat:"all",filter:"all",q:"",hq:"",pick:false};
 const selected=new Set();
 
 
@@ -648,8 +650,9 @@ $("#selClear").addEventListener("click",()=>{selected.clear();ui.pick=false;rend
 $("#selGo").addEventListener("click",()=>{if(!ui.pick){ui.pick=true;selected.clear();render();jumpToList();return}if(!selected.size){toast(t("pickFirst"));return}openCheckout([...selected])});
 
 function render(){paintChrome();const v=$("#view");
+  if(ui.tab==="company"){v.dataset.shell="";v.dataset.hshell="";renderCo(v);return}
   if(!ready&&!dbFailed){v.dataset.shell="";v.dataset.hshell="";v.innerHTML=`<div class="empty">${esc(t("loading"))}</div>`;return}
-  if(ui.tab==="equip"){v.dataset.hshell="";renderEquip(v)}else{v.dataset.shell="";if(ui.tab!=="hist")v.dataset.hshell="";if(ui.tab==="out")renderOut(v);else if(ui.tab==="book")renderBook(v);else if(ui.tab==="bookcal")renderCal(v);else renderHist(v)}
+  if(ui.tab==="equip"){v.dataset.hshell="";renderEquip(v)}else{v.dataset.shell="";if(ui.tab!=="hist")v.dataset.hshell="";if(ui.tab==="out")renderOut(v);else if(ui.tab==="book")renderBook(v);else if(ui.tab==="bookcal")renderCal(v);else if(ui.tab==="company")renderCo(v);else renderHist(v)}
 }
 
 
@@ -1087,6 +1090,37 @@ function renderCal(v){
   v.querySelector("#cDays").addEventListener("click",ev=>{const c=ev.target.closest("[data-d]");if(!c)return;bkc.sel=c.dataset.d;bkc.month=bkc.sel.slice(0,7);render()});
   v.querySelectorAll(".item[data-b]").forEach(b=>b.addEventListener("click",()=>openBookingDetail(b.dataset.b)));
   const cb=v.querySelector("#cBook");cb&&cb.addEventListener("click",()=>{bk.date=bkc.sel;bk.res=bkc.res;LS.set("bkres",bk.res);ui.tab="book";LS.set("tab","book");render();window.scrollTo(0,0)});
+}
+/* 회사 일정: 오피스 저장소의 calendar.json (구글 'CGN Thai' 캘린더, 직원 개인 연차 제외) */
+const coc={month:null,sel:null,data:null,err:false,loading:false};
+const GCOL={"1":"#7986cb","2":"#33b679","3":"#8e24aa","4":"#e67c73","5":"#f6bf26","6":"#f4511e","7":"#039be5","8":"#616161","9":"#3f51b5","10":"#0b8043","11":"#d50000"};
+function loadCo(){ if(coc.loading)return; coc.loading=true;
+  fetch("/office/calendar.json?ts="+Date.now()).then(r=>{if(!r.ok)throw 0;return r.json()}).then(j=>{coc.data=j;coc.err=false}).catch(()=>{coc.err=true}).finally(()=>{coc.loading=false;if(ui.tab==="company")render()}); }
+function renderCo(v){
+  if(!coc.data&&!coc.err){v.innerHTML=`<div class="empty">${esc(t("loading"))}</div>`;loadCo();return}
+  if(coc.err&&!coc.data){v.innerHTML=`<div class="empty">${esc(t("coFail"))}</div>`;return}
+  const td=today();if(!coc.sel)coc.sel=td;if(!coc.month)coc.month=coc.sel.slice(0,7);
+  const ev=coc.data.events||[];
+  const [Y,M]=coc.month.split("-").map(Number);const first=new Date(Y,M-1,1);
+  const start=addDays(ymd(first),-first.getDay());
+  const onDay=d=>ev.filter(e=>e.d<=d&&(e.d2||e.d)>=d);
+  const wk=[];for(let i=0;i<7;i++)wk.push(parseYmd(addDays("2026-10-25",i)).toLocaleDateString(loc(),{weekday:"narrow"}));
+  let cells="";const last=new Date(Y,M,0).getDate();const n=Math.ceil((first.getDay()+last)/7)*7;
+  for(let i=0;i<n;i++){const d=addDays(start,i);const es=onDay(d);const other=d.slice(0,7)!==coc.month;
+    const mk=es.length?`<span class="ds">${es.slice(0,4).map(e=>`<i class="dot" style="background:${GCOL[e.c]||"var(--accent)"}"></i>`).join("")}</span>`:"";
+    cells+=`<button type="button" class="d${other?" o":""}${d===td?" td":""}" data-d="${d}" aria-pressed="${d===coc.sel}" aria-label="${esc(dayLabel(d))}${es.length?" · "+es.length:""}"><span class="n">${+d.slice(8)}</span>${mk}</button>`}
+  const list=onDay(coc.sel).sort((a,b)=>(a.all?0:1)-(b.all?0:1)||(a.s||"").localeCompare(b.s||""));
+  const when=e=>e.all?(e.d2&&e.d2!==e.d?`${+e.d.slice(5,7)}/${+e.d.slice(8)}–${+e.d2.slice(5,7)}/${+e.d2.slice(8)}`:t("coAllDay")):`${e.s}–${e.e}`;
+  const mLabel=first.toLocaleDateString(loc(),{year:"numeric",month:"long"});
+  v.innerHTML=`<div class="bkdate" style="margin-top:14px"><button type="button" id="oPrev" aria-label="prev">‹</button><div class="dlabel">${esc(mLabel)}</div>${coc.month!==td.slice(0,7)?`<button type="button" class="today" id="oToday">${esc(t("bookToday"))}</button>`:""}<button type="button" id="oNext" aria-label="next">›</button></div>
+  <div class="cal"><div class="wk">${wk.map(w=>`<div>${esc(w)}</div>`).join("")}</div><div class="days" id="oDays">${cells}</div></div>
+  <div class="bkup"><div class="sec">${esc(dayLabel(coc.sel))}</div>
+  <div class="card" style="padding:0">${list.length?list.map(e=>`<div class="item"><i class="dot" style="background:${GCOL[e.c]||"var(--accent)"};flex:none;margin-top:6px"></i><div class="grow"><b>${esc(e.t)}</b>${e.loc?`<div class="sub"><span>📍 ${esc(e.loc)}</span></div>`:""}</div><span class="when">${esc(when(e))}</span></div>`).join(""):`<div class="empty">${esc(t("coNone"))}</div>`}</div></div>
+  <p class="sub" style="text-align:center;color:var(--muted);font-size:12px;margin:12px 0 4px">${esc(t("coUpd"))}${esc(coc.data.updated||"")}</p>`;
+  const mv=k=>{const d=new Date(Y,M-1+k,1);coc.month=ymd(d).slice(0,7);render()};
+  v.querySelector("#oPrev").addEventListener("click",()=>mv(-1));v.querySelector("#oNext").addEventListener("click",()=>mv(1));
+  const ot=v.querySelector("#oToday");ot&&ot.addEventListener("click",()=>{coc.sel=td;coc.month=td.slice(0,7);render()});
+  v.querySelector("#oDays").addEventListener("click",ev=>{const c=ev.target.closest("[data-d]");if(!c)return;coc.sel=c.dataset.d;coc.month=coc.sel.slice(0,7);render()});
 }
 function renderHist(v){
   const key="hist-"+lang;
