@@ -411,7 +411,7 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 let ready=false, dbFailed=false;
 const FB_CONFIG={apiKey:"AIzaSyDQc14PHuYCxUjoI0-8PLYGuTrQOMVvNeQ",authDomain:"cgn-rental.firebaseapp.com",projectId:"cgn-rental",storageBucket:"cgn-rental.firebasestorage.app",messagingSenderId:"665689013167",appId:"1:665689013167:web:81cda57f43bdee74b4cd5a"};
 const FBV="10.14.1";
-const HIST_DAYS=60;
+const HIST_DAYS=14;
 let fa=null, auth=null, adminUser=null;
 let bookings=[], bkReady=false;
 let fs=null, db=null, eqReady=false, loansSnap=false, recentLoans=[], range=null;
@@ -428,7 +428,12 @@ async function boot(){
     try{db=fs.initializeFirestore(app,{localCache:fs.persistentLocalCache({tabManager:fs.persistentMultipleTabManager()})})}catch(e){db=fs.getFirestore(app)}
     fs.onSnapshot(fs.collection(db,"equipment"),snap=>{eq.clear();snap.forEach(d=>eq.set(d.id,normEq({...d.data(),id:d.id})));eqReady=true;if(loansSnap)onData()},err=>{dbFailed=true;ready=true;render()});
     fs.onSnapshot(fs.query(fs.collection(db,"bookings"),fs.where("end",">=",bkCutoff())),snap=>{bookings=snap.docs.map(d=>({...d.data(),id:d.id})).filter(b=>!b.canceled);bkReady=true;if((ui.tab==="book"||ui.tab==="bookcal")&&$("#sheet").hidden)render()},err=>{bkReady=true});
-    fs.onSnapshot(fs.query(fs.collection(db,"loans"),fs.where("outAt",">=",cutoff()),fs.orderBy("outAt","desc")),snap=>{recentLoans=snap.docs.map(d=>normLoan({...d.data(),id:d.id}));loansSnap=true;if(!range)loans=recentLoans;if(eqReady)onData()},err=>{loansSnap=true;if(eqReady)onData()});
+    // 최근 2주 기록 + 아직 반납 안 된 대여(오래된 것 포함)만 실시간으로 읽어요 (Firestore 읽기 절약)
+    let recentSnap=[],openSnap=[],gotR=false,gotO=false;
+    const mergeLoans=()=>{const m=new Map();[...recentSnap,...openSnap].forEach(l=>m.set(l.id,l));recentLoans=[...m.values()].sort((a,b)=>String(b.outAt).localeCompare(String(a.outAt)));
+      if(gotR&&gotO){loansSnap=true;if(!range)loans=recentLoans;if(eqReady)onData()}};
+    fs.onSnapshot(fs.query(fs.collection(db,"loans"),fs.where("outAt",">=",cutoff()),fs.orderBy("outAt","desc")),snap=>{recentSnap=snap.docs.map(d=>normLoan({...d.data(),id:d.id}));gotR=true;mergeLoans()},err=>{gotR=true;mergeLoans()});
+    fs.onSnapshot(fs.query(fs.collection(db,"loans"),fs.where("returnedAt","==","")),snap=>{openSnap=snap.docs.map(d=>normLoan({...d.data(),id:d.id}));gotO=true;mergeLoans()},err=>{gotO=true;mergeLoans()});
   }catch(e){dbFailed=true;ready=true;render()}
 }
 async function fbCheckout({ids,borrower,program,outDate,due,note}){
